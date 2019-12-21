@@ -5,8 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" x:Name="Game" Height="450" Width="800" FocusManager.FocusedElement="{Binding ElementName=GameBoard}">
     <Grid>
-        
+        <Slider x:Name="Slider" Maximum="100" Minimum="0" ValueChanged="Slider_ValueChanged" Margin="10,55,612.6,333" />
+        <Canvas x:Name="GameBoard" Width="700" Height="700" Focusable="True" Margin="186,0,-92.4,-280" />
     </Grid>
+
 </Window>
