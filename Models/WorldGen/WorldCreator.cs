@@ -40,12 +40,17 @@ namespace Models.World_Gen
         138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180};
 
         /// <summary>
+        /// Actual permutation table; which is simply the one above repeated twice;
+        /// </summary>
+        private int[] p;
+
+        /// <summary>
         /// The actual seed;
         /// A double multiplyer for the weight on the lerp function;
         /// </summary>
-        private int seed
+        private double seed
         {
-            get => Seed;
+            get => Seed/(Seed * 68/183);
         }
 
         /// <summary>
@@ -61,6 +66,9 @@ namespace Models.World_Gen
         public PerlinNoise(int seed = 1) 
         {
             Seed = seed;
+            p = new int[512];
+            permutations.CopyTo(p, 0);
+            permutations.CopyTo(p, 256);
         }
 
         /// <summary>
@@ -82,19 +90,37 @@ namespace Models.World_Gen
         /// It takes the pseudorandom value given by the algorithm;
         /// Which is just one of the values in the Hash Table;
         /// And gives the gradient(Math Operation) of the hash vector;
-        /// Which is composed of the first and sencond digits of the number;
+        /// Which is composed of the digits of the number;
         /// And the given vector;
-        /// which is the combination of the x and y values;
+        /// which is the combination of the x y and z values;
         /// </summary>
         /// <param name="Hash">The given hash value</param>
         /// <param name="x">The given x component</param>
         /// <param name="y">The given y component</param>
+        /// <param name="z">The given z component</param>
         /// <returns>The gradient of the two vectors</returns>
-        private double Grad(int Hash, double x, double y)
+        private double Grad(int Hash, double x, double y, double z)
         {
-            var val1 = (Hash & 1) == 0 ? x : -x;        //The x & 1 in the declaration gets the first value of the number
-            var val2 = (Hash & 2) == 0 ? y : -y;        //It is identical to x % 2, but it seems to be slightly quicker
-            return val1 + val2;
+            switch (Hash & 0xF)                 //In this the value 0xF is the value 15
+            {
+                case 0x0: return x + y;
+                case 0x1: return -x + y;
+                case 0x2: return x - y;
+                case 0x3: return -x - y;
+                case 0x4: return x + z;
+                case 0x5: return -x + z;
+                case 0x6: return x - z;
+                case 0x7: return -x - z;
+                case 0x8: return y + z;
+                case 0x9: return -y + z;
+                case 0xA: return y - z;
+                case 0xB: return -y - z;
+                case 0xC: return y + x;
+                case 0xD: return -y + z;
+                case 0xE: return y - x;
+                case 0xF: return -y - z;
+                default: return 0; // never happens
+            }
         }
 
         /// <summary>
@@ -117,27 +143,55 @@ namespace Models.World_Gen
         /// <returns>A number between 0 and 1</returns>
         public double PerlinNoiseGen(double x, double y)
         { 
-            var X = ((int)x + seed) & 0xff;      // x & 0xff is the same as x % 256
-            var Y = ((int)y + seed) & 0xff;      // This is the modification, which adds a seed to the function
+            var X = (int)x  & 0xff;      // x & 0xff is the same as x % 256
+            var Y = (int)y  & 0xff;
+            var Z = (int)seed & 0xff;    // I use the z vaue as the seed
 
-            x -= Math.Floor(x);
-            y -= Math.Floor(y);
+            x -= (int)x;
+            y -= (int)y;
+            var z = seed - (int)seed; 
 
-            var u = fade(x);     
+            var u = fade(x);        //These are the normalised weights
             var v = fade(y);
+            var w = fade(z);
 
-            var A = (permutations[X    ] + Y) & 0xff;       //This is the hash algorithm implemented by Perlin
-            var B = (permutations[X + 1] + Y) & 0xff;
+            int aaa, aba, aab, abb, baa, bba, bab, bbb;             //This is the hash algorithm implemented by Ken Perlin
+            aaa = p[p[p[     X] +      Y] +      Z];
+            aba = p[p[p[     X] + inc(Y)] +      Z];
+            aab = p[p[p[     X] +      Y] + inc(Z)];
+            abb = p[p[p[     X] + inc(Y)] + inc(Z)];
+            baa = p[p[p[inc(X)] +      Y] +      Z];
+            bba = p[p[p[inc(X)] + inc(Y)] +      Z];
+            bab = p[p[p[inc(X)] +      Y] + inc(Z)];
+            bbb = p[p[p[inc(X)] + inc(Y)] + inc(Z)];
 
             //The following functions create the smooth terrain.
             //They take hash values generated before and apply the gradient over the x and y components, taking into
             //consideration other positions.
-            //A weighted sum is applied twice, one between a change in y coordinates and one between a change in x coordinates
+            //A weighted sum over all the possible gratients is taken to create the value
             //This is how the value is formed
-            double val1 = Lerp(u, Grad(permutations[A    ], x, y    ), Grad(permutations[B    ], x - 1, y    ));
-            double val2 = Lerp(u, Grad(permutations[(A + 1) & 0xff], x, y - 1), Grad(permutations[(B + 1) & 0xff], x - 1, y - 1));
+            double x1, x2, y1, y2;
 
-            return Lerp(v, val1, val2);
+            x1 = Lerp(u, Grad(aaa, x, y, z), Grad(baa, x - 1, y, z));
+            x2 = Lerp(u, Grad(aba, x, y - 1, z), Grad(bba, x - 1, y - 1, z));
+            y1 = Lerp(v, x1, x2);
+
+            x1 = Lerp(u, Grad(aab, x, y, z - 1), Grad(bab, x - 1, y, z - 1));
+            x2 = Lerp(u, Grad(abb, x, y - 1, z - 1), Grad(bbb, x - 1, y - 1, z - 1));
+            y2 = Lerp(v, x1, x2);
+
+            return (Lerp(w, y1, y2) + 1) / 2;
+        }
+
+        /// <summary>
+        /// Does an increament to a value and then returns it
+        /// </summary>
+        /// <param name="y">The value to be incremented</param>
+        /// <returns>y+1</returns>
+        private int inc(int y)
+        {
+            y++;
+            return y;
         }
 
         /// <summary>
@@ -153,7 +207,7 @@ namespace Models.World_Gen
         public double OctaveNoiseGen(double x, double y, int octaves, double persistence, double lucanarity = 2)
         {
             double total = 0;
-            double frequency = 0;
+            double frequency = 1;
             double amplitude = 1;
             double MaxValue = 0;
             for (int i = 0; i < octaves; i++)

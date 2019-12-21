@@ -33,12 +33,10 @@ namespace GUI
 
         private WriteableBitmap CreateImage(byte[] imageData, int Height, int Width)
         {
-            WriteableBitmap image = new WriteableBitmap(700, 700, 1, 1, PixelFormats.Indexed4, BitmapPalettes.Halftone64);
-            image.WritePixels(new Int32Rect(0, 0, 700 , 700 ), imageData, 700*2, 0);
+            WriteableBitmap image = new WriteableBitmap(700, 700, 1, 1, PixelFormats.Indexed1, BitmapPalettes.Halftone64);
+            image.WritePixels(new Int32Rect(0, 0, 700 , 700 ), imageData, 700*1, 0);
             return image;
         }
-
-        public float[] array = new float[1440000];
 
         public void Set(double seed = 10)
         {
@@ -56,10 +54,7 @@ namespace GUI
                 for (int j = 0; j < mapDepth; j++)
                 {
                     counter++;
-                    world2[counter] = world[j, i] < -0.5 ? (byte)0 : world[j, i] > 0.5 ? (byte)255 : world[j, i] < 0 ? (byte)0 : (byte)255;
-                    world2[counter++] = world[j, i] < -0.5 ? (byte)0 : world[j, i] > 0.5 ? (byte)255 : world[j, i] < 0 ? (byte)255 : (byte)0;
-                    world2[counter++] = world[j, i] < -0.5 ? (byte)0 : world[j, i] > 0.5 ? (byte)255 : world[j, i] < 0 ? (byte)0 : (byte)255;
-                    world2[counter++] = world[j, i] < -0.5 ? (byte)0 : world[j, i] > 0.5 ? (byte)255 : world[j, i] < 0 ? (byte)255 : (byte)0;
+                    world2[counter] = world[j, i] < 0.5 ? (byte)0 : (byte)1;
                 }
             }
             image.Source = CreateImage(world2, mapDepth, mapWidth);
