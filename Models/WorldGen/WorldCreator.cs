@@ -117,6 +117,45 @@ namespace Models.World_Gen
     }
     #endregion
 
+    /// <summary>
+    /// The base world builder;
+    /// It constructs the blank world;
+    /// </summary>
+    public class MapGen
+    {
+        /// <summary>
+        /// The constructor of the class;
+        /// </summary>
+        public MapGen() { }
+
+        /// <summary>
+        /// This function generates a 2D array where the index indicates the coordinates;
+        /// While the value is the noise at the position.
+        /// </summary>
+        /// <param name="mapDepth">The size of the map (x)</param>
+        /// <param name="mapWidth">The size of the map (y)</param>
+        /// <param name="Scale">The zoom of the function</param>
+        /// <returns>The noise map</returns>
+        public double[,] GenerateNoiseMap(int mapDepth, int mapWidth, double Scale)
+        {
+            double[,] NoiseMap = new double[mapDepth, mapWidth];
+            PerlinNoise perlin = new PerlinNoise();
+
+            for(int zIndex = 0; zIndex< mapDepth; zIndex++)
+            {
+                for(int xIndex = 0; xIndex<mapWidth; xIndex++)
+                {
+                    double SampleIndexX = xIndex / Scale;
+                    double SampleIndexZ = zIndex / Scale;
+
+                    var noise = perlin.PerlinNoiseGen(SampleIndexX, SampleIndexZ);
+                    NoiseMap[xIndex, zIndex] = noise;
+                }
+            }
+            return NoiseMap;
+        }
+    }
+
     class WorldCreator
     {
         
