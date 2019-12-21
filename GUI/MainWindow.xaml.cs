@@ -31,22 +31,38 @@ namespace GUI
             GameBoard.Children.Add(Image);
         }
 
-        private WriteableBitmap CreateImage(double[,] imageData, int Height, int Width)
+        private WriteableBitmap CreateImage(byte[] imageData, int Height, int Width)
         {
-            WriteableBitmap image = new WriteableBitmap(Width, Height, 1, 1, PixelFormats.Gray32Float, null);
-            image.WritePixels(new Int32Rect(0,0, Width, Height), imageData, (Width * image.Format.BitsPerPixel + 7) / 8, 0);
+            WriteableBitmap image = new WriteableBitmap(700, 700, 1, 1, PixelFormats.Indexed4, BitmapPalettes.Halftone64);
+            image.WritePixels(new Int32Rect(0, 0, 700 , 700 ), imageData, 700*2, 0);
             return image;
         }
 
-        public void Set(double seed= 10)
+        public float[] array = new float[1440000];
+
+        public void Set(double seed = 10)
         {
             int mapWidth = 700;
             int mapDepth = 700;
 
             MapGen map = new MapGen();
-            double[,] world = map.GenerateNoiseMap(mapDepth, mapWidth, 10, (int)seed);
+            double[,] world = map.GenerateNoiseMap(mapDepth, mapWidth, 10 , (int)seed);
             Image image = new Image();
-            image.Source = CreateImage(world, mapDepth, mapWidth);
+            byte[] world2 = new byte[mapDepth * mapWidth*4];
+            int counter = -1;
+            for (int i = 0; i < mapWidth; i++)
+            {
+
+                for (int j = 0; j < mapDepth; j++)
+                {
+                    counter++;
+                    world2[counter] = world[j, i] < -0.5 ? (byte)0 : world[j, i] > 0.5 ? (byte)255 : world[j, i] < 0 ? (byte)0 : (byte)255;
+                    world2[counter++] = world[j, i] < -0.5 ? (byte)0 : world[j, i] > 0.5 ? (byte)255 : world[j, i] < 0 ? (byte)255 : (byte)0;
+                    world2[counter++] = world[j, i] < -0.5 ? (byte)0 : world[j, i] > 0.5 ? (byte)255 : world[j, i] < 0 ? (byte)0 : (byte)255;
+                    world2[counter++] = world[j, i] < -0.5 ? (byte)0 : world[j, i] > 0.5 ? (byte)255 : world[j, i] < 0 ? (byte)255 : (byte)0;
+                }
+            }
+            image.Source = CreateImage(world2, mapDepth, mapWidth);
             image.Width = 700;
             image.Height = 700;
             Image = image;
@@ -54,7 +70,7 @@ namespace GUI
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            Set(1);
+            Set(Slider.Value);
             GameBoard.Children.Remove(Image);
             GameBoard.Children.Add(Image);
         }

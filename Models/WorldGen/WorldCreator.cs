@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -30,16 +31,17 @@ namespace Models.World_Gen
         129,22,39,253, 19,98,108,110,79,113,224,232,178,185, 112,104,218,246,97,228,
         251,34,242,193,238,210,144,12,191,179,162,241, 81,51,145,235,249,14,239,107,
         49,192,214, 31,181,199,106,157,184, 84,204,176,115,121,50,45,127, 4,150,254,
-        138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180,
-        151};
+        138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180};
+
+        private readonly int[] p;
 
         /// <summary>
         /// The actual seed;
         /// A double multiplyer for the weight on the lerp function;
         /// </summary>
-        private double seed
+        private int seed
         {
-            get => Seed/Math.Pow(10, -Seed.ToString().Length);
+            get => Seed;
         }
 
         /// <summary>
@@ -55,6 +57,7 @@ namespace Models.World_Gen
         public PerlinNoise(int seed = 1) 
         {
             Seed = seed;
+            p = permutations;
         }
 
         /// <summary>
@@ -120,6 +123,8 @@ namespace Models.World_Gen
             var u = fade(x);     //This is my modification, it implements the seed
             var v = fade(y);
 
+            ChangePerm(seed);
+
             var A = (permutations[X    ] + Y) & 0xff;       //This is the hash algorithm implemented by Perlin
             var B = (permutations[X + 1] + Y) & 0xff;
 
@@ -129,9 +134,23 @@ namespace Models.World_Gen
             //A weighted sum is applied twice, one between a change in y coordinates and one between a change in x coordinates
             //This is how the value is formed
             double val1 = Lerp(u, Grad(permutations[A    ], x, y    ), Grad(permutations[B    ], x - 1, y    ));
-            double val2 = Lerp(u, Grad(permutations[A + 1], x, y - 1), Grad(permutations[B + 1], x - 1, y - 1));
+            double val2 = Lerp(u, Grad(permutations[(A + 1) & 0xff], x, y - 1), Grad(permutations[(B + 1) & 0xff], x - 1, y - 1));
 
+            permutations = p;
             return Lerp(v, val1, val2);
+        }
+
+        public void ChangePerm(int seed)
+        {
+            int[] newPerm = new int[256];
+            ArrayList permTemp = new ArrayList(permutations);
+            for(int i = 0; i < 256; i++)
+            {
+                int temp = new Random(seed).Next(0, permTemp.Count);
+                newPerm[i] = (int)permutations.GetValue(temp);
+                permTemp.RemoveAt(temp);
+            }
+            permutations = newPerm;
         }
     }
     #endregion
@@ -154,7 +173,6 @@ namespace Models.World_Gen
         /// <param name="mapDepth">The size of the map (x)</param>
         /// <param name="mapWidth">The size of the map (y)</param>
         /// <param name="Scale">The zoom of the function</param>
-        /// <param name="seed">The seed of the perlin function</param>
         /// <returns>The noise map</returns>
         public double[,] GenerateNoiseMap(int mapDepth, int mapWidth, double Scale, int seed = 1)
         {
