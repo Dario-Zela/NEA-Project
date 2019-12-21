@@ -115,16 +115,14 @@ namespace Models.World_Gen
         /// <returns>A number between 0 and 1</returns>
         public double PerlinNoiseGen(double x, double y)
         { 
-            var X = (int)x & 0xff;      // x & 0xff is the same as x % 256
-            var Y = (int)y & 0xff;
+            var X = ((int)x + seed) & 0xff;      // x & 0xff is the same as x % 256
+            var Y = ((int)y + seed) & 0xff;      // This is the modification, which adds a seed to the function
 
             x -= Math.Floor(x);
             y -= Math.Floor(y);
 
-            var u = fade(x);     //This is my modification, it implements the seed
+            var u = fade(x);     
             var v = fade(y);
-
-            ChangePerm2();
 
             var A = (permutations[X    ] + Y) & 0xff;       //This is the hash algorithm implemented by Perlin
             var B = (permutations[X + 1] + Y) & 0xff;
@@ -139,19 +137,6 @@ namespace Models.World_Gen
 
             permutations = p;
             return Lerp(v, val1, val2);
-        }
-
-        public void ChangePerm2()
-        {
-            int n = permutations.Length;
-            Random rng = new Random(seed);
-            while (n > 1)
-            {
-                int k = rng.Next(n--);
-                int temp = permutations[n];
-                permutations[n] = permutations[k];
-                permutations[k] = temp;
-            }
         }
     }
     #endregion
