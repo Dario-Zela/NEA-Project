@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace Models.World_Gen
@@ -113,7 +114,7 @@ namespace Models.World_Gen
         /// <param name="y">The second component</param>
         /// <returns>A number between 0 and 1</returns>
         public double PerlinNoiseGen(double x, double y)
-        {
+        { 
             var X = (int)x & 0xff;      // x & 0xff is the same as x % 256
             var Y = (int)y & 0xff;
 
@@ -123,7 +124,7 @@ namespace Models.World_Gen
             var u = fade(x);     //This is my modification, it implements the seed
             var v = fade(y);
 
-            ChangePerm(seed);
+            ChangePerm2();
 
             var A = (permutations[X    ] + Y) & 0xff;       //This is the hash algorithm implemented by Perlin
             var B = (permutations[X + 1] + Y) & 0xff;
@@ -140,17 +141,17 @@ namespace Models.World_Gen
             return Lerp(v, val1, val2);
         }
 
-        public void ChangePerm(int seed)
+        public void ChangePerm2()
         {
-            int[] newPerm = new int[256];
-            ArrayList permTemp = new ArrayList(permutations);
-            for(int i = 0; i < 256; i++)
+            int n = permutations.Length;
+            Random rng = new Random(seed);
+            while (n > 1)
             {
-                int temp = new Random(seed).Next(0, permTemp.Count);
-                newPerm[i] = (int)permutations.GetValue(temp);
-                permTemp.RemoveAt(temp);
+                int k = rng.Next(n--);
+                int temp = permutations[n];
+                permutations[n] = permutations[k];
+                permutations[k] = temp;
             }
-            permutations = newPerm;
         }
     }
     #endregion
@@ -178,14 +179,12 @@ namespace Models.World_Gen
         {
             double[,] NoiseMap = new double[mapDepth, mapWidth];
             PerlinNoise perlin = new PerlinNoise(seed);
-
-            for(int zIndex = 0; zIndex< mapDepth; zIndex++)
+            for (int zIndex = 0; zIndex< mapDepth; zIndex++)
             {
                 for(int xIndex = 0; xIndex<mapWidth; xIndex++)
                 {
                     double SampleIndexX = xIndex / Scale;
                     double SampleIndexZ = zIndex / Scale;
-
                     var noise = perlin.PerlinNoiseGen(SampleIndexX, SampleIndexZ);
                     NoiseMap[xIndex, zIndex] = noise;
                 }
