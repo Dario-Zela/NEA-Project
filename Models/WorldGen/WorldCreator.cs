@@ -4,6 +4,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
+/// <summary>
+/// The world creation algorithm, taking inspiration from the Unity's implementations;
+/// Ken Perlins algorithm, enhanced by the implementation by https://flafla2.github.io/2014/08/09/perlinnoise.html;
+/// and Urbis Terram https://digitalcommons.wpi.edu/cgi/viewcontent.cgi?article=1397&context=etd-theses;
+/// </summary>
 namespace Models.World_Gen
 {
 
@@ -56,7 +61,6 @@ namespace Models.World_Gen
         public PerlinNoise(int seed = 1) 
         {
             Seed = seed;
-            p = permutations;
         }
 
         /// <summary>
@@ -135,9 +139,38 @@ namespace Models.World_Gen
 
             return Lerp(v, val1, val2);
         }
+
+        /// <summary>
+        /// Creates an octave noise, which is a combination of Perlin genarated noise
+        /// </summary>
+        /// <param name="x">The x coordinate</param>
+        /// <param name="y">The y coordinate</param>
+        /// <param name="octaves">How many frequencies should be combined</param>
+        /// <param name="persistence">How the amplitude changes between Perlin noise executions</param>
+        /// <param name="lucanarity">How the frequency should change between executions;
+        /// Usually 2, it can be changed to edit how the frequency changes between octaves</param>
+        /// <returns></returns>
+        public double OctaveNoiseGen(double x, double y, int octaves, double persistence, double lucanarity = 2)
+        {
+            double total = 0;
+            double frequency = 0;
+            double amplitude = 1;
+            double MaxValue = 0;
+            for (int i = 0; i < octaves; i++)
+            {
+                total += PerlinNoiseGen(x * frequency, y * frequency) * amplitude;
+
+                MaxValue += amplitude;
+                amplitude *= persistence;
+
+                frequency *= lucanarity;
+            }
+            return total / MaxValue;
+        }
     }
     #endregion
 
+    #region MapGen
     /// <summary>
     /// The base world builder;
     /// It constructs the blank world;
@@ -167,7 +200,7 @@ namespace Models.World_Gen
                 {
                     double SampleIndexX = xIndex / Scale;
                     double SampleIndexZ = zIndex / Scale;
-                    var noise = perlin.PerlinNoiseGen(SampleIndexX, SampleIndexZ);
+                    var noise = perlin.OctaveNoiseGen(SampleIndexX, SampleIndexZ, 8, 0.5);
                     NoiseMap[xIndex, zIndex] = noise;
                 }
             }
@@ -175,6 +208,7 @@ namespace Models.World_Gen
             return NoiseMap;
         }
     }
+    #endregion
 
     class WorldCreator
     {
