@@ -17,9 +17,6 @@ using Models.World_Gen;
 
 namespace GUI
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         Image Image;
@@ -31,32 +28,28 @@ namespace GUI
             GameBoard.Children.Add(Image);
         }
 
-        private WriteableBitmap CreateImage(byte[] imageData, int Height, int Width)
+        private WriteableBitmap CreateImage(Single[] imageData, int Height, int Width)
         {
-            WriteableBitmap image = new WriteableBitmap(700, 700, 1, 1, PixelFormats.Indexed1, BitmapPalettes.Halftone64);
-            image.WritePixels(new Int32Rect(0, 0, 700 , 700 ), imageData, 700*1, 0);
+            WriteableBitmap image = new WriteableBitmap(Width, Height, 1, 1, PixelFormats.Gray32Float, null);
+            image.WritePixels(new Int32Rect(0, 0, Width, Height), imageData, (Width * image.Format.BitsPerPixel + 7)/8, 0);
             return image;
         }
 
-        public void Set(double seed = 10)
+        public void Set(double scope = 10)
         {
             int mapWidth = 700;
             int mapDepth = 700;
 
             MapGen map = new MapGen();
-            double[,] world = map.GenerateNoiseMap(mapDepth, mapWidth, 10 , (int)seed);
-            Image image = new Image();
-            byte[] world2 = new byte[mapDepth * mapWidth*4];
-            int counter = -1;
-            for (int i = 0; i < mapWidth; i++)
+            double[,] world = map.GenerateNoiseMap(mapWidth, mapDepth,10);
+            Single[] world2 = new Single[mapDepth * mapWidth];
+            int counter = 0;
+            foreach(var i in world)
             {
-
-                for (int j = 0; j < mapDepth; j++)
-                {
-                    counter++;
-                    world2[counter] = world[j, i] < 0.5 ? (byte)0 : (byte)1;
-                }
+                world2[counter] = (Single)i;
+                counter++;
             }
+            Image image = new Image();
             image.Source = CreateImage(world2, mapDepth, mapWidth);
             image.Width = 700;
             image.Height = 700;
@@ -65,9 +58,9 @@ namespace GUI
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            Set(Slider.Value);
+            Image.Height = Image.Width = Slider.Value * 100;
             GameBoard.Children.Remove(Image);
             GameBoard.Children.Add(Image);
         }
     }
-}
+    }

@@ -50,7 +50,7 @@ namespace Models.World_Gen
         /// </summary>
         private double seed
         {
-            get => Seed/(Seed * 68/183);
+            get => Seed/(Seed * 68/183.0);
         }
 
         /// <summary>
