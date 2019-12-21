@@ -9,6 +9,7 @@ namespace Models.World_Gen
     /// <summary>
     /// An implementation of the improved perlin noise generator;
     /// Created by Ken Perlin in his second paper;
+    /// Slightly modified by me to implement a seed mechanic;
     /// </summary>
     class PerlinNoise
     {
@@ -32,11 +33,29 @@ namespace Models.World_Gen
         138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180,
         151};
 
+        /// <summary>
+        /// The actual seed;
+        /// A double multiplyer for the weight on the lerp function;
+        /// </summary>
+        private double seed
+        {
+            get => Seed/Math.Pow(10, -Seed.ToString().Length);
+        }
+
+        /// <summary>
+        /// The seed of the world;
+        /// It is assigned by the constructor;
+        /// </summary>
+        public int Seed { get; set; }
 
         /// <summary>
         /// Class constructor;
+        /// Assigns the seed value of the world;
         /// </summary>
-        public PerlinNoise() { }
+        public PerlinNoise(int seed = 1) 
+        {
+            Seed = seed;
+        }
 
         /// <summary>
         /// It create an ease curve that smooths out the results produced by the algorithm;
@@ -98,8 +117,8 @@ namespace Models.World_Gen
             x -= Math.Floor(x);
             y -= Math.Floor(y);
 
-            var u = fade(x);     
-            var v = fade(y);
+            var u = fade(x) * seed;     //This is my modification, it implements the seed
+            var v = fade(y) * seed;
 
             var A = (permutations[X    ] + Y) & 0xff;       //This is the hash algorithm implemented by Perlin
             var B = (permutations[X + 1] + Y) & 0xff;
@@ -135,11 +154,12 @@ namespace Models.World_Gen
         /// <param name="mapDepth">The size of the map (x)</param>
         /// <param name="mapWidth">The size of the map (y)</param>
         /// <param name="Scale">The zoom of the function</param>
+        /// <param name="seed">The seed of the perlin function</param>
         /// <returns>The noise map</returns>
-        public double[,] GenerateNoiseMap(int mapDepth, int mapWidth, double Scale)
+        public double[,] GenerateNoiseMap(int mapDepth, int mapWidth, double Scale, int seed = 1)
         {
             double[,] NoiseMap = new double[mapDepth, mapWidth];
-            PerlinNoise perlin = new PerlinNoise();
+            PerlinNoise perlin = new PerlinNoise(seed);
 
             for(int zIndex = 0; zIndex< mapDepth; zIndex++)
             {
@@ -152,6 +172,7 @@ namespace Models.World_Gen
                     NoiseMap[xIndex, zIndex] = noise;
                 }
             }
+
             return NoiseMap;
         }
     }
