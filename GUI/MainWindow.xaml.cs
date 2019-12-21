@@ -38,25 +38,6 @@ namespace GUI
             return image;
         }
 
-        public float[] array = new float[1440000];
-
-        public void Set()
-        {
-            Image image = new Image();
-            BitmapImage im = new BitmapImage(new Uri(@"C:\Users\arben\Documents\logo.png"));
-            image.Width = 600;
-            image.Height = 600;
-            FormatConvertedBitmap bitmap = new FormatConvertedBitmap(im, PixelFormats.Gray32Float, BitmapPalettes.Gray256, 1.0);
-            bitmap.CopyPixels(array, 2400, 100);
-            image.Source = bitmap;
-            image.Stretch = Stretch.Uniform;
-            image.StretchDirection = StretchDirection.Both;
-            image.Height = 700;
-            image.Width = 700;
-            Image = image;
-            Console.WriteLine(array[8778]);
-        }
-
         public void Set(double seed= 10)
         {
             int mapWidth = 700;
@@ -73,7 +54,7 @@ namespace GUI
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            Set(Slider.Value);
+            Set(1);
             GameBoard.Children.Remove(Image);
             GameBoard.Children.Add(Image);
         }

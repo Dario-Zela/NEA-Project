@@ -117,8 +117,8 @@ namespace Models.World_Gen
             x -= Math.Floor(x);
             y -= Math.Floor(y);
 
-            var u = fade(x) * seed;     //This is my modification, it implements the seed
-            var v = fade(y) * seed;
+            var u = fade(x);     //This is my modification, it implements the seed
+            var v = fade(y);
 
             var A = (permutations[X    ] + Y) & 0xff;       //This is the hash algorithm implemented by Perlin
             var B = (permutations[X + 1] + Y) & 0xff;
