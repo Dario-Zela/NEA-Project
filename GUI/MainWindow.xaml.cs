@@ -31,16 +31,10 @@ namespace GUI
             GameBoard.Children.Add(Image);
         }
 
-        private WriteableBitmap CreateImage(Single[] imageData, int Height, int Width)
+        private WriteableBitmap CreateImage(double[,] imageData, int Height, int Width)
         {
-            WriteableBitmap image = new WriteableBitmap(Width, Height, 1, 1, PixelFormats.Rgba128Float, null);
-            for (int i = 0; i < 4; i++)
-            {
-                for (int j = 0; j < 4; j++)
-                {
-                    image.WritePixels(new Int32Rect(Width * i / 4, Height * j / 4, Width / 4, Height / 4), imageData, (Width * image.Format.BitsPerPixel + 7) / 8, 0);
-                }
-            }
+            WriteableBitmap image = new WriteableBitmap(Width, Height, 1, 1, PixelFormats.Gray32Float, null);
+            image.WritePixels(new Int32Rect(0,0, Width, Height), imageData, (Width * image.Format.BitsPerPixel + 7) / 8, 0);
             return image;
         }
 
@@ -63,39 +57,15 @@ namespace GUI
             Console.WriteLine(array[8778]);
         }
 
-        public void Set(double scope = 10)
+        public void Set(double seed= 10)
         {
             int mapWidth = 700;
             int mapDepth = 700;
 
             MapGen map = new MapGen();
-            double[,] world = map.GenerateNoiseMap(mapDepth, mapWidth, scope, new Random().Next(0, 10000));
+            double[,] world = map.GenerateNoiseMap(mapDepth, mapWidth, 10, (int)seed);
             Image image = new Image();
-            Single[] world2 = new Single[mapDepth * mapWidth];
-            int counter = -1;
-            for (int i = 0; i < mapWidth; i++)
-            {
-
-                for (int j = 0; j < mapDepth; j++)
-                {
-                    counter++;
-                    Single temp;
-                    if ((world[j, i] + 0.5) <= 0)
-                    {
-                        temp = 0.0001F;
-                    }
-                    else if ((world[j, i] + 0.5) >= 1)
-                    {
-                        temp = 0.999F;
-                    }
-                    else
-                    {
-                        temp = (Single)(world[j, i] + 0.5);
-                    }
-                    world2[counter] = temp;
-                }
-            }
-            image.Source = CreateImage(world2, mapDepth, mapWidth);
+            image.Source = CreateImage(world, mapDepth, mapWidth);
             image.Width = 700;
             image.Height = 700;
             Image = image;
