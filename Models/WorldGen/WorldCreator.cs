@@ -54,9 +54,9 @@ namespace Models.World_Gen
         /// Class constructor;
         /// Assigns the seed value of the world;
         /// </summary>
-        public PerlinNoise(float seed = 1) 
+        public PerlinNoise(float seed = 1)
         {
-            this.seed = (seed*36)/128.0f;
+            this.seed = (seed * 36) / 128.0f;
             p = new int[512];
             permutations.CopyTo(p, 0);
             permutations.CopyTo(p, 256);
@@ -133,27 +133,27 @@ namespace Models.World_Gen
         /// <param name="y">The second component</param>
         /// <returns>A number between 0 and 1</returns>
         public float PerlinNoiseGen(float x, float y)
-        { 
-            var X = (int)x  & 0xff;      // x & 0xff is the same as x % 256
-            var Y = (int)y  & 0xff;
+        {
+            var X = (int)x & 0xff;      // x & 0xff is the same as x % 256
+            var Y = (int)y & 0xff;
             var Z = (int)seed & 0xff;    // I use the z vaue as the seed
 
             x -= (int)x;
             y -= (int)y;
-            var z = seed - (int)seed; 
+            var z = seed - (int)seed;
 
             var u = fade(x);        //These are the normalised weights
             var v = fade(y);
             var w = fade(z);
 
             int aaa, aba, aab, abb, baa, bba, bab, bbb;             //This is the hash algorithm implemented by Ken Perlin
-            aaa = p[p[p[     X] +      Y] +      Z];
-            aba = p[p[p[     X] + inc(Y)] +      Z];
-            aab = p[p[p[     X] +      Y] + inc(Z)];
-            abb = p[p[p[     X] + inc(Y)] + inc(Z)];
-            baa = p[p[p[inc(X)] +      Y] +      Z];
-            bba = p[p[p[inc(X)] + inc(Y)] +      Z];
-            bab = p[p[p[inc(X)] +      Y] + inc(Z)];
+            aaa = p[p[p[X] + Y] + Z];
+            aba = p[p[p[X] + inc(Y)] + Z];
+            aab = p[p[p[X] + Y] + inc(Z)];
+            abb = p[p[p[X] + inc(Y)] + inc(Z)];
+            baa = p[p[p[inc(X)] + Y] + Z];
+            bba = p[p[p[inc(X)] + inc(Y)] + Z];
+            bab = p[p[p[inc(X)] + Y] + inc(Z)];
             bbb = p[p[p[inc(X)] + inc(Y)] + inc(Z)];
 
             //The following functions create the smooth terrain.
@@ -202,8 +202,8 @@ namespace Models.World_Gen
             float amplitude = 1;
             float MaxValue = 0;
             for (int i = 0; i < octaves; i++)
-            { 
-                total += (PerlinNoiseGen(x * frequency, y * frequency) * 2 -1)* amplitude;
+            {
+                total += (PerlinNoiseGen(x * frequency, y * frequency) * 2 - 1) * amplitude;
 
                 MaxValue += amplitude;
                 amplitude *= persistence;
@@ -245,8 +245,8 @@ namespace Models.World_Gen
             {
                 for (int xIndex = 0; xIndex < mapWidth; xIndex++)
                 {
-                    float SampleIndexX = (xIndex-mapWidth/2) / Scale;
-                    float SampleIndexZ = (zIndex - mapDepth/2) / Scale;
+                    float SampleIndexX = xIndex / Scale;
+                    float SampleIndexZ = zIndex  / Scale;
                     float noise = perlin.OctaveNoiseGen(SampleIndexX, SampleIndexZ, Octaves, Persistance, Lacunarity);
                     if (noise > maxNoise)
                     {
@@ -279,6 +279,6 @@ namespace Models.World_Gen
 
     class WorldCreator
     {
-        
+
     }
 }
