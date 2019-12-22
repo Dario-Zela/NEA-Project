@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -19,20 +20,35 @@ namespace GUI
 {
     public partial class MainWindow : Window
     {
-        Image Image;
 
         public MainWindow()
         {
             Set();
             InitializeComponent();
-            GameBoard.Children.Add(Image);
         }
 
-        private BitmapSource CreateImage(float[] imageData, int Height, int Width)
+        unsafe private void CreateImage(byte[] imageData, int Height, int Width)
         {
-            WriteableBitmap image = new WriteableBitmap(Width, Height, 1, 1, PixelFormats.Cmyk32, null);
-            image.WritePixels(new Int32Rect(0, 0, Width, Height), imageData, Width * 4, 0);
-            return image;
+            fixed (byte* ptr = imageData)
+            {
+                using (Bitmap image = new Bitmap(Width, Height, Width * 4, System.Drawing.Imaging.PixelFormat.Format32bppArgb, new IntPtr(ptr)))
+                {
+                    image.Save(@"C:\Users\arben\Desktop\try.png");
+                }
+            }
+        }
+
+        static byte[] PlotPixel(int x, int y, byte[] _imageBuffer, float[,] initial, int Width)
+        {
+            int offset = ((Width * 4) * y) + (x * 4);
+
+            _imageBuffer[offset] = initial[x, y] < 0.1 ? (byte)255 : initial[x, y] < 0.3 ? (byte)0 : initial[x, y] < 0.6 ? (byte)0 : initial[x, y] < 0.8 ? (byte)15 : (byte)255;
+            _imageBuffer[offset + 1] = initial[x, y] < 0.1 ? (byte)0 : initial[x, y] < 0.3 ? (byte)255 : initial[x, y] < 0.6 ? (byte)255 : initial[x, y] < 0.8 ? (byte)74 : (byte)255; ;
+            _imageBuffer[offset + 2] = initial[x, y] < 0.1 ? (byte)0 : initial[x, y] < 0.3 ? (byte)255 : initial[x, y] < 0.6 ? (byte)0 : initial[x, y] < 0.8 ? (byte)140 : (byte)255; ;
+            // Fixed alpha value (No transparency)
+            _imageBuffer[offset + 3] = 255;
+
+            return _imageBuffer;
         }
 
         public void Set()
@@ -42,29 +58,19 @@ namespace GUI
 
             MapGen map = new MapGen();
             float[,] world = map.GenerateNoiseMap(mapWidth, mapDepth, 1f, 1219, 6, 0.5f, 2);
-            float[] world2 = new float[mapDepth*mapWidth*4];
-            int counter = 0;
-            for (int j = 0; j < mapWidth; j++)
+            byte[] world2 = new byte[mapDepth*mapWidth*4];
+            for (int i = 0; i < mapWidth; i++)
             {
-                for(int i =0; i < mapDepth; i++)
+                for (int j = 0; j < mapDepth; j++)
                 {
-                    world2[counter]  = world[i, j] < 0.1 ? 100f : world[i, j] < 0.3 ? 0f : world[i, j] < 0.6 ? 100f : world[i, j] < 0.8 ? 0f : 0f;
-                    world2[counter++] = world[i, j] < 0.1 ? 100f : world[i, j] < 0.3 ? 0f : world[i, j] < 0.6 ? 0f : world[i, j] < 0.8 ? 48f : 0f;
-                    world2[counter++] = world[i, j] < 0.1 ? 0f : world[i, j] < 0.3 ? 100f : world[i, j] < 0.6 ? 100f : world[i, j] < 0.8 ? 88f : 0f;
-                    world2[counter++] = world[i, j] < 0.1 ? 0f : world[i, j] < 0.3 ? 0f : world[i, j] < 0.6 ? 0f : world[i, j] < 0.8 ? 60f : 0f;
-                    counter++;
+                    world2 = PlotPixel(i,j,world2,world,mapWidth);
                 }
             }
-            Image image = new Image();
-            image.Source = CreateImage(world2, mapDepth, mapWidth);
-            image.Width = 700;
-            image.Height = 700;
-            Image = image;
+            CreateImage(world2, mapDepth, mapWidth);
         }
 
         private void SliderValue(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            Image.Height = Image.Width = Slider.Value * 100;
         }
     }
 }
