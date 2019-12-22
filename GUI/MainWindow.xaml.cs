@@ -28,26 +28,32 @@ namespace GUI
             GameBoard.Children.Add(Image);
         }
 
-        private WriteableBitmap CreateImage(Single[] imageData, int Height, int Width)
+        private BitmapSource CreateImage(float[] imageData, int Height, int Width)
         {
-            WriteableBitmap image = new WriteableBitmap(Width, Height, 1, 1, PixelFormats.Gray32Float, null);
-            image.WritePixels(new Int32Rect(0, 0, Width, Height), imageData, (Width * image.Format.BitsPerPixel + 7)/8, 0);
+            WriteableBitmap image = new WriteableBitmap(Width, Height, 1, 1, PixelFormats.Cmyk32, null);
+            image.WritePixels(new Int32Rect(0, 0, Width, Height), imageData, Width * 4, 0);
             return image;
         }
 
-        public void Set(double scope = 10)
+        public void Set()
         {
             int mapWidth = 700;
             int mapDepth = 700;
 
             MapGen map = new MapGen();
-            double[,] world = map.GenerateNoiseMap(mapWidth, mapDepth,10);
-            Single[] world2 = new Single[mapDepth * mapWidth];
+            float[,] world = map.GenerateNoiseMap(mapWidth, mapDepth, 1f, 1219, 6, 0.5f, 2);
+            float[] world2 = new float[mapDepth*mapWidth*4];
             int counter = 0;
-            foreach(var i in world)
+            for (int j = 0; j < mapWidth; j++)
             {
-                world2[counter] = (Single)i;
-                counter++;
+                for(int i =0; i < mapDepth; i++)
+                {
+                    world2[counter]  = world[i, j] < 0.1 ? 100f : world[i, j] < 0.3 ? 0f : world[i, j] < 0.6 ? 100f : world[i, j] < 0.8 ? 0f : 0f;
+                    world2[counter++] = world[i, j] < 0.1 ? 100f : world[i, j] < 0.3 ? 0f : world[i, j] < 0.6 ? 0f : world[i, j] < 0.8 ? 48f : 0f;
+                    world2[counter++] = world[i, j] < 0.1 ? 0f : world[i, j] < 0.3 ? 100f : world[i, j] < 0.6 ? 100f : world[i, j] < 0.8 ? 88f : 0f;
+                    world2[counter++] = world[i, j] < 0.1 ? 0f : world[i, j] < 0.3 ? 0f : world[i, j] < 0.6 ? 0f : world[i, j] < 0.8 ? 60f : 0f;
+                    counter++;
+                }
             }
             Image image = new Image();
             image.Source = CreateImage(world2, mapDepth, mapWidth);
@@ -56,11 +62,9 @@ namespace GUI
             Image = image;
         }
 
-        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void SliderValue(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             Image.Height = Image.Width = Slider.Value * 100;
-            GameBoard.Children.Remove(Image);
-            GameBoard.Children.Add(Image);
         }
     }
-    }
+}
