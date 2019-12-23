@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using Models.WorldGen;
 
 /// <summary>
 /// The world creation algorithm, taking inspiration from the Unity's implementations;
@@ -277,8 +278,22 @@ namespace Models.World_Gen
     }
     #endregion
 
-    class WorldCreator
+    public class WorldCreator
     {
+        public Random seed = new Random();
+        private float scale = 80f;
+        private float Persistance = 0.5f;
+        private float Lacunarity = 2.5f;
+        private int Octaves = 3;
+        public GetBiome biomeMap;
 
+        public WorldCreator(int Height, int Width)
+        {
+            MapGen gen = new MapGen();
+            float[,] heightMap = gen.GenerateNoiseMap(Height, Width, scale, seed.Next(1000, int.MaxValue), Octaves, Persistance, Lacunarity);
+            float[,] tempMap = gen.GenerateNoiseMap(Height, Width, scale, seed.Next(1000, int.MaxValue), Octaves, Persistance, Lacunarity - 1);
+            float[,] humidMap = gen.GenerateNoiseMap(Height, Width, scale, seed.Next(1000, int.MaxValue), Octaves, Persistance, Lacunarity - 1);
+            biomeMap = new GetBiome(heightMap, humidMap, tempMap, Width, Height);
+        }
     }
 }

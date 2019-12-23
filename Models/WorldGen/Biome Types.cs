@@ -181,17 +181,25 @@ namespace Models.WorldGen
 
         private Biome[,] ReturnBioms()
         {
-            int[,] IdMapTemp = new int[heightMap.Rank, heightMap.Length];
+            int[,] IdMapTemp = new int[mapHeight, mapWidth];
             Biome[,] biomes;
             CheckHeight(ref IdMapTemp);
             biomes = AssignBioms(IdMapTemp);
             return biomes;
         }
+
+        public Biome this[int index, int index2]
+        {
+            get 
+            {
+                return IdMap[index, index2];
+            }
+        }
     }
 
     public struct Biome
     {
-        private char[] Id;
+        public char[] Id;
         public float probTree;
         public float probWaterSource;
         public float probBush;
@@ -268,8 +276,8 @@ namespace Models.WorldGen
                             probTree = 0.1f;
                             break;
                         case '3':
-                            red = (byte)247;
-                            green = (byte)228;
+                            red = (byte)0;
+                            green = (byte)140;
                             blue = (byte)0;
                             probBush = 0.2f;
                             probTree = 0.3f;
