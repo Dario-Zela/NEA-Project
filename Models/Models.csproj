@@ -9,7 +9,12 @@
     <Folder Include="Items\" />
     <Folder Include="Player+Characters\" />
     <Folder Include="Structures\" />
-    <Folder Include="WorldGen"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="WindowsBase">
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\WindowsBase.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
