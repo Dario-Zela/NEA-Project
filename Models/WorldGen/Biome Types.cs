@@ -6,12 +6,14 @@ namespace Models.WorldGen
 {
     public class GetBiome
     {
+        private Random random = new Random();
         private int mapWidth;
         private int mapHeight;
         private float[,] heightMap;
         private float[,] humidityMap;
         private float[,] temperatureMap;
-        private readonly Biome[,] IdMap;
+        private Biome[,] IdMap;
+        public bool valid = false;
 
         public GetBiome(float[,] heightMap, float[,] humidityMap, float[,] temperatureMap, int mapWidth, int mapHeight)
         {
@@ -41,17 +43,21 @@ namespace Models.WorldGen
                     {
                         IdMap[i, j] = 3;
                     }
-                    else if(heightMap[i, j] < 0.7)
+                    else if (heightMap[i, j] < 0.7f)
                     {
                         IdMap[i, j] = 4;
                     }
-                    else if (heightMap[i, j] < 0.9)
+                    else if (heightMap[i, j] < 0.8f)
                     {
                         IdMap[i, j] = 5;
                     }
-                    else if (heightMap[i, j] < 1)
+                    else if (heightMap[i, j] < 1.1f)
                     {
                         IdMap[i, j] = 6;
+                    }
+                    else
+                    {
+                        throw new Exception();
                     }
                 }
             }
@@ -59,13 +65,13 @@ namespace Models.WorldGen
 
         private Biome[,] AssignBioms(int[,] idMap)
         {
-            Biome[,] biomes = new Biome[mapHeight,mapWidth];
+            Biome[,] biomes = new Biome[mapHeight, mapWidth];
 
             for (int i = 0; i < mapWidth; i++)
             {
                 for (int j = 0; j < mapHeight; j++)
                 {
-                    if (idMap[i,j] == 1)
+                    if (idMap[i, j] == 1)
                     {
                         if (temperatureMap[i, j] < 0.4f)
                         {
@@ -173,46 +179,74 @@ namespace Models.WorldGen
                             biomes[i, j] = new Biome(60, heightMap[i, j]);
                         }
                     }
+                    SpecialAssignment(ref biomes[i, j]);
                 }
             }
 
             return biomes;
         }
+        private void SpecialAssignment(ref Biome biome)
+        {
+            if (random.Next(0,1000) <= biome.probTree)
+            {
+                biome.red = (byte)0;
+                biome.green = (byte)255;
+                biome.blue = (byte)0;
+                biome.isTree = true;
+            } 
+            else if (random.Next(0, 1000) <= biome.probBush)
+            {
+                biome.isBush = true;
+                biome.red = (byte)255;
+                biome.green = (byte)0;
+                biome.blue = (byte)0;
+            }
+        }
 
         private Biome[,] ReturnBioms()
         {
-            int[,] IdMapTemp = new int[heightMap.Rank, heightMap.Length];
+            int[,] IdMapTemp = new int[mapHeight, mapWidth];
             Biome[,] biomes;
             CheckHeight(ref IdMapTemp);
             biomes = AssignBioms(IdMapTemp);
             return biomes;
         }
+
+        public Biome this[int index, int index2]
+        {
+            get
+            {
+                return IdMap[index, index2];
+            }
+        }
     }
 
     public struct Biome
     {
-        private char[] Id;
-        public float probTree;
-        public float probWaterSource;
-        public float probBush;
+        public char[] Id;
+        public int probTree;
+        public int probBush;
         public bool doesSnow;
         public byte red;
         public byte green;
         public byte blue;
         public byte alpha;
         public float height;
+        public bool isTree;
+        public bool isBush;
 
         public Biome(int Id, float height)
         {
             this.Id = Id.ToString().ToCharArray();
-            probBush = 0f;
-            probTree = 0f;
-            probWaterSource = 0f;
+            probBush = 0;
+            probTree = 0;
             doesSnow = false;
             red = (byte)255;
             green = (byte)255;
             blue = (byte)255;
             alpha = (byte)255;
+            isBush = false;
+            isTree = false;
             this.height = height;
             AssignProprieties();
         }
@@ -222,7 +256,7 @@ namespace Models.WorldGen
             switch (Id[0])
             {
                 case '1':
-                    switch(Id[1])
+                    switch (Id[1])
                     {
                         case '1':
                             red = (byte)158;
@@ -258,28 +292,28 @@ namespace Models.WorldGen
                             red = (byte)208;
                             green = (byte)236;
                             blue = (byte)152;
-                            probBush = 0.005f;
+                            probBush = 1;
                             break;
                         case '2':
                             red = (byte)224;
                             green = (byte)216;
                             blue = (byte)176;
-                            probBush = 0.05f;
-                            probTree = 0.1f;
+                            probBush = 50;
+                            probTree = 100;
                             break;
                         case '3':
-                            red = (byte)247;
-                            green = (byte)228;
+                            red = (byte)0;
+                            green = (byte)140;
                             blue = (byte)0;
-                            probBush = 0.2f;
-                            probTree = 0.3f;
+                            probBush = 200;
+                            probTree = 300;
                             break;
                         default:
                             red = (byte)166;
                             green = (byte)255;
                             blue = (byte)0;
-                            probBush = 0.05f;
-                            probTree = 0.005f;
+                            probBush = 50;
+                            probTree = 5;
                             break;
                     }
                     break;
@@ -290,28 +324,28 @@ namespace Models.WorldGen
                             red = (byte)180;
                             green = (byte)200;
                             blue = (byte)120;
-                            probBush = 0.005f;
+                            probBush = 5;
                             break;
                         case '2':
                             red = (byte)200;
                             green = (byte)195;
                             blue = (byte)155;
-                            probBush = 0.05f;
-                            probTree = 0.1f;
+                            probBush = 50;
+                            probTree = 100;
                             break;
                         case '3':
                             red = (byte)220;
                             green = (byte)200;
                             blue = (byte)0;
-                            probBush = 0.2f;
-                            probTree = 0.3f;
+                            probBush = 200;
+                            probTree = 300;
                             break;
                         default:
                             red = (byte)140;
                             green = (byte)235;
                             blue = (byte)0;
-                            probBush = 0.05f;
-                            probTree = 0.005f;
+                            probBush = 50;
+                            probTree = 5;
                             break;
                     }
                     break;
@@ -322,15 +356,13 @@ namespace Models.WorldGen
                             red = (byte)50;
                             green = (byte)126;
                             blue = (byte)26;
-                            probBush = 0.005f;
-                            probTree = 0.0005f;
-                            probWaterSource = 0.00003f;
+                            probBush = 100;
+                            probTree = 200;
                             break;
                         default:
                             red = (byte)143;
                             green = (byte)111;
                             blue = (byte)60;
-                            probWaterSource = 0.00003f;
                             break;
                     }
                     break;
@@ -342,13 +374,11 @@ namespace Models.WorldGen
                             green = (byte)255;
                             blue = (byte)255;
                             doesSnow = true;
-                            probWaterSource = 0.03f;
                             break;
                         default:
                             red = (byte)143;
                             green = (byte)111;
                             blue = (byte)60;
-                            probWaterSource = 0.03f;
                             break;
                     }
                     break;

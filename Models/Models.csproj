@@ -9,6 +9,7 @@
     <Folder Include="Items\" />
     <Folder Include="Player+Characters\" />
     <Folder Include="Structures\" />
+    <Folder Include="WorldGen"/>
   </ItemGroup>
 
 </Project>

@@ -3,13 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using Models.WorldGen;
 
 /// <summary>
 /// The world creation algorithm, taking inspiration from the Unity's implementations;
 /// Ken Perlins algorithm, enhanced by the implementation by https://flafla2.github.io/2014/08/09/perlinnoise.html;
 /// and Urbis Terram https://digitalcommons.wpi.edu/cgi/viewcontent.cgi?article=1397&context=etd-theses;
 /// </summary>
-namespace Models.World_Gen
+namespace Models.WorldGen
 {
 
     #region PerlinNoise
@@ -277,8 +278,21 @@ namespace Models.World_Gen
     }
     #endregion
 
-    class WorldCreator
+    public class WorldCreator
     {
+        private float scale = 80f;
+        private float Persistance = 0.5f;
+        private float Lacunarity = 2.5f;
+        private int Octaves = 3;
+        public GetBiome biomeMap;
 
+        public WorldCreator(int Height, int Width, int seedHeight, int seedTemp, int seedHumid)
+        {
+            MapGen gen = new MapGen();
+            float[,] heightMap = gen.GenerateNoiseMap(Height, Width, scale, seedHeight, Octaves, Persistance, Lacunarity);
+            float[,] tempMap = gen.GenerateNoiseMap(Height, Width, scale, seedTemp, Octaves, Persistance, Lacunarity - 1);
+            float[,] humidMap = gen.GenerateNoiseMap(Height, Width, scale, seedHumid, Octaves, Persistance, Lacunarity - 1);
+            biomeMap = new GetBiome(heightMap, humidMap, tempMap, Width, Height);
+        }
     }
 }
