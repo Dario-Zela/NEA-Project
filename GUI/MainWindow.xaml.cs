@@ -15,7 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Models.World_Gen;
+using Models.WorldGen;
 
 namespace GUI
 {
@@ -62,12 +62,12 @@ namespace GUI
             return _imageBuffer;
         }
 
-        public void Set()
+        public void Set(int seed1 = 9182, int seed2 = 2198, int seed3 = 2982)
         {
             int mapWidth = 700;
             int mapDepth = 700;
 
-            creator = new WorldCreator(mapDepth, mapWidth);
+            creator = new WorldCreator(mapDepth, mapWidth ,seed1 ,seed2 ,seed3 );
             byte[] world = new byte[mapDepth * mapWidth * 4];
             for (int i = 0; i < mapWidth; i++)
             {
@@ -85,7 +85,7 @@ namespace GUI
 
         private void SliderValue(object sender, RoutedEventArgs e)
         {
-            Set();
+            Set(new Random().Next(int.MinValue, int.MaxValue), new Random().Next(int.MinValue, int.MaxValue), new Random().Next(int.MinValue, int.MaxValue));
         }
 
         private void Image_Click(object sender, RoutedEventArgs e)
@@ -116,7 +116,7 @@ namespace GUI
                 case "51": Biome = "Forest Mountain"; break;
                 case "60": Biome = "Peak"; break;
                 case "61": Biome = "Snowy Peak"; break;
-                default: Biome = null; break;
+                default: Biome = "River"; break;
             }
             Console.WriteLine(Biome);
         }
