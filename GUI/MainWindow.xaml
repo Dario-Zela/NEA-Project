@@ -6,24 +6,9 @@
         xmlns:local="clr-namespace:GUI"
         mc:Ignorable="d"
         Title="MainWindow" x:Name="Game" Height="450" Width="800" FocusManager.FocusedElement="{Binding ElementName=GameBoard}">
-    <Window.Resources>
-        <Style TargetType="{x:Type Button}" x:Key="ImageButtonStyle">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <ContentPresenter/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
     <Grid>
         <Button x:Name="Button" Click="SliderValue" Margin="10,55,612.6,333" />
-        <Canvas x:Name="GameBoard" Width="700" Height="700" Focusable="True" Margin="186,0,-92.4,-280">
-            <Button Style="{StaticResource ImageButtonStyle}" Click="Image_Click">
-                <Image x:Name="Image"/>
-            </Button>
-        </Canvas>
+        <Canvas x:Name="GameBoard" Width="700" Height="700" Focusable="True" Margin="186,0,-92.4,-280"/>
     </Grid>
 
 </Window>

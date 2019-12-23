@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -15,18 +14,19 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Models.WorldGen;
+using Models.World_Gen;
 
 namespace GUI
 {
     public partial class MainWindow : Window
     {
-        private WorldCreator creator;
+        System.Windows.Controls.Image Image = new System.Windows.Controls.Image();
 
         public MainWindow()
         {
-            InitializeComponent();
             Set();
+            InitializeComponent();
+            GameBoard.Children.Add(Image);
         }
 
         unsafe private void CreateImage(byte[] imageData, int Height, int Width)
@@ -62,63 +62,27 @@ namespace GUI
             return _imageBuffer;
         }
 
-        public void Set(int seed1 = 9182, int seed2 = 2198, int seed3 = 2982)
+        public void Set(int seed = 7221)
         {
             int mapWidth = 700;
             int mapDepth = 700;
 
-            creator = new WorldCreator(mapDepth, mapWidth ,seed1 ,seed2 ,seed3 );
-            byte[] world = new byte[mapDepth * mapWidth * 4];
+            MapGen map = new MapGen();
+            float[,] world = map.GenerateNoiseMap(mapWidth, mapDepth, 80f, seed, 3, 0.5f, 2.5f);
+            byte[] world2 = new byte[mapDepth * mapWidth * 4];
             for (int i = 0; i < mapWidth; i++)
             {
                 for (int j = 0; j < mapDepth; j++)
                 {
-                    int offset = ((mapWidth * 4) * j) + (i * 4);
-                    world[offset] = creator.biomeMap[i, j].blue;
-                    world[offset + 1] = creator.biomeMap[i, j].green;
-                    world[offset + 2] = creator.biomeMap[i, j].red;
-                    world[offset + 3] = creator.biomeMap[i, j].alpha;
+                    world2 = PlotPixel(i, j, world2, world, mapWidth);
                 }
             }
-            CreateImage(world, mapDepth, mapWidth);
+            CreateImage(world2, mapDepth, mapWidth);
         }
 
         private void SliderValue(object sender, RoutedEventArgs e)
         {
-            Set(new Random().Next(int.MinValue, int.MaxValue), new Random().Next(int.MinValue, int.MaxValue), new Random().Next(int.MinValue, int.MaxValue));
-        }
-
-        private void Image_Click(object sender, RoutedEventArgs e)
-        {
-            var pos = Mouse.GetPosition(Image);
-            char[] temp = creator.biomeMap[(int)pos.X, (int)pos.Y].Id;
-            string Id = "";
-            foreach (var item in temp)
-            {
-                Id += item;
-            }
-            string Biome;
-            switch (Id)
-            {
-                case "10": Biome = "Sea"; break;
-                case "11": Biome = "Frozen Sea"; break;
-                case "20": Biome = "Beach"; break;
-                case "21": Biome = "Frozen Beach"; break;
-                case "30": Biome = "Plains"; break;
-                case "31": Biome = "Taiga"; break;
-                case "32": Biome = "Tundra"; break;
-                case "33": Biome = "Forest"; break;
-                case "40": Biome = "Hills"; break;
-                case "41": Biome = "Frozen Hills"; break;
-                case "42": Biome = "Tundra Hills"; break;
-                case "43": Biome = "Forest Hills"; break;
-                case "50": Biome = "Mountain"; break;
-                case "51": Biome = "Forest Mountain"; break;
-                case "60": Biome = "Peak"; break;
-                case "61": Biome = "Snowy Peak"; break;
-                default: Biome = "River"; break;
-            }
-            Console.WriteLine(Biome);
+            Set(new Random().Next(1000,100000));
         }
     }
 }
