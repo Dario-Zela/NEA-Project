@@ -184,4 +184,95 @@ namespace Models.WorldGen
         }
     }
 
+    public struct Biome
+    {
+        private char[] Id;
+        public float probTree;
+        public float probWaterSource;
+        public float probBush;
+        public bool doesSnow;
+
+        public Biome(int Id)
+        {
+            this.Id = Id.ToString().ToCharArray();
+            probBush = 0f;
+            probTree = 0f;
+            probWaterSource = 0f;
+            doesSnow = false;
+            AssignProprieties();
+        }
+
+        private void AssignProprieties()
+        {
+            switch (Id[0])
+            {
+                case '3':
+                    switch (Id[1])
+                    {
+                        case '1':
+                            probBush = 0.005f;
+                            break;
+                        case '2':
+                            probBush = 0.05f;
+                            probTree = 0.1f;
+                            break;
+                        case '3':
+                            probBush = 0.2f;
+                            probTree = 0.3f;
+                            break;
+                        default:
+                            probBush = 0.05f;
+                            probTree = 0.005f;
+                            break;
+                    }
+                    break;
+                case '4':
+                    switch (Id[1])
+                    {
+                        case '1':
+                            probBush = 0.005f;
+                            break;
+                        case '2':
+                            probBush = 0.05f;
+                            probTree = 0.1f;
+                            break;
+                        case '3':
+                            probBush = 0.2f;
+                            probTree = 0.3f;
+                            break;
+                        default:
+                            probBush = 0.05f;
+                            probTree = 0.005f;
+                            break;
+                    }
+                    break;
+                case '5':
+                    switch (Id[1])
+                    {
+                        case '1':
+                            probBush = 0.005f;
+                            probTree = 0.0005f;
+                            probWaterSource = 0.00003f;
+                            break;
+                        default:
+                            probWaterSource = 0.00003f;
+                            break;
+                    }
+                    break;
+                case '6':
+                    switch (Id[1])
+                    {
+                        case '1':
+                            doesSnow = true;
+                            probWaterSource = 0.03f;
+                            break;
+                        default:
+                            probWaterSource = 0.03f;
+                            break;
+                    }
+                    break;
+
+            }
+        }
+    }
 }
