@@ -11,7 +11,7 @@ namespace Models.WorldGen
         private float[,] heightMap;
         private float[,] humidityMap;
         private float[,] temperatureMap;
-        private readonly int[,] IdMap;
+        private readonly Biome[,] IdMap;
 
         public GetBiome(float[,] heightMap, float[,] humidityMap, float[,] temperatureMap, int mapWidth, int mapHeight)
         {
@@ -57,8 +57,10 @@ namespace Models.WorldGen
             }
         }
 
-        private void AssignBioms(ref int[,] idMap)
+        private Biome[,] AssignBioms(int[,] idMap)
         {
+            Biome[,] biomes = new Biome[mapHeight,mapWidth];
+
             for (int i = 0; i < mapWidth; i++)
             {
                 for (int j = 0; j < mapHeight; j++)
@@ -67,22 +69,22 @@ namespace Models.WorldGen
                     {
                         if (temperatureMap[i, j] < 0.4f)
                         {
-                            IdMap[i, j] = 11;
+                            biomes[i, j] = new Biome(11, heightMap[i, j]);
                         }
                         else
                         {
-                            IdMap[i, j] = 10;
+                            biomes[i, j] = new Biome(10, heightMap[i, j]);
                         }
                     }
                     if (idMap[i, j] == 2)
                     {
                         if (temperatureMap[i, j] < 0.4f)
                         {
-                            IdMap[i, j] = 21;
+                            biomes[i, j] = new Biome(21, heightMap[i, j]);
                         }
                         else
                         {
-                            IdMap[i, j] = 20;
+                            biomes[i, j] = new Biome(20, heightMap[i, j]);
                         }
                     }
                     else if (idMap[i, j] == 3)
@@ -91,22 +93,22 @@ namespace Models.WorldGen
                         {
                             if (humidityMap[i, j] < 0.4f)
                             {
-                                IdMap[i, j] = 31;
+                                biomes[i, j] = new Biome(31, heightMap[i, j]);
                             }
                             else
                             {
-                                IdMap[i, j] = 32;
+                                biomes[i, j] = new Biome(32, heightMap[i, j]);
                             }
                         }
                         else
                         {
                             if (humidityMap[i, j] < 0.4f)
                             {
-                                IdMap[i, j] = 30;
+                                biomes[i, j] = new Biome(30, heightMap[i, j]);
                             }
                             else
                             {
-                                IdMap[i, j] = 33;
+                                biomes[i, j] = new Biome(33, heightMap[i, j]);
                             }
                         }
                     }
@@ -116,22 +118,22 @@ namespace Models.WorldGen
                         {
                             if (humidityMap[i, j] < 0.4f)
                             {
-                                IdMap[i, j] = 41;
+                                biomes[i, j] = new Biome(41, heightMap[i, j]);
                             }
                             else
                             {
-                                IdMap[i, j] = 42;
+                                biomes[i, j] = new Biome(42, heightMap[i, j]);
                             }
                         }
                         else
                         {
                             if (humidityMap[i, j] < 0.4f)
                             {
-                                IdMap[i, j] = 43;
+                                biomes[i, j] = new Biome(43, heightMap[i, j]);
                             }
                             else
                             {
-                                IdMap[i, j] = 40;
+                                biomes[i, j] = new Biome(40, heightMap[i, j]);
                             }
                         }
                     }
@@ -141,16 +143,16 @@ namespace Models.WorldGen
                         {
                             if (humidityMap[i, j] < 0.4f)
                             {
-                                IdMap[i, j] = 50;
+                                biomes[i, j] = new Biome(50, heightMap[i, j]);
                             }
                             else
                             {
-                                IdMap[i, j] = 51;
+                                biomes[i, j] = new Biome(51, heightMap[i, j]);
                             }
                         }
                         else
                         {
-                            IdMap[i, j] = 50;
+                            biomes[i, j] = new Biome(50, heightMap[i, j]);
                         }
                     }
                     else if (idMap[i, j] == 6)
@@ -159,28 +161,31 @@ namespace Models.WorldGen
                         {
                             if (humidityMap[i, j] < 0.4f)
                             {
-                                IdMap[i, j] = 60;
+                                biomes[i, j] = new Biome(60, heightMap[i, j]);
                             }
                             else
                             {
-                                IdMap[i, j] = 61;
+                                biomes[i, j] = new Biome(61, heightMap[i, j]);
                             }
                         }
                         else
                         {
-                            IdMap[i, j] = 60;
+                            biomes[i, j] = new Biome(60, heightMap[i, j]);
                         }
                     }
                 }
             }
+
+            return biomes;
         }
 
-        private int[,] ReturnBioms()
+        private Biome[,] ReturnBioms()
         {
             int[,] IdMapTemp = new int[heightMap.Rank, heightMap.Length];
+            Biome[,] biomes;
             CheckHeight(ref IdMapTemp);
-            AssignBioms(ref IdMapTemp);
-            return IdMapTemp;
+            biomes = AssignBioms(IdMapTemp);
+            return biomes;
         }
     }
 
@@ -191,14 +196,24 @@ namespace Models.WorldGen
         public float probWaterSource;
         public float probBush;
         public bool doesSnow;
+        public byte red;
+        public byte green;
+        public byte blue;
+        public byte alpha;
+        public float height;
 
-        public Biome(int Id)
+        public Biome(int Id, float height)
         {
             this.Id = Id.ToString().ToCharArray();
             probBush = 0f;
             probTree = 0f;
             probWaterSource = 0f;
             doesSnow = false;
+            red = (byte)255;
+            green = (byte)255;
+            blue = (byte)255;
+            alpha = (byte)255;
+            this.height = height;
             AssignProprieties();
         }
 
@@ -206,21 +221,63 @@ namespace Models.WorldGen
         {
             switch (Id[0])
             {
+                case '1':
+                    switch(Id[1])
+                    {
+                        case '1':
+                            red = (byte)158;
+                            green = (byte)216;
+                            blue = (byte)240;
+                            break;
+                        default:
+                            red = (byte)0;
+                            green = (byte)0;
+                            blue = (byte)255;
+                            break;
+                    }
+                    break;
+                case '2':
+                    switch (Id[1])
+                    {
+                        case '1':
+                            red = (byte)233;
+                            green = (byte)225;
+                            blue = (byte)210;
+                            break;
+                        default:
+                            red = (byte)239;
+                            green = (byte)221;
+                            blue = (byte)111;
+                            break;
+                    }
+                    break;
                 case '3':
                     switch (Id[1])
                     {
                         case '1':
+                            red = (byte)208;
+                            green = (byte)236;
+                            blue = (byte)152;
                             probBush = 0.005f;
                             break;
                         case '2':
+                            red = (byte)224;
+                            green = (byte)216;
+                            blue = (byte)176;
                             probBush = 0.05f;
                             probTree = 0.1f;
                             break;
                         case '3':
+                            red = (byte)247;
+                            green = (byte)228;
+                            blue = (byte)0;
                             probBush = 0.2f;
                             probTree = 0.3f;
                             break;
                         default:
+                            red = (byte)166;
+                            green = (byte)255;
+                            blue = (byte)0;
                             probBush = 0.05f;
                             probTree = 0.005f;
                             break;
@@ -230,17 +287,29 @@ namespace Models.WorldGen
                     switch (Id[1])
                     {
                         case '1':
+                            red = (byte)180;
+                            green = (byte)200;
+                            blue = (byte)120;
                             probBush = 0.005f;
                             break;
                         case '2':
+                            red = (byte)200;
+                            green = (byte)195;
+                            blue = (byte)155;
                             probBush = 0.05f;
                             probTree = 0.1f;
                             break;
                         case '3':
+                            red = (byte)220;
+                            green = (byte)200;
+                            blue = (byte)0;
                             probBush = 0.2f;
                             probTree = 0.3f;
                             break;
                         default:
+                            red = (byte)140;
+                            green = (byte)235;
+                            blue = (byte)0;
                             probBush = 0.05f;
                             probTree = 0.005f;
                             break;
@@ -250,11 +319,17 @@ namespace Models.WorldGen
                     switch (Id[1])
                     {
                         case '1':
+                            red = (byte)50;
+                            green = (byte)126;
+                            blue = (byte)26;
                             probBush = 0.005f;
                             probTree = 0.0005f;
                             probWaterSource = 0.00003f;
                             break;
                         default:
+                            red = (byte)143;
+                            green = (byte)111;
+                            blue = (byte)60;
                             probWaterSource = 0.00003f;
                             break;
                     }
@@ -263,15 +338,20 @@ namespace Models.WorldGen
                     switch (Id[1])
                     {
                         case '1':
+                            red = (byte)255;
+                            green = (byte)255;
+                            blue = (byte)255;
                             doesSnow = true;
                             probWaterSource = 0.03f;
                             break;
                         default:
+                            red = (byte)143;
+                            green = (byte)111;
+                            blue = (byte)60;
                             probWaterSource = 0.03f;
                             break;
                     }
                     break;
-
             }
         }
     }

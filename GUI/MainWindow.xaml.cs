@@ -42,6 +42,13 @@ namespace GUI
             }
         }
 
+        private void CreateImage2(byte[] imageData, int Height, int Width)
+        {
+            WriteableBitmap bitmap = new WriteableBitmap(Width, Height, 96.8, 96.8, PixelFormats.Rgb48, null);
+            bitmap.WritePixels(new Int32Rect(0, 0, Width/2, Height/2), imageData, 4 * Width, 0);
+            Image.Source = bitmap;
+        }
+
         static byte[] PlotPixel(int x, int y, byte[] _imageBuffer, float[,] initial, int Width)
         {
             int offset = ((Width * 4) * y) + (x * 4);
