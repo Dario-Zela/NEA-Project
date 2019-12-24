@@ -56,8 +56,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="SpaceColonisationAlgorithm.cs" />
-    <Compile Include="Try2.cs" />
+    <Compile Include="SpaceColonisingAlgorithm.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

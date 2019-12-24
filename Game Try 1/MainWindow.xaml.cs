@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
@@ -21,83 +22,56 @@ namespace Game_Try_1
     /// </summary>
     public partial class MainWindow : Window
     {
-        City City;
-        Timer timer = new Timer();
-        Canvas canvas = new Canvas();
-
         public MainWindow()
         {
             InitializeComponent();
-            Content = canvas;
-            timer.Interval = 100;
-            timer.Elapsed += TimerTick;
-            timer.Start();
+            MaxO.Text = Max.Value.ToString();
+            MinO.Text = Min.Value.ToString();
+            NumO.Text = Num.Value.ToString();
+            CreateMap();
         }
 
-        private void Set()
+        private void CreateMap(double max = 100, double min = 10, int num = 300, Vector2 root = default)
         {
-            City = new City(150, (int)Pong.ActualHeight, (int)Pong.ActualHeight, 10, 300);
-            foreach (var item in City.nodes)
+            Random random = new Random();
+            if (root == default)
             {
-                Ellipse ellipse = new Ellipse { Width = 2, Height = 2 };
-                ellipse.Fill = new SolidColorBrush(new Color() { R = 255, A = 255, B = 255, G = 255 } );
-                Canvas.SetLeft(ellipse, item.pos.Item1);
-                Canvas.SetTop(ellipse, item.pos.Item2);
-                canvas.Children.Add(ellipse);
+                root = new Vector2((float)random.Next(10, (int)canvas.Height - 10), (float)random.Next(10, (int)canvas.Width - 10));
             }
-            foreach (var item in City.roads)
+            Tree tree = new Tree(max, min, root, (int)canvas.Height, (int)canvas.Width, num);
+            foreach (var branch in tree.Branches)
             {
-                if (item.parent != null)
+                if (branch.parent != null)
                 {
-                    Line line = new Line() { X1 = item.parent.pos.Item1, X2 = item.pos.Item1, Y1 = item.parent.pos.Item2, Y2 = item.pos.Item2 };
-                    line.Stroke = new SolidColorBrush(new Color() { R = 255, A = 255, B = 0, G = 0 });
+                    Line line = new Line() { X1 = branch.parent.position.X, X2 = branch.position.X, Y1 = branch.parent.position.Y, Y2 = branch.position.Y };
+                    line.Stroke = Brushes.White;
                     line.StrokeThickness = 0.5;
                     canvas.Children.Add(line);
                 }
             }
         }
 
-        private void TimerTick(object sender, EventArgs e)
+        private void Max_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (City == null)
-            {
-                Dispatcher.Invoke(new Action(Set));
-            }
-            else
-            {
-                Dispatcher.Invoke(new Action(Grow));
-            }
+            MaxO.Text = Max.Value.ToString();
         }
 
-        private void Grow()
+        private void Min_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if(City.nodes.Count == 0)
-            {
-                timer.Stop();
-            }
-            else
-            {
-                canvas.Children.Clear();
-                City.Grow();
-                foreach (var item in City.nodes)
-                {
-                    Ellipse ellipse = new Ellipse { Width = 2, Height = 2 };
-                    ellipse.Fill = Brushes.White;
-                    Canvas.SetLeft(ellipse, item.pos.Item1);
-                    Canvas.SetTop(ellipse, item.pos.Item2);
-                    canvas.Children.Add(ellipse);
-                }
-                foreach (var item in City.roads)
-                {
-                    if (item.parent != null)
-                    {
-                        Line line = new Line() { X1 = item.parent.pos.Item1, X2 = item.pos.Item1, Y1 = item.parent.pos.Item2, Y2 = item.pos.Item2 };
-                        line.Stroke = Brushes.Red;
-                        line.StrokeThickness = 0.5;
-                        canvas.Children.Add(line);
-                    }
-                }
-            }
+            MinO.Text = Min.Value.ToString();
+        }
+
+        private void Num_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            NumO.Text = Num.Value.ToString();
+        }
+
+        private void Submit_Click(object sender, RoutedEventArgs e)
+        {
+            canvas.Children.Clear();
+            var mousePos = Mouse.GetPosition(canvas);
+            var root = new Vector2((float)mousePos.X, (float)mousePos.Y);
+            CreateMap(Max.Value, Min.Value, (int)Num.Value, root);
         }
     }
 }
