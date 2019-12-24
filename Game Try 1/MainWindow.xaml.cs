@@ -38,7 +38,7 @@ namespace Game_Try_1
             {
                 root = new Vector2((float)random.Next(10, (int)canvas.Height - 10), (float)random.Next(10, (int)canvas.Width - 10));
             }
-            tree = new Tree(300, 70, root, (int)canvas.Height, (int)canvas.Width, 200);
+            tree = new Tree(300, 10, root, (int)canvas.Height, (int)canvas.Width, 200);
             int counter = 0;
             foreach (var branch in tree.Branches)
             {

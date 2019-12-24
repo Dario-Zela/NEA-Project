@@ -57,6 +57,7 @@ namespace Game_Try_1
         public LinkedList<Leaves> Leaves = new LinkedList<Leaves>();
         public LinkedList<Branch> Branches = new LinkedList<Branch>();
         public Random random = new Random();
+        private LinkedList<Branch> Nodes = new LinkedList<Branch>();
 
         public Tree(double maxDist, double minDist, Vector2 rootPos, int mapHeight, int mapWidth, int numLeaves)
         {
@@ -74,9 +75,41 @@ namespace Game_Try_1
                 cont = Grow();
             }
             FindNodes();
+            SecondaryRoads();
         }
 
-        private void Const
+        private void SecondaryRoads()
+        {
+            
+            foreach (var item in Nodes)
+            {
+                Branch NewBranch1 = null;
+                Branch NewBranch2 = null;
+                double lenght1 = double.MaxValue;
+                double lenght2 = double.MaxValue;
+                foreach (var branch in Nodes)
+                {
+                    item.dir = branch.position - item.position;
+                    if(item.dir.Length() < lenght1)
+                    {
+                        NewBranch1 = branch;
+                        lenght1 = item.dir.Length();
+                    }
+                    else if (item.dir.Length() < lenght2)
+                    {
+                        NewBranch2 = branch;
+                        lenght2 = item.dir.Length();
+                    }
+                    item.Reset();
+                }
+                item.dir = NewBranch1.position - item.position;
+                Branches.AddLast(item.NewBranch());
+                item.Reset();
+                item.dir = NewBranch2.position - item.position;
+                Branches.AddLast(item.NewBranch());
+                item.Reset();
+            }
+        }
 
         private void FindNodes()
         {
@@ -85,6 +118,7 @@ namespace Game_Try_1
                 if (random.Next(0,2000) < 20)
                 {
                     item.isNode = true;
+                    Nodes.AddLast(item);
                 }
             }
         }
