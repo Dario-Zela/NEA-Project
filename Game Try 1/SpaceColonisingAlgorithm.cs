@@ -26,6 +26,7 @@ namespace Game_Try_1
         private readonly Vector2 orDir;
         public Vector2 newBranchPos;
         public int count;
+        public bool isNode = false;
 
         public Branch(Vector2 pos, Branch parent, Vector2 dir)
         {
@@ -55,12 +56,12 @@ namespace Game_Try_1
         public double minDist;
         public LinkedList<Leaves> Leaves = new LinkedList<Leaves>();
         public LinkedList<Branch> Branches = new LinkedList<Branch>();
+        public Random random = new Random();
 
         public Tree(double maxDist, double minDist, Vector2 rootPos, int mapHeight, int mapWidth, int numLeaves)
         {
             this.maxDist = maxDist;
             this.minDist = minDist;
-            Random random = new Random();
             for (int i = 0; i < numLeaves; i++)
             {
                 Vector2 pos = new Vector2(random.Next(mapHeight), random.Next(mapWidth));
@@ -68,11 +69,23 @@ namespace Game_Try_1
             }
             Branches.AddLast(new Branch(rootPos, null, new Vector2(10, 10)));
             bool cont = true;
-            int counter = 0;
-            while (cont && counter < 1000)
+            while (cont && Branches.Count < 2500)
             {
-                counter++;
                 cont = Grow();
+            }
+            FindNodes();
+        }
+
+        private void Const
+
+        private void FindNodes()
+        {
+            foreach (var item in Branches)
+            {
+                if (random.Next(0,2000) < 20)
+                {
+                    item.isNode = true;
+                }
             }
         }
 
@@ -123,8 +136,8 @@ namespace Game_Try_1
                     branch.dir = new Vector2(branch.dir.X / (float)branch.count, branch.dir.Y / (float)branch.count);
                     branch.dir = new Vector2(branch.dir.X / branch.dir.Length(), branch.dir.Y / branch.dir.Length());
                     temp2.AddLast(branch.NewBranch());
-                    branch.Reset();
                     isEvolving = true;
+                    branch.Reset();
                 }
             }
             foreach (var item in temp2)
@@ -132,6 +145,14 @@ namespace Game_Try_1
                 Branches.AddLast(item);
             }
             return isEvolving;
+        }
+    }
+
+    class CreateRoadMap
+    {
+        public CreateRoadMap()
+        {
+            //Tree tree = new Tree();
         }
     }
 }

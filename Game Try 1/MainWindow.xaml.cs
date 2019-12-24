@@ -22,38 +22,46 @@ namespace Game_Try_1
     /// </summary>
     public partial class MainWindow : Window
     {
+        Tree tree;
+
         public MainWindow()
         {
             InitializeComponent();
-            MaxO.Text = Max.Value.ToString();
             MinO.Text = Min.Value.ToString();
-            NumO.Text = Num.Value.ToString();
             CreateMap();
         }
 
-        private void CreateMap(double max = 100, double min = 10, int num = 300, Vector2 root = default)
+        private void CreateMap( Vector2 root = default)
         {
             Random random = new Random();
             if (root == default)
             {
                 root = new Vector2((float)random.Next(10, (int)canvas.Height - 10), (float)random.Next(10, (int)canvas.Width - 10));
             }
-            Tree tree = new Tree(max, min, root, (int)canvas.Height, (int)canvas.Width, num);
+            tree = new Tree(300, 70, root, (int)canvas.Height, (int)canvas.Width, 200);
+            int counter = 0;
             foreach (var branch in tree.Branches)
             {
                 if (branch.parent != null)
                 {
                     Line line = new Line() { X1 = branch.parent.position.X, X2 = branch.position.X, Y1 = branch.parent.position.Y, Y2 = branch.position.Y };
                     line.Stroke = Brushes.White;
+                    if (branch.isNode)
+                    {
+                        Ellipse ellipse = new Ellipse();
+                        ellipse.Height = 3;
+                        ellipse.Width = 3;
+                        ellipse.Fill = Brushes.Red;
+                        Canvas.SetLeft(ellipse, branch.position.X - 1.5);
+                        Canvas.SetTop(ellipse, branch.position.Y - 1.5);
+                        canvas.Children.Add(ellipse);
+                        counter++;
+                    }
                     line.StrokeThickness = 0.5;
                     canvas.Children.Add(line);
                 }
             }
-        }
-
-        private void Max_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            MaxO.Text = Max.Value.ToString();
+            Console.WriteLine(counter);
         }
 
         private void Min_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -71,7 +79,7 @@ namespace Game_Try_1
             canvas.Children.Clear();
             var mousePos = Mouse.GetPosition(canvas);
             var root = new Vector2((float)mousePos.X, (float)mousePos.Y);
-            CreateMap(Max.Value, Min.Value, (int)Num.Value, root);
+            CreateMap(root);
         }
     }
 }
