@@ -31,15 +31,10 @@ namespace Game_Try_1
             CreateMap();
         }
 
-        private void CreateMap( Vector2 root = default)
+        private void CreateMap()
         {
-            Random random = new Random();
-            if (root == default)
-            {
-                root = new Vector2((float)random.Next(10, (int)canvas.Height - 10), (float)random.Next(10, (int)canvas.Width - 10));
-            }
-            tree = new Tree(300, 10, root, (int)canvas.Height, (int)canvas.Width, 200);
-            int counter = 0;
+            var root = new Vector2((float)canvas.Height, (float)canvas.Width);
+            tree = new Tree(1000, 70, root, (int)canvas.Height, (int)canvas.Width, 10);
             foreach (var branch in tree.Branches)
             {
                 if (branch.parent != null)
@@ -55,13 +50,12 @@ namespace Game_Try_1
                         Canvas.SetLeft(ellipse, branch.position.X - 1.5);
                         Canvas.SetTop(ellipse, branch.position.Y - 1.5);
                         canvas.Children.Add(ellipse);
-                        counter++;
                     }
                     line.StrokeThickness = 0.5;
                     canvas.Children.Add(line);
                 }
             }
-            Console.WriteLine(counter);
+            Console.WriteLine(tree.Branches.Count);
         }
 
         private void Min_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -79,7 +73,7 @@ namespace Game_Try_1
             canvas.Children.Clear();
             var mousePos = Mouse.GetPosition(canvas);
             var root = new Vector2((float)mousePos.X, (float)mousePos.Y);
-            CreateMap(root);
+            CreateMap();
         }
     }
 }

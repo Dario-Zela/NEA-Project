@@ -23,17 +23,23 @@ namespace Game_Try_1
         public Vector2 position;
         public Branch parent;
         public Vector2 dir;
-        private readonly Vector2 orDir;
+        public readonly Vector2 orDir;
         public Vector2 newBranchPos;
         public int count;
         public bool isNode = false;
+        public bool isRoot = false;
+        public bool isUsed = false;
 
         public Branch(Vector2 pos, Branch parent, Vector2 dir)
         {
             position = pos;
             this.parent = parent;
-            this.dir = dir;
             orDir = dir;
+            if (parent != null && parent.parent != null)
+            {
+                orDir = this.parent.orDir;
+            }
+            this.dir = orDir;
             count = 0;
         }
 
@@ -65,17 +71,26 @@ namespace Game_Try_1
             this.minDist = minDist;
             for (int i = 0; i < numLeaves; i++)
             {
-                Vector2 pos = new Vector2(random.Next(mapHeight), random.Next(mapWidth));
+                int x;
+                int y;
+                do
+                {
+                    x = random.Next(mapHeight);
+                    y = random.Next(mapWidth);
+                }
+                while ((x < mapHeight * 9 / 10 && x > mapHeight / 10) || (y < mapWidth * 9 / 10 && y > mapWidth /10));
+                Vector2 pos = new Vector2(x, y);
                 Leaves.AddLast(new Leaves(pos));
             }
             Branches.AddLast(new Branch(rootPos, null, new Vector2(10, 10)));
+            Branches.First.Value.isRoot = true;
             bool cont = true;
-            while (cont && Branches.Count < 2500)
+            while (cont && Branches.Count < 1000)
             {
                 cont = Grow();
             }
-            FindNodes();
-            SecondaryRoads();
+            //FindNodes();
+            //SecondaryRoads();
         }
 
         private void SecondaryRoads()
@@ -123,6 +138,12 @@ namespace Game_Try_1
             }
         }
 
+        private double FindAngle(Vector2 vector)
+        {
+            double angle = Math.Atan2(vector.Y, vector.X);
+            return angle;
+        }
+
         private bool Grow()
         {
             LinkedList<Leaves> temp = new LinkedList<Leaves>();
@@ -139,7 +160,7 @@ namespace Game_Try_1
                         temp.AddLast(leaf);
                     }
                     else if(dir.Length() > maxDist){ }
-                    else if(dir.Length() < distance)
+                    else if(dir.Length() < distance && FindAngle(dir) < FindAngle(branch.orDir) + 5 && FindAngle(dir) > FindAngle(branch.orDir) - 5)
                     {
                         leaf.closestBranch = branch;
                         distance = dir.Length();
@@ -165,13 +186,14 @@ namespace Game_Try_1
 
             foreach (var branch in Branches)
             {
-                if(branch.count != 0)
+                if(branch.count != 0 && (!branch.isUsed || branch.isRoot))
                 {
                     branch.dir = new Vector2(branch.dir.X / (float)branch.count, branch.dir.Y / (float)branch.count);
                     branch.dir = new Vector2(branch.dir.X / branch.dir.Length(), branch.dir.Y / branch.dir.Length());
                     temp2.AddLast(branch.NewBranch());
                     isEvolving = true;
                     branch.Reset();
+                    branch.isUsed = true;
                 }
             }
             foreach (var item in temp2)
