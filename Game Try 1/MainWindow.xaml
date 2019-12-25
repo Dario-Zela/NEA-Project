@@ -22,6 +22,8 @@
             <Canvas x:Name="canvas" Height="500" Width="500" Background="Black"></Canvas>
         </Button>
         <Grid x:Name="Settings" Width="800" Height="100" VerticalAlignment="Top">
+            <TextBlock x:Name="MaxO" FontSize="32" Width="80" Height="100" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+            <Slider x:Name="Max" Maximum="400" Minimum="100" Width="100" Height="20" Focusable="True" ValueChanged="Max_ValueChanged" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
             <TextBlock x:Name="MinO" FontSize="32" Width="80" Height="100" VerticalAlignment="Top" HorizontalAlignment="Center"/>
             <Slider x:Name="Min" Maximum="100" Minimum="1" Width="100" Height="20" Focusable="True" ValueChanged="Min_ValueChanged" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
             <TextBlock x:Name="NumO" FontSize="32" Width="80" Height="100" VerticalAlignment="Top" HorizontalAlignment="Right"/>
