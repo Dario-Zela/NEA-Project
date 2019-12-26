@@ -178,11 +178,51 @@ namespace Game_Try_1
 
         public RoadNode addNode(Vector2 Position, RoadNode Source)
         {
-            RoadNode RoadNode;
+            RoadNode RoadNode = null;
+            
             if (Source != null)
             {
-                int index = graph.IndexOf(Source);
-                RoadNode = new RoadNode(Position, graph[index]);
+                if (Source.targets.Count != 0)
+                {
+                    RoadEdge targetFail = null;
+                    bool passed = true;
+                    foreach (var target in Source.targets)
+                    {
+                        var targetPos = target.Target.position;
+                        var x = Math.Sqrt(Math.Pow(Source.position.Y - targetPos.Y, 2) + Math.Pow(Source.position.X - targetPos.X, 2));
+                        var y = Math.Sqrt(Math.Pow(Position.Y - targetPos.Y, 2) + Math.Pow(Position.X - targetPos.X, 2));
+                        if (Math.Atan2(y, x) < Math.PI / 6 || Math.Atan2(y, x) > Math.PI * 7 / 6)
+                        {
+                            passed = false;
+                            targetFail = target;
+                            break;
+                        }
+                    }
+                    if (passed)
+                    {
+                        int index = graph.IndexOf(Source);
+                        RoadNode = new RoadNode(Position, graph[index]);
+                        graph[index].addEdge(RoadNode);
+                    }
+                    else
+                    {
+                        double distance1 = (targetFail.Target.position - Source.position).Length();
+                        double distance2 = (Position - Source.position).Length();
+                        if(distance1 < distance2)
+                        {
+                            int index = graph.IndexOf(Source);
+                            RoadNode = new RoadNode(Position, graph[index]);
+                            graph[index].targets.Remove(targetFail);
+                            graph[index].addEdge(RoadNode);
+                        }
+                    }
+                }
+                else
+                {
+                    int index = graph.IndexOf(Source);
+                    RoadNode = new RoadNode(Position, graph[index]);
+                    graph[index].addEdge(RoadNode);
+                }
             }
             else
             {
@@ -190,13 +230,6 @@ namespace Game_Try_1
             }
             graph.Add(RoadNode);
             return RoadNode;
-        }
-
-        public void addEdge(RoadNode Source, RoadNode Target)
-        {
-            int index = graph.IndexOf(Target);
-            int index2 = graph.IndexOf(Source);
-            graph[index2].addEdge(graph[index]);
         }
 
         public bool hasEdge(RoadNode Source, RoadNode Target)
@@ -319,56 +352,7 @@ namespace Game_Try_1
                     }
                 }
             }
-            
-            List<Vector2> toDel = new List<Vector2>();
 
-            foreach (var node1 in Nodes)
-            {
-                if (!toDel.Contains(node1))
-                {
-                    List<Vector2> closeNodes = new List<Vector2>();
-                    foreach (var node2 in Nodes)
-                    {
-                        bool cond1 = node2.X < node1.X + 2 && node2.X > node1.X - 2;
-                        bool cond2 = node2.Y < node1.Y + 2 && node2.Y > node1.Y - 2;
-                        if (cond1 && cond2)
-                        {
-                            closeNodes.Add(node2);
-                        }
-                    }
-                    if (closeNodes.Count != 1)
-                    {
-                        int xSum = 0;
-                        int ySum = 0;
-                        foreach (var node in closeNodes)
-                        {
-                            xSum += (int)node.X;
-                            ySum += (int)node.Y;
-                        }
-                        xSum /= closeNodes.Count;
-                        ySum /= closeNodes.Count;
-                        var median = new Vector2(xSum, ySum);
-                        Vector2 closest = Vector2.Zero;
-                        double distance = double.MaxValue;
-                        foreach (var item in closeNodes)
-                        {
-                            if((median-item).Length() < distance)
-                            {
-                                closest = item;
-                                distance = (median - item).Length();
-                            }
-                        }
-                        closeNodes.Remove(closest);
-                        toDel.AddRange(closeNodes);
-                    }
-                }
-            }
-            
-            foreach (var node in toDel)
-            {
-                Nodes.Remove(node);
-            }
-            
             Nodes.Remove(root);
             roadMap.addNode(root, null);
             addNodes(roadMap.graph[0]);
@@ -402,46 +386,55 @@ namespace Game_Try_1
                         if (pair.Item2 == source.position)
                         {
                             var temp = roadMap.addNode(pair.Item1, source);
-                            roadMap.addEdge(source, temp);
-                            temp2.Add(temp);
+                            if(temp != null) temp2.Add(temp);
                         }
                     }
                 }
                 nodes = temp2;
-            } while (nodes.Capacity != 0);
+            } 
+            while (nodes.Capacity != 0);
         }
 
         public Vector2 FindSource(Vector2 pos)
         {
             var currentPos = map[(int)pos.X, (int)pos.Y];
-            List<Vector2> closeNodes = new List<Vector2>();
-            do
+            Branch branch = currentPos;
+            List<Branch> possibleSources = new List<Branch>();
+            if(currentPos.parent == null)
             {
-                currentPos = currentPos.parent;
-                foreach (var item in Nodes)
+                return root;
+            }
+            foreach (var Node in Nodes)
+            {
+                var possibleSource = map[(int)Node.X, (int)Node.Y];
+                do
                 {
-                    bool check1 = currentPos.position.X < item.X + 0.5 && currentPos.position.X > item.X - 0.5;
-                    bool check2 = currentPos.position.Y < item.Y + 0.5 && currentPos.position.Y < item.Y - 0.5;
-                    if (check1 && check2 && item != pos)
-                    {
-                        closeNodes.Add(item);
-                    }
+                    currentPos = currentPos.parent;
+
                 }
-            } 
-            while (currentPos.parent != null);
-            if(closeNodes.Count != 0)
+                while (currentPos != possibleSource && currentPos.parent != null);
+                if (currentPos == possibleSource)
+                {
+                    possibleSources.Add(possibleSource);
+                }
+                else
+                {
+                    currentPos = branch;
+                }
+            }
+            if (possibleSources.Count != 0)
             {
-                Vector2 closestNode = Vector2.Zero;
                 double distance = double.MaxValue;
-                foreach (var node in closeNodes)
+                Branch closestBranch = null;
+                foreach (var Source in possibleSources)
                 {
-                    if ((pos - node).Length() < distance)
+                    if ((branch.position - Source.position).Length() < distance)
                     {
-                        closestNode = node;
-                        distance = (pos - node).Length();
+                        distance = (branch.position - Source.position).Length();
+                        closestBranch = Source;
                     }
                 }
-                return closestNode;
+                return new Vector2(closestBranch.position.X, closestBranch.position.Y);
             }
             return root;
         }

@@ -52,18 +52,23 @@ namespace Game_Try_1
         {
             city = new City((int)canvas.Height, (int)canvas.Width);
             pairs = city.FindPairs();
+            
             var Con = city.roadMap.graph;
             foreach (var branch in Con)
             {
-                if (branch.previous != null)
+                if (branch != null && branch.previous != null)
                 {
                     Line line = new Line() { X1 = branch.previous.position.X, X2 = branch.position.X, Y1 = branch.previous.position.Y, Y2 = branch.position.Y };
                     line.Stroke = System.Windows.Media.Brushes.White;
                     line.StrokeThickness = 0.5;
                     canvas.Children.Add(line);
+                    Ellipse ellipse = new Ellipse { Height = 2, Width = 2, Fill = System.Windows.Media.Brushes.Red };
+                    Canvas.SetLeft(ellipse, branch.position.X - 0.5);
+                    Canvas.SetTop(ellipse, branch.position.Y - 0.5);
+                    canvas.Children.Add(ellipse);
                 }
             }
-
+           
             var Cont = city.map;
             byte[] buffer = new byte[19000000];
 
@@ -78,7 +83,7 @@ namespace Game_Try_1
                 }
             }
             CreateImage(buffer, (int)canvas.Height, (int)canvas.Width);
-
+            /*
             var Cont2 = city.Nodes;
             foreach (var item in Cont2)
             {
@@ -88,7 +93,7 @@ namespace Game_Try_1
                 canvas.Children.Add(ellipse);
             }
             
-
+            */
         }
 
         unsafe private void CreateImage(byte[] imageData, int Height, int Width)
@@ -142,8 +147,9 @@ namespace Game_Try_1
             }
             */
 
-            canvas.Children.Clear();
-            canvas.Children.Add(Image);
+
+
+            /*
             var Cont2 = city.Nodes;
             foreach (var item2 in Cont2)
             {
@@ -164,6 +170,7 @@ namespace Game_Try_1
             Canvas.SetTop(ellipse2, item.Y - 2);
             canvas.Children.Add(ellipse2);
             city.FindSource(pairs[current].Item1);
+            */
         }
     }
 }
