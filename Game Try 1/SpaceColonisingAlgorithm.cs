@@ -8,6 +8,7 @@ using System.Windows.Shapes;
 
 namespace Game_Try_1
 {
+    #region Tree
     class Leaves
     {
         public Vector2 position;
@@ -22,6 +23,7 @@ namespace Game_Try_1
     {
         public Vector2 position;
         public Branch parent;
+        public List<Branch> children;
         public Vector2 dir;
         private readonly Vector2 orDir;
         public Vector2 newBranchPos;
@@ -30,6 +32,7 @@ namespace Game_Try_1
 
         public Branch(Vector2 pos, Branch parent, Vector2 dir)
         {
+            children = new List<Branch>();
             resetCount = 0;
             position = pos;
             this.parent = parent;
@@ -125,7 +128,9 @@ namespace Game_Try_1
                 {
                     branch.dir = new Vector2(branch.dir.X / (float)branch.count, branch.dir.Y / (float)branch.count);
                     branch.dir = new Vector2(branch.dir.X / branch.dir.Length(), branch.dir.Y / branch.dir.Length());
-                    temp2.AddLast(branch.NewBranch());
+                    var newBranch = branch.NewBranch();
+                    temp2.AddLast(newBranch);
+                    branch.children.Add(newBranch);
                     branch.Reset();
                     isEvolving = true;
                 }
@@ -137,36 +142,28 @@ namespace Game_Try_1
             return isEvolving;
         }
     }
+    #endregion
 
+    #region Road
     class RoadNode
     {
         public Vector2 position;
-        public List<RoadEdge> targets;
+        public List<RoadNode> targets;
         public RoadNode previous;
 
         public RoadNode(Vector2 position, RoadNode previous)
         {
             this.position = position;
             this.previous = previous;
-            targets = new List<RoadEdge>();
+            targets = new List<RoadNode>();
         }
 
         public void addEdge(RoadNode Target)
         {
-            targets.Add(new RoadEdge(this, Target));
+            targets.Add(Target);
         }
     }
-    class RoadEdge
-    {
-        public RoadNode Source;
-        public RoadNode Target;
 
-        public RoadEdge(RoadNode Source, RoadNode Target)
-        {
-            this.Source = Source;
-            this.Target = Target;
-        }
-    }
     class RoadGraph
     {
         public List<RoadNode> graph;
@@ -184,11 +181,11 @@ namespace Game_Try_1
             {
                 if (Source.targets.Count != 0)
                 {
-                    RoadEdge targetFail = null;
+                    RoadNode targetFail = null;
                     bool passed = true;
                     foreach (var target in Source.targets)
                     {
-                        var targetPos = target.Target.position;
+                        var targetPos = target.position;
                         var x = Math.Sqrt(Math.Pow(Source.position.Y - targetPos.Y, 2) + Math.Pow(Source.position.X - targetPos.X, 2));
                         var y = Math.Sqrt(Math.Pow(Position.Y - targetPos.Y, 2) + Math.Pow(Position.X - targetPos.X, 2));
                         if (Math.Atan2(y, x) < Math.PI / 6 || Math.Atan2(y, x) > Math.PI * 7 / 6)
@@ -206,7 +203,7 @@ namespace Game_Try_1
                     }
                     else
                     {
-                        double distance1 = (targetFail.Target.position - Source.position).Length();
+                        double distance1 = (targetFail.position - Source.position).Length();
                         double distance2 = (Position - Source.position).Length();
                         if(distance1 < distance2)
                         {
@@ -228,7 +225,10 @@ namespace Game_Try_1
             {
                 RoadNode = new RoadNode(Position, null);
             }
-            graph.Add(RoadNode);
+            if (RoadNode != null)
+            {
+                graph.Add(RoadNode);
+            }
             return RoadNode;
         }
 
@@ -236,73 +236,107 @@ namespace Game_Try_1
         {
             foreach (var RoadEdge in Source.targets)
             {
-                if (RoadEdge.Target == Target)
+                if (RoadEdge == Target)
                 {
                     return true;
                 }
             }
             return false;
         }
+
     }
+    #endregion
 
-    class BlockGraph
+
+    class Block
     {
-        List<Block> blocks;
+        int Size;
+        public List<RoadNode> Face;
+        double minArea;
 
-        public BlockGraph(RoadGraph road, int Size)
+        public Block(int Size, List<RoadNode> Face, double minArea)
         {
-            blocks = new List<Block>();
-            List<RoadNode> EndPoints = new List<RoadNode>();
-            foreach (var item in road.graph)
-            {
-                if(item.targets.Count == 0)
-                {
-                    EndPoints.Add(item);
-                }
-            }
-            foreach (var EndPoint in EndPoints)
-            {
-                List<RoadNode> roads = new List<RoadNode>();
-                roads.Add(EndPoint);
-                RoadNode node = null;
-                var Source = EndPoint.previous;
-                do
-                {
-                    roads.Add(Source);
-                    double angle = 90;
-                    foreach (var Target in Source.targets)
-                    {
-                        var X = Math.Sqrt(Math.Pow(EndPoint.position.X, 2) + Math.Pow(EndPoint.position.Y, 2));
-                        var Y = Math.Sqrt(Math.Pow(EndPoint.position.X - Target.Target.position.X, 2) + Math.Pow(EndPoint.position.Y - Target.Target.position.Y, 2));
-                        try
-                        {
-                            if (Math.Atan2(Y, X) < angle)
-                            {
-                                node = Target.Target;
-                                angle = Math.Atan2(Y, X);
-                            }
-                        }
-                        catch { }
-                    }
-                    Source = Source.previous;
-                }
-                while (node == null);
-                roads.Add(node);
-                blocks.Add(new Block(Size, roads));
-            }
-
+            this.Size = Size;
+            this.Face = Face;
+            this.minArea = minArea;
         }
 
-        internal class Block
+        public bool isValid()
         {
-            int Size;
-            List<RoadNode> Face;
+            return Area() > minArea;
+        }
 
-            public Block(int Size, List<RoadNode> Face)
+        public double Area()
+        {
+            List<RoadNode> temp = Face;
+            temp.Add(temp.First());
+            var area = Math.Abs(temp.Take(temp.Count - 1).Select((p, i) => (temp[i + 1].position.X - p.position.X) * (temp[i + 1].position.Y + p.position.Y)).Sum() / 2);
+            return area;
+        }
+    }
+    class BlockGraph
+    {
+        public List<Block> blocks;
+        public List<RoadNode> EndPoints;
+
+        public BlockGraph(RoadGraph road, int Size, double minArea)
+        {
+            blocks = new List<Block>();
+            EndPoints = new List<RoadNode>(road.graph);
+            foreach (var item in road.graph)
             {
-                this.Size = Size;
-                this.Face = Face;
+                if(EndPoints.Contains(item.previous))
+                {
+                    EndPoints.Remove(item.previous);
+                }
             }
+            /*
+            List<RoadNode> toDel = new List<RoadNode>();
+            foreach (var EndPoint in EndPoints)
+            {
+                if (!toDel.Contains(EndPoint))
+                {
+                    List<RoadNode> roads = new List<RoadNode>();
+                    roads.Add(EndPoint);
+                    RoadNode node = null;
+                    var Source = EndPoint.previous;
+                    int counter = 0;
+                    do
+                    {
+                        roads.Add(Source);
+                        double angle = Math.PI / 2;
+                        foreach (var Target in Source.targets)
+                        {
+                            if (!toDel.Contains(Target.Target))
+                            {
+                                var X = Math.Sqrt(Math.Pow(EndPoint.position.X, 2) + Math.Pow(EndPoint.position.Y, 2));
+                                var Y = Math.Sqrt(Math.Pow(EndPoint.position.X - Target.Target.position.X, 2) + Math.Pow(EndPoint.position.Y - Target.Target.position.Y, 2));
+                                try
+                                {
+                                    if (Math.Atan2(Y, X) < angle)
+                                    {
+                                        node = Target.Target;
+                                        angle = Math.Atan2(Y, X);
+                                    }
+                                }
+                                catch { }
+                            }
+                        }
+                        Source = node;
+                        List<RoadNode> temp = new List<RoadNode>(roads);
+                        temp.Add(node);
+                        if (!new Block(Size, temp, 40).isValid() && node.targets.Count == 0)
+                        {
+                            toDel.Add(node);
+                            Source = node.previous;
+                        }
+                        counter++;
+                    }
+                    while (node.targets.Count == 0);
+                    blocks.Add(new Block(Size, roads, minArea));
+                }
+            }
+            */
         }
     }
 
@@ -312,9 +346,9 @@ namespace Game_Try_1
         Tree tree;
         public Branch[,] map;
         public RoadGraph roadMap;
-        BlockGraph blocks;
+        public BlockGraph blocks;
         public List<Vector2> Nodes = new List<Vector2>();
-        private List<(int,int,Branch)> Nodes3 = new List<(int, int, Branch)>();
+        private List<(int, int, Branch)> Nodes3 = new List<(int, int, Branch)>();
 
         private void createMap(int Width, int Height)
         {
@@ -339,15 +373,35 @@ namespace Game_Try_1
         {
             roadMap = new RoadGraph();
 
-            for (int i = 0; i<Width; i++)
+            for (int i = 0; i < Width; i++)
             {
-                for (int j = 0; j<Height; j++)
+                for (int j = 0; j < Height; j++)
                 {
                     if (map[i, j] != null)
                     {
-                        if(map[i, j].resetCount != 1)
+                        if (map[i, j].resetCount != 1)
                         {
-                            Nodes.Add(map[i, j].position);
+                            bool pass = true;
+                            foreach (var child in map[i, j].children)
+                            {
+                                try
+                                {
+                                    var current = child;
+                                    for (int k = 0; k < 5; k++)
+                                    {
+                                        current = child.children[0];
+                                    }
+                                }
+                                catch
+                                {
+                                    pass = false;
+                                    break;
+                                }
+                            }
+                            if (pass)
+                            {
+                                Nodes.Add(map[i, j].position);
+                            }
                         }
                     }
                 }
@@ -357,7 +411,7 @@ namespace Game_Try_1
             roadMap.addNode(root, null);
             addNodes(roadMap.graph[0]);
             Nodes.Add(root);
-            //blocks = new BlockGraph(roadMap, 10);
+            blocks = new BlockGraph(roadMap, 10, 40);
         }
 
         public List<(Vector2, Vector2)> FindPairs()
@@ -386,12 +440,12 @@ namespace Game_Try_1
                         if (pair.Item2 == source.position)
                         {
                             var temp = roadMap.addNode(pair.Item1, source);
-                            if(temp != null) temp2.Add(temp);
+                            if (temp != null) temp2.Add(temp);
                         }
                     }
                 }
                 nodes = temp2;
-            } 
+            }
             while (nodes.Capacity != 0);
         }
 
@@ -400,7 +454,7 @@ namespace Game_Try_1
             var currentPos = map[(int)pos.X, (int)pos.Y];
             Branch branch = currentPos;
             List<Branch> possibleSources = new List<Branch>();
-            if(currentPos.parent == null)
+            if (currentPos.parent == null)
             {
                 return root;
             }

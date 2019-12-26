@@ -24,9 +24,10 @@ namespace Game_Try_1
     public partial class MainWindow : Window
     {
         City city;
-        //Vector2 prepos;
-        List<(Vector2, Vector2)> pairs = new List<(Vector2, Vector2)>();
-        int current = -1;
+        Vector2 prepos1 = Vector2.Zero;
+        Vector2 prepos2 = Vector2.Zero;
+        //List<(Vector2, Vector2)> pairs = new List<(Vector2, Vector2)>();
+        //int current = -1;
 
         public MainWindow()
         {
@@ -51,12 +52,12 @@ namespace Game_Try_1
         private void CreateMap(double max = 200, double min = 20, int num = 200, Vector2 root = default)
         {
             city = new City((int)canvas.Height, (int)canvas.Width);
-            pairs = city.FindPairs();
-            
-            var Con = city.roadMap.graph;
-            foreach (var branch in Con)
+            //pairs = city.FindPairs();
+            /*
+            var Con = city.blocks.blocks;
+            foreach (var block in Con)
             {
-                if (branch != null && branch.previous != null)
+                foreach(var branch in block.Face)
                 {
                     Line line = new Line() { X1 = branch.previous.position.X, X2 = branch.position.X, Y1 = branch.previous.position.Y, Y2 = branch.position.Y };
                     line.Stroke = System.Windows.Media.Brushes.White;
@@ -68,7 +69,38 @@ namespace Game_Try_1
                     canvas.Children.Add(ellipse);
                 }
             }
-           
+           */
+            var Cont2 = city.Nodes;
+            foreach (var item in Cont2)
+            {
+                Ellipse ellipse = new Ellipse { Height = 2, Width = 2, Fill = System.Windows.Media.Brushes.Red };
+                Canvas.SetLeft(ellipse, item.X - 0.5);
+                Canvas.SetTop(ellipse, item.Y - 0.5);
+                canvas.Children.Add(ellipse);
+            }
+            
+            var Con = city.blocks.EndPoints;
+            foreach (var item in Con)
+            {
+                Console.WriteLine(item.targets.Count);
+                Ellipse ellipse = new Ellipse { Height = 4, Width = 4, Fill = System.Windows.Media.Brushes.Green };
+                Canvas.SetLeft(ellipse, item.position.X - 1);
+                Canvas.SetTop(ellipse, item.position.Y - 1);
+                canvas.Children.Add(ellipse);
+            }
+            
+            var Con2 = city.roadMap.graph;
+            foreach (var branch in Con2)
+            {
+                if (branch.previous != null)
+                {
+                    Line line = new Line() { X1 = branch.previous.position.X, X2 = branch.position.X, Y1 = branch.previous.position.Y, Y2 = branch.position.Y };
+                    line.Stroke = System.Windows.Media.Brushes.White;
+                    line.StrokeThickness = 0.5;
+                    canvas.Children.Add(line);
+                }
+            }
+
             var Cont = city.map;
             byte[] buffer = new byte[19000000];
 
@@ -83,17 +115,9 @@ namespace Game_Try_1
                 }
             }
             CreateImage(buffer, (int)canvas.Height, (int)canvas.Width);
-            /*
-            var Cont2 = city.Nodes;
-            foreach (var item in Cont2)
-            {
-                Ellipse ellipse = new Ellipse { Height = 2, Width = 2, Fill = System.Windows.Media.Brushes.Red};
-                Canvas.SetLeft(ellipse, item.X - 0.5);
-                Canvas.SetTop(ellipse, item.Y - 0.5);
-                canvas.Children.Add(ellipse);
-            }
             
-            */
+            canvas.Children.Add(new Line());
+            canvas.Children.Add(new Line());
         }
 
         unsafe private void CreateImage(byte[] imageData, int Height, int Width)
@@ -146,9 +170,99 @@ namespace Game_Try_1
                 }
             }
             */
+            /*
+            if (prepos1 == Vector2.Zero && prepos2 == Vector2.Zero)
+            {
+                Vector2 closestNode = Vector2.Zero;
+                double distance = double.MaxValue;
+                Vector2 mouse = new Vector2((float)Mouse.GetPosition(canvas).X, (float)Mouse.GetPosition(canvas).Y);
+                foreach (var node in city.Nodes)
+                {
+                    if ((mouse - node).Length() < distance)
+                    {
+                        closestNode = node;
+                        distance = (mouse - node).Length();
+                    }
+                }
+                foreach (var Node in city.roadMap.graph)
+                {
+                    if (Node != null && Node.position == closestNode)
+                    {
+                        prepos1 = Node.position;
+                    }
+                }
+            }
+            else if(prepos2 == Vector2.Zero)
+            {
+                Vector2 closestNode = Vector2.Zero;
+                double distance = double.MaxValue;
+                Vector2 mouse = new Vector2((float)Mouse.GetPosition(canvas).X, (float)Mouse.GetPosition(canvas).Y);
+                foreach (var node in city.Nodes)
+                {
+                    if ((mouse - node).Length() < distance)
+                    {
+                        closestNode = node;
+                        distance = (mouse - node).Length();
+                    }
+                }
+                foreach (var Node in city.roadMap.graph)
+                {
+                    if (Node != null && Node.position == closestNode)
+                    {
+                        prepos2 = Node.position;
+                    }
+                }
+            }
+            else
+            {
+                canvas.Children.RemoveAt(canvas.Children.Count - 1);
+                canvas.Children.RemoveAt(canvas.Children.Count - 1);
+                Vector2 closestNode = Vector2.Zero;
+                double distance = double.MaxValue;
+                Vector2 mouse = new Vector2((float)Mouse.GetPosition(canvas).X, (float)Mouse.GetPosition(canvas).Y);
+                foreach (var node in city.Nodes)
+                {
+                    if ((mouse - node).Length() < distance)
+                    {
+                        closestNode = node;
+                        distance = (mouse - node).Length();
+                    }
+                }
+                foreach (var Node in city.roadMap.graph)
+                {
+                    if (Node != null && Node.position == closestNode)
+                    {
+                        var x = Math.Sqrt(Math.Pow(prepos2.Y - Node.position.Y, 2) + Math.Pow(prepos2.X - Node.position.X, 2));
+                        var y = Math.Sqrt(Math.Pow(prepos1.Y - Node.position.Y, 2) + Math.Pow(prepos1.X - Node.position.X, 2));
+                        if (Math.Atan2(y, x) < Math.PI / 6 || Math.Atan2(y, x) > Math.PI * 7 / 6)
+                        {
+                            Ellipse ellipse = new Ellipse { Height = 4, Width = 4, Fill = System.Windows.Media.Brushes.Red };
+                            Canvas.SetLeft(ellipse, Node.position.X - 2);
+                            Canvas.SetTop(ellipse, Node.position.Y - 2);
+                            canvas.Children.Add(ellipse);
+                        }
+                        else
+                        {
+                            Ellipse ellipse = new Ellipse { Height = 4, Width = 4, Fill = System.Windows.Media.Brushes.Green };
+                            Canvas.SetLeft(ellipse, Node.position.X - 2);
+                            Canvas.SetTop(ellipse, Node.position.Y - 2);
+                            canvas.Children.Add(ellipse);
+                        }
+                    }
+                }
+                prepos1 = Vector2.Zero;
+                prepos2 = Vector2.Zero;
+            }
+            */
 
-
-
+            if(canvas.Children.Contains(Image))
+            {
+                canvas.Children.Remove(Image);
+            }
+            else
+            {
+                canvas.Children.Add(Image);
+            }
             /*
             var Cont2 = city.Nodes;
             foreach (var item2 in Cont2)
@@ -171,6 +285,6 @@ namespace Game_Try_1
             canvas.Children.Add(ellipse2);
             city.FindSource(pairs[current].Item1);
             */
-        }
+            }
     }
 }
