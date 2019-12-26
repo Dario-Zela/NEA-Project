@@ -32,8 +32,8 @@ namespace Game_Try_1
 
         public Vector NormaliseSelf()
         {
-            X = X / Math.Abs(X);
-            Y = Y / Math.Abs(Y);
+            X = X == 0 ? 0 : X / Math.Abs(X);
+            Y = Y == 0 ? 0 : Y / Math.Abs(Y);
             return new Vector(X, Y);
         }
 
@@ -117,6 +117,11 @@ namespace Game_Try_1
         {
             Position = pos;
         }
+
+        public void Reset()
+        {
+            ClosestRoad = null;
+        }
     }
 
     class Road
@@ -169,11 +174,10 @@ namespace Game_Try_1
 
     class RoadNetwork
     {
-        double maxDistance;
-        double minDistance;
-        List<AttractionPoint> AttractionPoints;
-        List<Road> Roads;
-        Vector Centre;
+        private double maxDistance;
+        private double minDistance;
+        public List<AttractionPoint> AttractionPoints;
+        public List<Road> Roads;
 
         public RoadNetwork(double minDistance, double maxDistance, Vector startPosition, int mapHeight, int mapWidth, int numAttPoints, int seed, double minLenght)
         {
@@ -182,13 +186,9 @@ namespace Game_Try_1
             AttractionPoints = new List<AttractionPoint>();
             Roads = new List<Road>();
             SetUp(startPosition, mapHeight, mapWidth, numAttPoints, seed, minLenght);
-            while (AttractionPoints.Count != 0 || Roads.Count > 50)
-            {
-                Grow();
-            }
         }
 
-        private void Grow()
+        public void Grow()
         {
             List<AttractionPoint> toDel = new List<AttractionPoint>();
             foreach (AttractionPoint AttractionPoint in AttractionPoints)
@@ -210,7 +210,7 @@ namespace Game_Try_1
                         distance = direction.Lenght;
                     }
                 }
-                if(direction != Vector.Zero)
+                if(AttractionPoint.ClosestRoad != null)
                 {
                     direction = AttractionPoint.Position - AttractionPoint.ClosestRoad.Position;
                     if (AttractionPoint.ClosestRoad.PrePosition != Vector.Max)
@@ -238,6 +238,7 @@ namespace Game_Try_1
                         AttractionPoint.ClosestRoad.counter++;
                     }
                 }
+                AttractionPoint.Reset();
             }
 
             foreach (AttractionPoint AttractionPoint in toDel)
@@ -273,7 +274,7 @@ namespace Game_Try_1
             {
                 AttractionPoints.Add(new AttractionPoint((random.Next(0, mapWidth), random.Next(0, mapHeight))));
             }
-            Roads.Add(new Road(startPosition, null, Vector.Zero, minLenght));
+            Roads.Add(new Road(startPosition, null, (10,10), minLenght));
         }
     }
 }
