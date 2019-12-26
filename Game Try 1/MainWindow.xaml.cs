@@ -23,7 +23,7 @@ namespace Game_Try_1
     /// </summary>
     public partial class MainWindow : Window
     {
-
+        City city;
         public MainWindow()
         {
             InitializeComponent();
@@ -46,7 +46,7 @@ namespace Game_Try_1
 
         private void CreateMap(double max = 200, double min = 20, int num = 200, Vector2 root = default)
         {
-            City city = new City((int)canvas.Height, (int)canvas.Width);
+            city = new City((int)canvas.Height, (int)canvas.Width);
             var Con = city.roadMap.graph;
             foreach (var branch in Con)
             {
@@ -108,8 +108,30 @@ namespace Game_Try_1
 
         private void Submit_Click(object sender, RoutedEventArgs e)
         {
-            canvas.Children.Clear();
-            
+            Vector2 closestNode = Vector2.Zero;
+            double distance = double.MaxValue;
+            Vector2 mouse = new Vector2((float)Mouse.GetPosition(canvas).X, (float)Mouse.GetPosition(canvas).Y);
+            foreach (var node in city.Nodes)
+            {
+                if((mouse-node).Length() < distance)
+                {
+                    closestNode = node;
+                    distance = (mouse - node).Length();
+                }
+            }
+            foreach (var Node in city.roadMap.graph)
+            {
+                if(Node.position == closestNode)
+                {
+                    foreach (var item in Node.targets)
+                    {
+                        Ellipse ellipse = new Ellipse { Height = 4, Width = 4, Fill = System.Windows.Media.Brushes.Green };
+                        Canvas.SetLeft(ellipse, item.Target.position.X - 2);
+                        Canvas.SetTop(ellipse, item.Target.position.Y - 2);
+                        canvas.Children.Add(ellipse);
+                    }
+                }
+            }
         }
     }
 }

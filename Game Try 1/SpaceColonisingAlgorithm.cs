@@ -26,9 +26,11 @@ namespace Game_Try_1
         private readonly Vector2 orDir;
         public Vector2 newBranchPos;
         public int count;
+        public int resetCount;
 
         public Branch(Vector2 pos, Branch parent, Vector2 dir)
         {
+            resetCount = 0;
             position = pos;
             this.parent = parent;
             this.dir = dir;
@@ -40,6 +42,7 @@ namespace Game_Try_1
         {
             dir = orDir;
             count = 0;
+            resetCount++;
         }
 
         public Branch NewBranch()
@@ -278,6 +281,7 @@ namespace Game_Try_1
         public RoadGraph roadMap;
         BlockGraph blocks;
         public List<Vector2> Nodes = new List<Vector2>();
+        private List<(int,int,Branch)> Nodes3 = new List<(int, int, Branch)>();
 
         private void createMap(int Width, int Height)
         {
@@ -287,6 +291,7 @@ namespace Game_Try_1
             foreach (var road in tree.Branches)
             {
                 map[(int)road.position.X, (int)road.position.Y] = road;
+                Nodes3.Add(((int)road.position.X, (int)road.position.Y, road));
             }
         }
 
@@ -307,117 +312,84 @@ namespace Game_Try_1
                 {
                     if (map[i, j] != null)
                     {
-                        int adjecentRoads = 0;
-                        for (int k = -1; k< 2; k++)
+                        if(map[i, j].resetCount != 1)
                         {
-                            for (int l = -1; l < 2; l++)
-                            {
-                                if (map[i + k, j + l] != null)
-                                {
-                                    adjecentRoads++;
-                                }
-                            }
-                        }
-                        if(adjecentRoads == 2)
-                        {
-                            Nodes.Add(new Vector2(i, j));
-                        }
-                        else if(adjecentRoads > 4)
-                        {
-                            adjecentRoads = checkAround(i, j, map, 2);
-                            if(adjecentRoads > 5)
-                            {
-                                Nodes.Add(new Vector2(i, j));
-                            }
+                            Nodes.Add(map[i, j].position);
                         }
                     }
                 }
             }
-
+            /*
             List<Vector2> toDel = new List<Vector2>();
 
             foreach (var node1 in Nodes)
             {
-                List<Vector2> closeNodes = new List<Vector2>();
-                foreach (var node2 in Nodes)
+                if (!toDel.Contains(node1))
                 {
-                    bool cond1 = node2.X < node1.X + 3 && node2.X > node1.X - 3;
-                    bool cond2 = node2.Y < node1.Y + 3 && node2.Y > node1.Y - 3;
-                    if (cond1 && cond2)
+                    List<Vector2> closeNodes = new List<Vector2>();
+                    foreach (var node2 in Nodes)
                     {
-                        closeNodes.Add(node2);
+                        bool cond1 = node2.X < node1.X + 2 && node2.X > node1.X - 2;
+                        bool cond2 = node2.Y < node1.Y + 2 && node2.Y > node1.Y - 2;
+                        if (cond1 && cond2)
+                        {
+                            closeNodes.Add(node2);
+                        }
                     }
-                }
-                if(closeNodes.Count != 1)
-                {
-                    int xSum = 0;
-                    int ySum = 0;
-                    foreach (var node in closeNodes)
+                    if (closeNodes.Count != 1)
                     {
-                        xSum += (int)node.X;
-                        ySum += (int)node.Y;
+                        int xSum = 0;
+                        int ySum = 0;
+                        foreach (var node in closeNodes)
+                        {
+                            xSum += (int)node.X;
+                            ySum += (int)node.Y;
+                        }
+                        xSum /= closeNodes.Count;
+                        ySum /= closeNodes.Count;
+                        var median = new Vector2(xSum, ySum);
+                        Vector2 closest = Vector2.Zero;
+                        double distance = double.MaxValue;
+                        foreach (var item in closeNodes)
+                        {
+                            if((median-item).Length() < distance)
+                            {
+                                closest = item;
+                                distance = (median - item).Length();
+                            }
+                        }
+                        closeNodes.Remove(closest);
+                        toDel.AddRange(closeNodes);
                     }
-                    xSum /= closeNodes.Count;
-                    ySum /= closeNodes.Count;
-                    closeNodes.Remove(new Vector2(xSum, ySum));
-                    toDel.AddRange(closeNodes);
                 }
             }
-
+            
             foreach (var node in toDel)
             {
                 Nodes.Remove(node);
             }
-
+            */
             Nodes.Remove(root);
             roadMap.addNode(root, null);
-            addNodes(Nodes, roadMap.graph[0]);
+            addNodes(roadMap.graph[0]);
             Nodes.Add(root);
             //blocks = new BlockGraph(roadMap, 10);
         }
 
-        public int checkAround(int x, int y, Branch[,] map, int Size)
-        {
-            int adjecentRoads = 0;
-            for (int i = -Size; i < Size + 1; i++)
-            {
-                if (map[x -1, y + i] != null)
-                {
-                    adjecentRoads++;
-                }
-                if (map[x + 1, y + i] != null)
-                {
-                    adjecentRoads++;
-                }
-            }
-            for (int i = -Size; i < Size + 1; i++)
-            {
-                if (map[x + i, y - 1] != null)
-                {
-                    adjecentRoads++;
-                }
-                if (map[x + i, y - 1] != null)
-                {
-                    adjecentRoads++;
-                }
-            }
-            return adjecentRoads;
-        }
-
-        public List<(Vector2, Vector2)> FindPairs(List<Vector2> Nodes)
+        public List<(Vector2, Vector2)> FindPairs()
         {
             List<(Vector2, Vector2)> pairs = new List<(Vector2, Vector2)>();
             foreach (var node in Nodes)
             {
-                var temp = FindSource(Nodes, node);
+                var temp = FindSource(node);
                 pairs.Add((node, temp));
             }
             return pairs;
         }
 
-        public void addNodes(List<Vector2> Nodes, RoadNode Source)
+        public void addNodes(RoadNode Source)
         {
-            var pairs = FindPairs(Nodes);
+            var pairs = FindPairs();
             List<RoadNode> nodes = new List<RoadNode>();
             nodes.Add(Source);
             do
@@ -439,27 +411,42 @@ namespace Game_Try_1
             } while (nodes.Capacity != 0);
         }
 
-        public Vector2 FindSource(List<Vector2> Nodes, Vector2 pos)
+        public Vector2 FindSource(Vector2 pos)
         {
             var currentPos = map[(int)pos.X, (int)pos.Y];
             Branch branch = currentPos;
-
+            List<Branch> possibleSources = new List<Branch>();
             foreach (var Node in Nodes)
             {
                 var possibleSource = map[(int)Node.X, (int)Node.Y];
                 do
                 {
                     currentPos = currentPos.parent;
+
                 }
-                while (currentPos != possibleSource & currentPos.parent != null);
+                while (currentPos != possibleSource && currentPos.parent != null);
                 if(currentPos == possibleSource)
                 {
-                    return new Vector2(currentPos.position.X, currentPos.position.Y);
+                    possibleSources.Add(possibleSource);
                 }
                 else
                 {
                     currentPos = branch;
                 }
+            }
+            if(possibleSources.Count != 0)
+            {
+                double distance = double.MaxValue;
+                Branch closestBranch = null;
+                foreach (var Source in possibleSources)
+                {
+                    if((branch.position - Source.position).Length() < distance)
+                    {
+                        distance = (branch.position - Source.position).Length();
+                        closestBranch = Source;
+                    }
+                }
+                return new Vector2(closestBranch.position.X, closestBranch.position.Y);
             }
             return root;
         }
