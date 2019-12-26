@@ -319,7 +319,7 @@ namespace Game_Try_1
                     }
                 }
             }
-            /*
+            
             List<Vector2> toDel = new List<Vector2>();
 
             foreach (var node1 in Nodes)
@@ -368,7 +368,7 @@ namespace Game_Try_1
             {
                 Nodes.Remove(node);
             }
-            */
+            
             Nodes.Remove(root);
             roadMap.addNode(root, null);
             addNodes(roadMap.graph[0]);
@@ -414,39 +414,34 @@ namespace Game_Try_1
         public Vector2 FindSource(Vector2 pos)
         {
             var currentPos = map[(int)pos.X, (int)pos.Y];
-            Branch branch = currentPos;
-            List<Branch> possibleSources = new List<Branch>();
-            foreach (var Node in Nodes)
+            List<Vector2> closeNodes = new List<Vector2>();
+            do
             {
-                var possibleSource = map[(int)Node.X, (int)Node.Y];
-                do
+                currentPos = currentPos.parent;
+                foreach (var item in Nodes)
                 {
-                    currentPos = currentPos.parent;
-
-                }
-                while (currentPos != possibleSource && currentPos.parent != null);
-                if(currentPos == possibleSource)
-                {
-                    possibleSources.Add(possibleSource);
-                }
-                else
-                {
-                    currentPos = branch;
-                }
-            }
-            if(possibleSources.Count != 0)
-            {
-                double distance = double.MaxValue;
-                Branch closestBranch = null;
-                foreach (var Source in possibleSources)
-                {
-                    if((branch.position - Source.position).Length() < distance)
+                    bool check1 = currentPos.position.X < item.X + 0.5 && currentPos.position.X > item.X - 0.5;
+                    bool check2 = currentPos.position.Y < item.Y + 0.5 && currentPos.position.Y < item.Y - 0.5;
+                    if (check1 && check2 && item != pos)
                     {
-                        distance = (branch.position - Source.position).Length();
-                        closestBranch = Source;
+                        closeNodes.Add(item);
                     }
                 }
-                return new Vector2(closestBranch.position.X, closestBranch.position.Y);
+            } 
+            while (currentPos.parent != null);
+            if(closeNodes.Count != 0)
+            {
+                Vector2 closestNode = Vector2.Zero;
+                double distance = double.MaxValue;
+                foreach (var node in closeNodes)
+                {
+                    if ((pos - node).Length() < distance)
+                    {
+                        closestNode = node;
+                        distance = (pos - node).Length();
+                    }
+                }
+                return closestNode;
             }
             return root;
         }

@@ -24,6 +24,10 @@ namespace Game_Try_1
     public partial class MainWindow : Window
     {
         City city;
+        //Vector2 prepos;
+        List<(Vector2, Vector2)> pairs = new List<(Vector2, Vector2)>();
+        int current = -1;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -47,6 +51,7 @@ namespace Game_Try_1
         private void CreateMap(double max = 200, double min = 20, int num = 200, Vector2 root = default)
         {
             city = new City((int)canvas.Height, (int)canvas.Width);
+            pairs = city.FindPairs();
             var Con = city.roadMap.graph;
             foreach (var branch in Con)
             {
@@ -108,6 +113,7 @@ namespace Game_Try_1
 
         private void Submit_Click(object sender, RoutedEventArgs e)
         {
+            /*
             Vector2 closestNode = Vector2.Zero;
             double distance = double.MaxValue;
             Vector2 mouse = new Vector2((float)Mouse.GetPosition(canvas).X, (float)Mouse.GetPosition(canvas).Y);
@@ -130,8 +136,34 @@ namespace Game_Try_1
                         Canvas.SetTop(ellipse, item.Target.position.Y - 2);
                         canvas.Children.Add(ellipse);
                     }
+                    city.FindSource(Node.position);
+                    prepos = Node.position;
                 }
             }
+            */
+
+            canvas.Children.Clear();
+            canvas.Children.Add(Image);
+            var Cont2 = city.Nodes;
+            foreach (var item2 in Cont2)
+            {
+                Ellipse ellipse3 = new Ellipse { Height = 2, Width = 2, Fill = System.Windows.Media.Brushes.Red };
+                Canvas.SetLeft(ellipse3, item2.X - 0.5);
+                Canvas.SetTop(ellipse3, item2.Y - 0.5);
+                canvas.Children.Add(ellipse3);
+            }
+            current++;
+            var item = pairs[current].Item1;
+            Ellipse ellipse = new Ellipse { Height = 4, Width = 4, Fill = System.Windows.Media.Brushes.Green };
+            Canvas.SetLeft(ellipse, item.X - 2);
+            Canvas.SetTop(ellipse, item.Y - 2);
+            canvas.Children.Add(ellipse);
+            item = pairs[current].Item2;
+            Ellipse ellipse2 = new Ellipse { Height = 4, Width = 4, Fill = System.Windows.Media.Brushes.Green };
+            Canvas.SetLeft(ellipse2, item.X - 2);
+            Canvas.SetTop(ellipse2, item.Y - 2);
+            canvas.Children.Add(ellipse2);
+            city.FindSource(pairs[current].Item1);
         }
     }
 }
