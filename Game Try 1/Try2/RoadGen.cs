@@ -179,6 +179,13 @@ namespace Game_Try_1
 
             return check1 && check2;
         }
+
+        static public double angle(Vector node1, Vector node2, Vector node3)
+        {
+            double X = Math.Sqrt(Math.Pow(node2.Y - node1.Y, 2) - Math.Pow(node3.X - node2.X, 2));
+            double Y = Math.Sqrt(Math.Pow(node2.Y - node3.Y, 2) - Math.Pow(node2.X - node3.X, 2));
+            return Math.Atan2(Y, X);
+        }
     }
 
     class Graph
@@ -225,6 +232,8 @@ namespace Game_Try_1
             {
                 graph[node1].Remove(node2);
                 graph[node2].Remove(node1);
+                if (graph[node1].Count == 0) removeNode(node1);
+                if (graph[node2].Count == 0) removeNode(node2);
             }
         }
 
@@ -232,21 +241,26 @@ namespace Game_Try_1
         {
             get
             {
-                return graph[key];
+                if (graph.ContainsKey(key))
+                {
+                    return graph[key];
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
     }
 
     class RoadNetwork
     {
-        public Graph Graph;
-        public List<Vector> keys;
+        public Graph Graph = new Graph();
+        public List<Vector> keys => Graph.graph.Keys.ToList();
         public LinkedList<(Vector, Vector)> toDel;
 
         public RoadNetwork(int mapHeight, int mapWidth, double[,] heightMap, int numNodes, int seed)
         {
-            Graph = new Graph();
-            keys = new List<Vector>();
             SetUp(mapHeight, mapWidth, numNodes, seed);
         }
 
@@ -254,25 +268,34 @@ namespace Game_Try_1
         {
             Random rand = new Random(seed);
             CreateNodes(mapHeight, mapWidth, numNodes, rand);
-            addAllNodes(rand);
-            removeIntersections();
+            addAllEdges(rand);
+            //removeIntersections();
         }
 
         private void CreateNodes(int mapHeight, int mapWidth, int numNodes, Random rand)
         {
-            for (int i = 0; i < numNodes; i++)
+            int numRows = (int)Math.Sqrt(numNodes);
+            for (int i = 1; i < numRows + 1; i++)
             {
-                Vector node = (rand.Next(mapWidth), rand.Next(mapHeight));
+                Vector node = (rand.Next(mapWidth * (i - 1) / numRows, mapWidth * i / numRows), rand.Next(mapHeight / numRows));
                 Graph.addNode(node);
-                keys.Add(node);
+                node = (rand.Next(mapWidth * (i - 1) / numRows, mapWidth * i / numRows), rand.Next(mapHeight / (numRows - 1), mapHeight));
+                Graph.addNode(node);
+            }
+            for (int j = 2; j < Math.Sqrt(numNodes); j++)
+            {
+                Vector node = (rand.Next(mapWidth / numRows), rand.Next(mapHeight * (j - 1) / numRows, mapWidth * j / numRows));
+                Graph.addNode(node);
+                node = (rand.Next(mapWidth / (numRows - 1), mapWidth) , rand.Next(mapHeight * (j - 1) / numRows, mapHeight * j / numRows));
+                Graph.addNode(node);
             }
         }
 
-        private void addAllNodes(Random rand)
+        private void addAllEdges(Random rand)
         {
             foreach (Vector Key in keys)
             {
-                int connections = rand.Next(3, 6);
+                int connections = rand.Next(2, 3);
                 Vector[] toOmmit = new Vector[connections];
                 for (int i = 0; i < connections; i++)
                 {
@@ -285,33 +308,31 @@ namespace Game_Try_1
 
         private void removeIntersections()
         {
-            toDel = new LinkedList<(Vector, Vector)>();
+            int keysDel = 0;
 
-            foreach (Vector Key in keys)
+            for (int i = 0; i < keys.Count; i++)
             {
+                Vector Key = keys[i - keysDel];
+                LinkedList<(Vector, Vector)>  toDel = new LinkedList<(Vector, Vector)>();
                 foreach (Vector node in Graph[Key])
                 {
-                    if (!toDel.Contains((Key, node)) && !toDel.Contains((node, Key)))
+                    foreach (Vector Key2 in keys)
                     {
-                        foreach (Vector Key2 in keys)
+                        foreach (Vector node2 in Graph[Key2])
                         {
-                            foreach (Vector node2 in Graph[Key2])
+                            if (Vector.doIntersect(Key, node, Key2, node2))
                             {
-                                if (Vector.doIntersect(Key, node, Key2, node2))
-                                {
-                                    toDel.AddLast((Key, node));
-                                }
+                                toDel.AddLast((Key, node));
                             }
                         }
                     }
                 }
+                if (toDel.Count != 0) keysDel++;
+                foreach ((Vector, Vector) item in toDel)
+                {
+                    Graph.removeEdge(item.Item1, item.Item2);
+                }
             }
-            /*
-            foreach ((Vector, Vector) item in toDel)
-            {
-                Graph.removeEdge(item.Item1, item.Item2);
-            }
-            */
         }
     }
 }
