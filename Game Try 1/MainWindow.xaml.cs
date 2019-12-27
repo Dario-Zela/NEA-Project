@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -23,132 +22,122 @@ namespace Game_Try_1
     /// </summary>
     public partial class MainWindow : Window
     {
+        Vector point1 = Vector.Max;
+        Vector point2 = Vector.Max;
+        Vector point3 = Vector.Max;
         RoadNetwork network;
+        LinkedListNode<(Vector, Vector)> toDel;
 
         public MainWindow()
         {
             InitializeComponent();
-            network = new RoadNetwork(20, 400, ((int)canvas.Width / 2, (int)canvas.Width / 2), (int)canvas.Height, (int)canvas.Width, 400, 890132, 10);
-            network.Grow();
-            foreach (var road in network.Roads)
+            network = new RoadNetwork((int)canvas.Height, (int)canvas.Width, null, 25, 290821);
+            foreach (Vector Key in network.keys)
             {
-                if(road.Parent != null)
+                foreach (Vector node in network.Graph[Key])
                 {
-                    Line line = new Line() { X1 = road.Parent.Position.X, X2 = road.Position.X, Y1 = road.Parent.Position.Y, Y2 = road.Position.Y };
-                    line.Stroke = System.Windows.Media.Brushes.White;
+                    Line line = new Line() { X1 = Key.X, X2 = node.X, Y1 = Key.Y, Y2 = node.Y };
+                    line.Stroke = Brushes.White;
                     line.StrokeThickness = 0.5;
                     canvas.Children.Add(line);
-                    if (road.PrePosition != Vector.Max)
-                    {
-                        Line line2 = new Line() { X1 = road.PrePosition.X, Y1 = road.PrePosition.Y, X2 = road.dirSplit.X, Y2 = road.dirSplit.Y };
-                        line2.Stroke = System.Windows.Media.Brushes.Green;
-                        line2.StrokeThickness = 0.5;
-                        canvas.Children.Add(line2);
-                    }
-                    Line line3 = new Line() { X1 = road.Position.X, X2 = road.dir.X, Y1 = road.Position.Y, Y2 = road.dir.Y };
-                    line3.Stroke = System.Windows.Media.Brushes.Green;
-                    line3.StrokeThickness = 0.5;
-                    canvas.Children.Add(line3);
-                }
-                else
-                {
-                    Line line = new Line() { X1 = canvas.Width / 2, X2 = road.Position.X, Y1 = canvas.Width / 2, Y2 = road.Position.Y };
-                    line.Stroke = System.Windows.Media.Brushes.White;
-                    line.StrokeThickness = 0.5;
-                    canvas.Children.Add(line);
-                    if (road.PrePosition != Vector.Max)
-                    {
-                        Line line2 = new Line() { X1 = road.PrePosition.X, Y1 = road.PrePosition.Y, X2 = road.dirSplit.X, Y2 = road.dirSplit.Y };
-                        line2.Stroke = System.Windows.Media.Brushes.Green;
-                        line2.StrokeThickness = 0.5;
-                        canvas.Children.Add(line2);
-                    }
-                    Line line3 = new Line() { X1 = road.Position.X, X2 = road.dir.X, Y1 = road.Position.Y, Y2 = road.dir.Y };
-                    line3.Stroke = System.Windows.Media.Brushes.Green;
-                    line3.StrokeThickness = 0.5;
-                    canvas.Children.Add(line3);
                 }
             }
 
-            foreach (var node in network.AttractionPoints)
+            foreach (var Key in network.keys)
             {
-                Ellipse ellipse = new Ellipse() { Width = 4, Height = 4 };
-                Canvas.SetLeft(ellipse, node.Position.X - 1);
-                Canvas.SetTop(ellipse, node.Position.Y - 1);
-                ellipse.Fill = System.Windows.Media.Brushes.Wheat;
-                canvas.Children.Add(ellipse);
+                Ellipse e = new Ellipse() { Width = 4, Height = 4 };
+                Canvas.SetLeft(e, Key.X - 2);
+                Canvas.SetTop(e, Key.Y - 2);
+                e.Fill = Brushes.Red;
+                canvas.Children.Add(e);
             }
         }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
+        /*
+        private void Button_Click(object sender, RoutedEventArgs el)
         {
             canvas.Children.Clear();
-            network.Grow();
-
-            foreach (var road in network.Roads)
+            network.Graph.removeEdge(toDel.Value.Item1, toDel.Value.Item2);
+            toDel = toDel.Next;
+            foreach (Vector Key in network.keys)
             {
-                if (road.Parent != null)
+                foreach (Vector node in network.Graph[Key])
                 {
-                    Line line = new Line() { X1 = road.Parent.Position.X, X2 = road.Position.X, Y1 = road.Parent.Position.Y, Y2 = road.Position.Y };
-                    line.Stroke = System.Windows.Media.Brushes.White;
-                    line.StrokeThickness = 0.5;
+                    Line line = new Line() { X1 = Key.X, X2 = node.X, Y1 = Key.Y, Y2 = node.Y };
+                    line.Stroke = network.toDel.First.Value == (Key, node) ? Brushes.Red : Brushes.White;
+                    line.StrokeThickness = toDel.Value == (Key, node) ? 1.5 : 0.5;
                     canvas.Children.Add(line);
-                    if (road.PrePosition != Vector.Max)
-                    {
-                        Line line2 = new Line() { X1 = road.PrePosition.X, Y1 = road.PrePosition.Y, X2 = road.dirSplit.X, Y2 = road.dirSplit.Y };
-                        line2.Stroke = System.Windows.Media.Brushes.Green;
-                        line2.StrokeThickness = 0.5;
-                        canvas.Children.Add(line2);
-                    }
-                    Line line3 = new Line() { X1 = road.Position.X, X2 = road.dir.X, Y1 = road.Position.Y, Y2 = road.dir.Y };
-                    line3.Stroke = System.Windows.Media.Brushes.Green;
-                    line3.StrokeThickness = 0.5;
-                    canvas.Children.Add(line3);
-                }
-                else
-                {
-                    Line line = new Line() { X1 = canvas.Width / 2, X2 = road.Position.X, Y1 = canvas.Width / 2, Y2 = road.Position.Y };
-                    line.Stroke = System.Windows.Media.Brushes.White;
-                    line.StrokeThickness = 0.5;
-                    canvas.Children.Add(line);
-                    if (road.PrePosition != Vector.Max)
-                    {
-                        Line line2 = new Line() { X1 = road.PrePosition.X, Y1 = road.PrePosition.Y, X2 = road.dirSplit.X, Y2 = road.dirSplit.Y };
-                        line2.Stroke = System.Windows.Media.Brushes.Green;
-                        line2.StrokeThickness = 0.5;
-                        canvas.Children.Add(line2);
-                    }
-                    Line line3 = new Line() { X1 = road.Position.X, X2 = road.dir.X, Y1 = road.Position.Y, Y2 = road.dir.Y };
-                    line3.Stroke = System.Windows.Media.Brushes.Green;
-                    line3.StrokeThickness = 0.5;
-                    canvas.Children.Add(line3);
                 }
             }
 
-
-            foreach (var node in network.AttractionPoints)
+            foreach (var Key in network.keys)
             {
-                Ellipse ellipse = new Ellipse() { Width = 4, Height = 4 };
-                Canvas.SetLeft(ellipse, node.Position.X - 1);
-                Canvas.SetTop(ellipse, node.Position.Y - 1);
-                ellipse.Fill = System.Windows.Media.Brushes.Wheat;
-                canvas.Children.Add(ellipse);
+                Ellipse e = new Ellipse() { Width = 4, Height = 4 };
+                Canvas.SetLeft(e, Key.X - 2);
+                Canvas.SetTop(e, Key.Y - 2);
+                e.Fill = Brushes.Red;
+                canvas.Children.Add(e);
             }
         }
-
-        const double ScaleRate = 1.1;
-        private void Button_MouseWheel(object sender, MouseWheelEventArgs e)
+        */
+        /*
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
-            if (e.Delta > 0)
+            if(point1 == Vector.Max)
             {
-                st.ScaleX *= ScaleRate;
-                st.ScaleY *= ScaleRate;
+                var temp = Mouse.GetPosition(canvas);
+                Vector pos = (temp.X, temp.Y);
+                point1 = pos.nearestNode(network.keys);
+            }
+            else if(point2 == Vector.Max)
+            {
+                var temp = Mouse.GetPosition(canvas);
+                Vector pos = (temp.X, temp.Y);
+                point2 = pos.nearestNode(network.keys);
+            }
+            else if(point3 == Vector.Max)
+            {
+                var temp = Mouse.GetPosition(canvas);
+                Vector pos = (temp.X, temp.Y);
+                point3 = pos.nearestNode(network.keys);
             }
             else
             {
-                st.ScaleX /= ScaleRate;
-                st.ScaleY /= ScaleRate;
+                var temp = Mouse.GetPosition(canvas);
+                Vector pos = (temp.X, temp.Y);
+                var point4 = pos.nearestNode(network.keys);
+                Console.WriteLine(Vector.doIntersect(point1, point2, point3, point4));
+                point1 = Vector.Max;
+                point2 = Vector.Max;
+                point3 = Vector.Max;
             }
         }
+        */
+        
+        private void Button_Click(object sender, RoutedEventArgs el)
+        {
+            canvas.Children.Clear();
+            RoadNetwork network = new RoadNetwork((int)canvas.Height, (int)canvas.Width, null, 25, new Random().Next(19919,3872987));
+
+            foreach (Vector Key in network.keys)
+            {
+                foreach (Vector node in network.Graph[Key])
+                {
+                    Line line = new Line() { X1 = Key.X, X2 = node.X, Y1 = Key.Y, Y2 = node.Y };
+                    line.Stroke = Brushes.White;
+                    line.StrokeThickness = 0.5;
+                    canvas.Children.Add(line);
+                }
+            }
+
+            foreach (var Key in network.keys)
+            {
+                Ellipse e = new Ellipse() { Width = 4, Height = 4 };
+                Canvas.SetLeft(e, Key.X - 2);
+                Canvas.SetTop(e, Key.Y - 2);
+                e.Fill = Brushes.Red;
+                canvas.Children.Add(e);
+            }
+        }
+        
     }
 }

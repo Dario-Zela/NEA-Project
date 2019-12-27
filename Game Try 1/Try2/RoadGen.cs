@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +18,7 @@ namespace Game_Try_1
             Y = y;
         }
 
-        static public Vector Zero = (0,0);
+        static public Vector Zero = (0, 0);
 
         static public Vector Max = (int.MaxValue, int.MaxValue);
 
@@ -80,11 +81,19 @@ namespace Game_Try_1
             return !(Vector1.X == Vector2.X && Vector1.Y == Vector2.Y);
         }
 
-        static public implicit operator Vector((int,int) vector)
+        static public implicit operator Vector((int, int) vector)
         {
             int X = vector.Item1;
             int Y = vector.Item2;
             return new Vector(X, Y);
+        }
+        static public implicit operator Vector((double, double) vector)
+        {
+            return ((int)vector.Item1, (int)vector.Item2);
+        }
+        static public implicit operator Vector((float, float) vector)
+        {
+            return ((int)vector.Item1, (int)vector.Item2);
         }
 
         static public bool operator <(Vector vector1, Vector vector2)
@@ -106,205 +115,203 @@ namespace Game_Try_1
         {
             return vector1.Length >= vector2.Length;
         }
-    }
 
-    class AttractionPoint
-    {
-        public Vector Position;
-        public Road ClosestRoad;
-
-        public AttractionPoint(Vector pos)
+        public bool inRange(Vector vector, int range)
         {
-            Position = pos;
+            bool xCond = vector.X < X + range && vector.X > X - range;
+            bool yCond = vector.Y < Y + range && vector.Y > Y - range;
+            return xCond && yCond;
         }
 
-        public void Reset()
+        public Vector nearestNode(List<Vector> OArray, params Vector[] toOmmit)
         {
-            ClosestRoad = null;
-        }
-    }
-
-    class Road
-    {
-        public Vector Position;
-        public Road Parent;
-        public Vector dir;
-        public List<Road> Children;
-        public Vector PrePosition = Vector.Max;
-        private readonly double minLength;
-        public int counter;
-        public Vector dirSplit;
-        public int counterSplit;
-
-        public Road(Vector Position, Road Parent, Vector dir, double minLength)
-        {
-            this.Position = Position;
-            this.Parent = Parent;
-            this.dir = dir;
-            Children = new List<Road>();
-            this.minLength = minLength;
-            dirSplit = (0, 0);
-            counter = 0;
-        }
-
-        public bool isValid()
-        {
-            if (Parent != null)
+            List<Vector> array = new List<Vector>(OArray);
+            if (array.Contains(this)) array.Remove(this);
+            foreach (Vector vector in toOmmit)
             {
-                return Position.Distance(Parent.Position) > minLength;
+                array.Remove(vector);
             }
+            double distance = double.MaxValue;
+            Vector closestNode = Vector.Max;
+            foreach (Vector node in array)
+            {
+                if (Distance(node) < distance)
+                {
+                    distance = Distance(node);
+                    closestNode = node;
+                }
+            }
+            return closestNode;
+        }
+
+        static public Vector FindIntersection(Vector start1, Vector end1, Vector start2, Vector end2)
+        {
+            if (end1 == start1 && end2 == start2) return Vector.Max;
             else
             {
-                return true;
+                double grad1, yInt1, grad2, yInt2, intX, intY;
+
+                grad1 = (double)(end1.Y - start1.Y) / (double)(end1.X - start1.X);
+                yInt1 = start1.Y - grad1 * start1.X;
+                grad2 = (double)(end2.Y - start2.Y) / (double)(end2.X - start2.X);
+                yInt2 = start2.Y - grad2 * start2.X;
+
+                if (grad1 == grad2) return Vector.Max;
+
+                if (yInt1 == yInt2) return (yInt2, 0);
+
+                intX = (yInt2 - yInt1) / (grad1 - grad2);
+                intY = grad2 * intX + yInt1;
+                return (intX, intY);
             }
         }
 
-        public List<Road> createIntersection()
+        static public bool doIntersect(Vector start1, Vector end1, Vector start2, Vector end2)
         {
-            Road childRoad1 = new Road(Position + (dir / (counter + 1)).Normalise, this, (dir / (counter + 1)).Normalise, minLength);
-            Road childRoad2 = new Road(PrePosition + (dirSplit / (counterSplit + 1)).Normalise, this, (dirSplit / (counterSplit + 1)).Normalise, minLength);
-            Children.Add(childRoad1);
-            Children.Add(childRoad2);
-            return Children;
+            int intersect = FindIntersection(start1, end1, start2, end2).X;
+            if (intersect == int.MaxValue) return false;
+
+            int boundX1 = start1.X < end1.X ? start1.X : end1.X, boundX2 = start1.X > end1.X ? start1.X : end1.X;
+            int boundX3 = start2.X < end2.X ? start2.X : end2.X, boundX4 = start2.X > end2.X ? start2.X : end2.X;
+
+            bool check1 = boundX1 < intersect && boundX2 > intersect;
+            bool check2 = boundX3 < intersect && boundX4 > intersect;
+
+            return check1 && check2;
+        }
+    }
+
+    class Graph
+    {
+        public Dictionary<Vector, List<Vector>> graph;
+
+        public Graph()
+        {
+            graph = new Dictionary<Vector, List<Vector>>();
         }
 
-        public void Move()
+        public void addNode(Vector position)
         {
-            PrePosition = Position;
-            Position += (dir  / (counter + 1)).Normalise;
+            if (!graph.ContainsKey(position)) graph.Add(position, new List<Vector>());
         }
 
-        public void Reset()
+        public void addConnection(Vector node1, Vector node2)
         {
-            counter = 0;
-            counterSplit = 0;
+            if (graph[node1].Count == 0 || !graph[node1].Contains(node2))
+            {
+                graph[node1].Add(node2);
+                graph[node2].Add(node1);
+            }
+        }
+
+        public int Count => graph.Count;
+
+        public void removeNode(Vector node)
+        {
+            if (graph.ContainsKey(node))
+            {
+                List<Vector> toDel = graph[node];
+                graph.Remove(node);
+                foreach (Vector key in toDel)
+                {
+                    graph[key].Remove(node);
+                }
+            }
+        }
+
+        public void removeEdge(Vector node1, Vector node2)
+        {
+            if (graph.ContainsKey(node1) && graph.ContainsKey(node2))
+            {
+                graph[node1].Remove(node2);
+                graph[node2].Remove(node1);
+            }
+        }
+
+        public List<Vector> this[Vector key]
+        {
+            get
+            {
+                return graph[key];
+            }
         }
     }
 
     class RoadNetwork
     {
-        private double maxDistance;
-        private double minDistance;
-        public List<AttractionPoint> AttractionPoints;
-        public List<Road> Roads;
+        public Graph Graph;
+        public List<Vector> keys;
+        public LinkedList<(Vector, Vector)> toDel;
 
-        public RoadNetwork(double minDistance, double maxDistance, Vector startPosition, int mapHeight, int mapWidth, int numAttPoints, int seed, double minLength)
+        public RoadNetwork(int mapHeight, int mapWidth, double[,] heightMap, int numNodes, int seed)
         {
-            this.minDistance = minDistance;
-            this.maxDistance = maxDistance;
-            AttractionPoints = new List<AttractionPoint>();
-            Roads = new List<Road>();
-            SetUp(startPosition, mapHeight, mapWidth, numAttPoints, seed, minLength);
-            /*
-            do
-            {
-                Grow();
-            }
-            while (AttractionPoints.Count != 0);
+            Graph = new Graph();
+            keys = new List<Vector>();
+            SetUp(mapHeight, mapWidth, numNodes, seed);
+        }
 
-            List<Road> toDel = new List<Road>();
-            foreach (Road Road in Roads)
+        private void SetUp(int mapHeight, int mapWidth, int numNodes, int seed)
+        {
+            Random rand = new Random(seed);
+            CreateNodes(mapHeight, mapWidth, numNodes, rand);
+            addAllNodes(rand);
+            removeIntersections();
+        }
+
+        private void CreateNodes(int mapHeight, int mapWidth, int numNodes, Random rand)
+        {
+            for (int i = 0; i < numNodes; i++)
             {
-                if (!Road.isValid() && !toDel.Contains(Road))
+                Vector node = (rand.Next(mapWidth), rand.Next(mapHeight));
+                Graph.addNode(node);
+                keys.Add(node);
+            }
+        }
+
+        private void addAllNodes(Random rand)
+        {
+            foreach (Vector Key in keys)
+            {
+                int connections = rand.Next(3, 6);
+                Vector[] toOmmit = new Vector[connections];
+                for (int i = 0; i < connections; i++)
                 {
-                    Road.Parent.Children.Remove(Road);
-                    foreach (var child in Road.Children)
-                    {
-                        toDel.Add(child);
-                    }
-                    toDel.Add(Road);
+                    Vector node = Key.nearestNode(keys, toOmmit);
+                    Graph.addConnection(Key, node);
+                    toOmmit[i] = node;
                 }
             }
+        }
 
-            foreach (Road road in toDel)
+        private void removeIntersections()
+        {
+            toDel = new LinkedList<(Vector, Vector)>();
+
+            foreach (Vector Key in keys)
             {
-                Roads.Remove(road);
+                foreach (Vector node in Graph[Key])
+                {
+                    if (!toDel.Contains((Key, node)) && !toDel.Contains((node, Key)))
+                    {
+                        foreach (Vector Key2 in keys)
+                        {
+                            foreach (Vector node2 in Graph[Key2])
+                            {
+                                if (Vector.doIntersect(Key, node, Key2, node2))
+                                {
+                                    toDel.AddLast((Key, node));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            /*
+            foreach ((Vector, Vector) item in toDel)
+            {
+                Graph.removeEdge(item.Item1, item.Item2);
             }
             */
-        }
-
-        public void Grow()
-        {
-            List<AttractionPoint> toDel = new List<AttractionPoint>();
-            foreach (AttractionPoint AttractionPoint in AttractionPoints)
-            {
-                Vector direction = Vector.Zero;
-                double distance = double.PositiveInfinity;
-                foreach (Road Road in Roads)
-                {
-                    direction = AttractionPoint.Position - Road.Position;
-                    if(direction.Length < minDistance)
-                    {
-                        toDel.Add(AttractionPoint);
-                        break;
-                    }
-                    else if(direction.Length > maxDistance) { }
-                    else if(direction.Length < distance)
-                    {
-                        AttractionPoint.ClosestRoad = Road;
-                        distance = direction.Length;
-                    }
-                }
-                if(AttractionPoint.ClosestRoad != null)
-                {
-                    direction = AttractionPoint.Position - AttractionPoint.ClosestRoad.Position;
-                    if (AttractionPoint.ClosestRoad.PrePosition != Vector.Max)
-                    {
-                        Vector direction2 = AttractionPoint.Position - AttractionPoint.ClosestRoad.PrePosition;
-                        if (direction2 < direction)
-                        {
-                            AttractionPoint.ClosestRoad.dirSplit += direction2.Normalise;
-                            AttractionPoint.ClosestRoad.counterSplit++;
-                        }
-                        else
-                        {
-                            AttractionPoint.ClosestRoad.dir += direction.Normalise;
-                            AttractionPoint.ClosestRoad.counter++;
-                        }
-                    }
-                    else
-                    {
-                        AttractionPoint.ClosestRoad.dir += direction.Normalise;
-                        AttractionPoint.ClosestRoad.counter++;
-                    }
-                }
-                AttractionPoint.Reset();
-            }
-
-            foreach (AttractionPoint AttractionPoint in toDel)
-            {
-                AttractionPoints.Remove(AttractionPoint);
-            }
-
-            List<Road> toAdd = new List<Road>();
-
-            foreach (Road Road in Roads)
-            {
-                if(Road.counter != 0 || Road.counterSplit != 0)
-                {
-                    if (Road.counterSplit != 0)
-                    {
-                        toAdd.AddRange(Road.createIntersection());
-                    }
-                    else
-                    {
-                        Road.Move();
-                    }
-                }
-                Road.Reset();
-            }
-
-            Roads.AddRange(toAdd);
-        }
-
-        private void SetUp(Vector startPosition, int mapHeight, int mapWidth, int numAttPoints, int seed, double minLength)
-        {
-            Random random = new Random(seed);
-            for (int i = 0; i < numAttPoints; i++)
-            {
-                AttractionPoints.Add(new AttractionPoint((random.Next(0, mapWidth), random.Next(0, mapHeight))));
-            }
-            Roads.Add(new Road(startPosition, null, (0,0), minLength));
         }
     }
 }

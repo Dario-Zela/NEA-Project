@@ -59,7 +59,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Try2\RoadGen.cs" />
-    <Compile Include="SpaceColonisingAlgorithm.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
