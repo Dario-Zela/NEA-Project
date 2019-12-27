@@ -7,8 +7,14 @@
         mc:Ignorable="d"
         Title="Pong" Name="Pong" Height="600" Width="800" Background="White">
     <Grid>
-        <Button Click="Button_Click">
-            <Canvas x:Name="canvas" Height="500" Width="500" Background="Black"/>
+        <Button Click="Button_Click" Mouse.MouseWheel="Button_MouseWheel">
+            <StackPanel>
+                <Canvas x:Name="canvas" Height="500" Width="500" Background="Black">
+                    <Canvas.RenderTransform>
+                        <ScaleTransform x:Name="st"/>
+                    </Canvas.RenderTransform>
+                </Canvas>
+            </StackPanel>
         </Button>
     </Grid>
 </Window>

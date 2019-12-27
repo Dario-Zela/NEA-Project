@@ -38,6 +38,17 @@ namespace Game_Try_1
                     line.Stroke = System.Windows.Media.Brushes.White;
                     line.StrokeThickness = 0.5;
                     canvas.Children.Add(line);
+                    if (road.PrePosition != Vector.Max)
+                    {
+                        Line line2 = new Line() { X1 = road.PrePosition.X, Y1 = road.PrePosition.Y, X2 = road.dirSplit.X, Y2 = road.dirSplit.Y };
+                        line2.Stroke = System.Windows.Media.Brushes.Green;
+                        line2.StrokeThickness = 0.5;
+                        canvas.Children.Add(line2);
+                    }
+                    Line line3 = new Line() { X1 = road.Position.X, X2 = road.dir.X, Y1 = road.Position.Y, Y2 = road.dir.Y };
+                    line3.Stroke = System.Windows.Media.Brushes.Green;
+                    line3.StrokeThickness = 0.5;
+                    canvas.Children.Add(line3);
                 }
                 else
                 {
@@ -45,6 +56,17 @@ namespace Game_Try_1
                     line.Stroke = System.Windows.Media.Brushes.White;
                     line.StrokeThickness = 0.5;
                     canvas.Children.Add(line);
+                    if (road.PrePosition != Vector.Max)
+                    {
+                        Line line2 = new Line() { X1 = road.PrePosition.X, Y1 = road.PrePosition.Y, X2 = road.dirSplit.X, Y2 = road.dirSplit.Y };
+                        line2.Stroke = System.Windows.Media.Brushes.Green;
+                        line2.StrokeThickness = 0.5;
+                        canvas.Children.Add(line2);
+                    }
+                    Line line3 = new Line() { X1 = road.Position.X, X2 = road.dir.X, Y1 = road.Position.Y, Y2 = road.dir.Y };
+                    line3.Stroke = System.Windows.Media.Brushes.Green;
+                    line3.StrokeThickness = 0.5;
+                    canvas.Children.Add(line3);
                 }
             }
 
@@ -61,10 +83,8 @@ namespace Game_Try_1
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             canvas.Children.Clear();
-            for (int i = 0; i < 10; i++)
-            {
-                network.Grow();
-            }
+            network.Grow();
+
             foreach (var road in network.Roads)
             {
                 if (road.Parent != null)
@@ -73,6 +93,17 @@ namespace Game_Try_1
                     line.Stroke = System.Windows.Media.Brushes.White;
                     line.StrokeThickness = 0.5;
                     canvas.Children.Add(line);
+                    if (road.PrePosition != Vector.Max)
+                    {
+                        Line line2 = new Line() { X1 = road.PrePosition.X, Y1 = road.PrePosition.Y, X2 = road.dirSplit.X, Y2 = road.dirSplit.Y };
+                        line2.Stroke = System.Windows.Media.Brushes.Green;
+                        line2.StrokeThickness = 0.5;
+                        canvas.Children.Add(line2);
+                    }
+                    Line line3 = new Line() { X1 = road.Position.X, X2 = road.dir.X, Y1 = road.Position.Y, Y2 = road.dir.Y };
+                    line3.Stroke = System.Windows.Media.Brushes.Green;
+                    line3.StrokeThickness = 0.5;
+                    canvas.Children.Add(line3);
                 }
                 else
                 {
@@ -80,6 +111,17 @@ namespace Game_Try_1
                     line.Stroke = System.Windows.Media.Brushes.White;
                     line.StrokeThickness = 0.5;
                     canvas.Children.Add(line);
+                    if (road.PrePosition != Vector.Max)
+                    {
+                        Line line2 = new Line() { X1 = road.PrePosition.X, Y1 = road.PrePosition.Y, X2 = road.dirSplit.X, Y2 = road.dirSplit.Y };
+                        line2.Stroke = System.Windows.Media.Brushes.Green;
+                        line2.StrokeThickness = 0.5;
+                        canvas.Children.Add(line2);
+                    }
+                    Line line3 = new Line() { X1 = road.Position.X, X2 = road.dir.X, Y1 = road.Position.Y, Y2 = road.dir.Y };
+                    line3.Stroke = System.Windows.Media.Brushes.Green;
+                    line3.StrokeThickness = 0.5;
+                    canvas.Children.Add(line3);
                 }
             }
 
@@ -91,6 +133,21 @@ namespace Game_Try_1
                 Canvas.SetTop(ellipse, node.Position.Y - 1);
                 ellipse.Fill = System.Windows.Media.Brushes.Wheat;
                 canvas.Children.Add(ellipse);
+            }
+        }
+
+        const double ScaleRate = 1.1;
+        private void Button_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (e.Delta > 0)
+            {
+                st.ScaleX *= ScaleRate;
+                st.ScaleY *= ScaleRate;
+            }
+            else
+            {
+                st.ScaleX /= ScaleRate;
+                st.ScaleY /= ScaleRate;
             }
         }
     }

@@ -26,14 +26,14 @@ namespace Game_Try_1
             return Math.Sqrt(Math.Pow(X - other.X, 2) + Math.Pow(Y - other.Y, 2));
         }
 
-        public double Lenght => Distance(new Vector(0, 0));
+        public double Length => Distance(new Vector(0, 0));
 
         public Vector Normalise => NormaliseSelf();
 
-        public Vector NormaliseSelf()
+        private Vector NormaliseSelf()
         {
-            X = X == 0 ? 0 : X / Math.Abs(X);
-            Y = Y == 0 ? 0 : Y / Math.Abs(Y);
+            X = X == 0 ? 0 : X * -1 == Math.Abs(X) ? -1 : 1;
+            Y = Y == 0 ? 0 : Y * -1 == Math.Abs(Y) ? -1 : 1;
             return new Vector(X, Y);
         }
 
@@ -89,22 +89,22 @@ namespace Game_Try_1
 
         static public bool operator <(Vector vector1, Vector vector2)
         {
-            return vector1.Lenght < vector2.Lenght;
+            return vector1.Length < vector2.Length;
         }
 
         static public bool operator <=(Vector vector1, Vector vector2)
         {
-            return vector1.Lenght <= vector2.Lenght;
+            return vector1.Length <= vector2.Length;
         }
 
         static public bool operator >(Vector vector1, Vector vector2)
         {
-            return vector1.Lenght > vector2.Lenght;
+            return vector1.Length > vector2.Length;
         }
 
         static public bool operator >=(Vector vector1, Vector vector2)
         {
-            return vector1.Lenght >= vector2.Lenght;
+            return vector1.Length >= vector2.Length;
         }
     }
 
@@ -129,32 +129,40 @@ namespace Game_Try_1
         public Vector Position;
         public Road Parent;
         public Vector dir;
-        private List<Road> Children;
+        public List<Road> Children;
         public Vector PrePosition = Vector.Max;
-        private readonly double minLenght;
-        public bool isGoingToSplit = false;
+        private readonly double minLength;
         public int counter;
         public Vector dirSplit;
         public int counterSplit;
 
-        public Road(Vector Position, Road Parent, Vector dir, double minLenght)
+        public Road(Vector Position, Road Parent, Vector dir, double minLength)
         {
             this.Position = Position;
             this.Parent = Parent;
             this.dir = dir;
             Children = new List<Road>();
-            this.minLenght = minLenght;
+            this.minLength = minLength;
+            dirSplit = (0, 0);
+            counter = 0;
         }
 
         public bool isValid()
         {
-            return Position.Distance(Parent.Position) > minLenght;
+            if (Parent != null)
+            {
+                return Position.Distance(Parent.Position) > minLength;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         public List<Road> createIntersection()
         {
-            Road childRoad1 = new Road(Position + (dir / counter).Normalise, this, (dir / counter).Normalise, minLenght);
-            Road childRoad2 = new Road(PrePosition + (dirSplit / counterSplit).Normalise, this, (dirSplit / counterSplit).Normalise, minLenght);
+            Road childRoad1 = new Road(Position + (dir / (counter + 1)).Normalise, this, (dir / (counter + 1)).Normalise, minLength);
+            Road childRoad2 = new Road(PrePosition + (dirSplit / (counterSplit + 1)).Normalise, this, (dirSplit / (counterSplit + 1)).Normalise, minLength);
             Children.Add(childRoad1);
             Children.Add(childRoad2);
             return Children;
@@ -162,7 +170,8 @@ namespace Game_Try_1
 
         public void Move()
         {
-            Position = Position + (dir / counter).Normalise;
+            PrePosition = Position;
+            Position += (dir  / (counter + 1)).Normalise;
         }
 
         public void Reset()
@@ -179,13 +188,39 @@ namespace Game_Try_1
         public List<AttractionPoint> AttractionPoints;
         public List<Road> Roads;
 
-        public RoadNetwork(double minDistance, double maxDistance, Vector startPosition, int mapHeight, int mapWidth, int numAttPoints, int seed, double minLenght)
+        public RoadNetwork(double minDistance, double maxDistance, Vector startPosition, int mapHeight, int mapWidth, int numAttPoints, int seed, double minLength)
         {
             this.minDistance = minDistance;
             this.maxDistance = maxDistance;
             AttractionPoints = new List<AttractionPoint>();
             Roads = new List<Road>();
-            SetUp(startPosition, mapHeight, mapWidth, numAttPoints, seed, minLenght);
+            SetUp(startPosition, mapHeight, mapWidth, numAttPoints, seed, minLength);
+            /*
+            do
+            {
+                Grow();
+            }
+            while (AttractionPoints.Count != 0);
+
+            List<Road> toDel = new List<Road>();
+            foreach (Road Road in Roads)
+            {
+                if (!Road.isValid() && !toDel.Contains(Road))
+                {
+                    Road.Parent.Children.Remove(Road);
+                    foreach (var child in Road.Children)
+                    {
+                        toDel.Add(child);
+                    }
+                    toDel.Add(Road);
+                }
+            }
+
+            foreach (Road road in toDel)
+            {
+                Roads.Remove(road);
+            }
+            */
         }
 
         public void Grow()
@@ -198,16 +233,16 @@ namespace Game_Try_1
                 foreach (Road Road in Roads)
                 {
                     direction = AttractionPoint.Position - Road.Position;
-                    if(direction.Lenght < minDistance)
+                    if(direction.Length < minDistance)
                     {
                         toDel.Add(AttractionPoint);
                         break;
                     }
-                    else if(direction.Lenght > maxDistance) { }
-                    else if(direction.Lenght < distance)
+                    else if(direction.Length > maxDistance) { }
+                    else if(direction.Length < distance)
                     {
                         AttractionPoint.ClosestRoad = Road;
-                        distance = direction.Lenght;
+                        distance = direction.Length;
                     }
                 }
                 if(AttractionPoint.ClosestRoad != null)
@@ -218,23 +253,18 @@ namespace Game_Try_1
                         Vector direction2 = AttractionPoint.Position - AttractionPoint.ClosestRoad.PrePosition;
                         if (direction2 < direction)
                         {
-                            direction = direction2;
-                            AttractionPoint.ClosestRoad.isGoingToSplit = true;
-                            direction.NormaliseSelf();
-                            AttractionPoint.ClosestRoad.dirSplit += direction;
-                            AttractionPoint.ClosestRoad.counter++;
+                            AttractionPoint.ClosestRoad.dirSplit += direction2.Normalise;
+                            AttractionPoint.ClosestRoad.counterSplit++;
                         }
                         else
                         {
-                            direction.NormaliseSelf();
-                            AttractionPoint.ClosestRoad.dir += direction;
-                            AttractionPoint.ClosestRoad.counterSplit++;
+                            AttractionPoint.ClosestRoad.dir += direction.Normalise;
+                            AttractionPoint.ClosestRoad.counter++;
                         }
                     }
                     else
                     {
-                        direction.NormaliseSelf();
-                        AttractionPoint.ClosestRoad.dir += direction;
+                        AttractionPoint.ClosestRoad.dir += direction.Normalise;
                         AttractionPoint.ClosestRoad.counter++;
                     }
                 }
@@ -252,7 +282,7 @@ namespace Game_Try_1
             {
                 if(Road.counter != 0 || Road.counterSplit != 0)
                 {
-                    if (Road.isGoingToSplit)
+                    if (Road.counterSplit != 0)
                     {
                         toAdd.AddRange(Road.createIntersection());
                     }
@@ -267,14 +297,14 @@ namespace Game_Try_1
             Roads.AddRange(toAdd);
         }
 
-        private void SetUp(Vector startPosition, int mapHeight, int mapWidth, int numAttPoints, int seed, double minLenght)
+        private void SetUp(Vector startPosition, int mapHeight, int mapWidth, int numAttPoints, int seed, double minLength)
         {
             Random random = new Random(seed);
             for (int i = 0; i < numAttPoints; i++)
             {
                 AttractionPoints.Add(new AttractionPoint((random.Next(0, mapWidth), random.Next(0, mapHeight))));
             }
-            Roads.Add(new Road(startPosition, null, (10,10), minLenght));
+            Roads.Add(new Road(startPosition, null, (0,0), minLength));
         }
     }
 }
