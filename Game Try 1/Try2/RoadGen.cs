@@ -190,7 +190,8 @@ namespace Game_Try_1
 
     class Graph
     {
-        public Dictionary<Vector, List<Vector>> graph;
+        private Dictionary<Vector, List<Vector>> graph;
+        public List<Vector> keys => graph.Keys.ToList();
 
         public Graph()
         {
@@ -256,81 +257,52 @@ namespace Game_Try_1
     class RoadNetwork
     {
         public Graph Graph = new Graph();
-        public List<Vector> keys => Graph.graph.Keys.ToList();
+        public List<Vector> keys => Graph.keys;
         public LinkedList<(Vector, Vector)> toDel;
 
-        public RoadNetwork(int mapHeight, int mapWidth, double[,] heightMap, int numNodes, int seed)
+        public RoadNetwork(int mapHeight, int mapWidth, double[,] heightMap, int numRows, int seed)
         {
-            SetUp(mapHeight, mapWidth, numNodes, seed);
+            SetUp(mapHeight, mapWidth, numRows, seed);
         }
 
-        private void SetUp(int mapHeight, int mapWidth, int numNodes, int seed)
+        private void SetUp(int mapHeight, int mapWidth, int numRows, int seed)
         {
             Random rand = new Random(seed);
-            CreateNodes(mapHeight, mapWidth, numNodes, rand);
-            addAllEdges(rand);
-            //removeIntersections();
+            Vector[,] grid = new Vector[numRows, numRows];
+            CreateNodes(mapHeight, mapWidth, numRows, rand, ref grid);
+            addAllEdges(numRows, grid);
         }
 
-        private void CreateNodes(int mapHeight, int mapWidth, int numNodes, Random rand)
+        private void CreateNodes(int mapHeight, int mapWidth, int numRows, Random rand, ref Vector[,] grid)
         {
-            int numRows = (int)Math.Sqrt(numNodes);
             for (int i = 1; i < numRows + 1; i++)
             {
-                Vector node = (rand.Next(mapWidth * (i - 1) / numRows, mapWidth * i / numRows), rand.Next(mapHeight / numRows));
-                Graph.addNode(node);
-                node = (rand.Next(mapWidth * (i - 1) / numRows, mapWidth * i / numRows), rand.Next(mapHeight / (numRows - 1), mapHeight));
-                Graph.addNode(node);
-            }
-            for (int j = 2; j < Math.Sqrt(numNodes); j++)
-            {
-                Vector node = (rand.Next(mapWidth / numRows), rand.Next(mapHeight * (j - 1) / numRows, mapWidth * j / numRows));
-                Graph.addNode(node);
-                node = (rand.Next(mapWidth / (numRows - 1), mapWidth) , rand.Next(mapHeight * (j - 1) / numRows, mapHeight * j / numRows));
-                Graph.addNode(node);
-            }
-        }
-
-        private void addAllEdges(Random rand)
-        {
-            foreach (Vector Key in keys)
-            {
-                int connections = rand.Next(2, 3);
-                Vector[] toOmmit = new Vector[connections];
-                for (int i = 0; i < connections; i++)
+                for (int j = 1; j < numRows + 1; j++)
                 {
-                    Vector node = Key.nearestNode(keys, toOmmit);
-                    Graph.addConnection(Key, node);
-                    toOmmit[i] = node;
+                    int X = rand.Next((mapWidth * (i - 1) / numRows) + (mapWidth / (numRows * 4)), (mapWidth * i / numRows) - (mapWidth / (numRows * 4)));
+                    int Y = rand.Next((mapHeight * (j - 1) / numRows) + (mapHeight / (numRows * 4)), (mapHeight * j / numRows) - (mapHeight / (numRows * 4)));
+                    Graph.addNode((X, Y));
+                    grid[i - 1, j - 1] = (X, Y);
                 }
             }
         }
 
-        private void removeIntersections()
+        private void addAllEdges(int numRows, Vector[,] grid)
         {
-            int keysDel = 0;
-
-            for (int i = 0; i < keys.Count; i++)
+            for (int i = 0; i < numRows; i++)
             {
-                Vector Key = keys[i - keysDel];
-                LinkedList<(Vector, Vector)>  toDel = new LinkedList<(Vector, Vector)>();
-                foreach (Vector node in Graph[Key])
+                for (int j = 0; j < numRows; j++)
                 {
-                    foreach (Vector Key2 in keys)
+                    try
                     {
-                        foreach (Vector node2 in Graph[Key2])
-                        {
-                            if (Vector.doIntersect(Key, node, Key2, node2))
-                            {
-                                toDel.AddLast((Key, node));
-                            }
-                        }
+                        Graph.addConnection(grid[i, j], grid[i + 1, j]);
                     }
-                }
-                if (toDel.Count != 0) keysDel++;
-                foreach ((Vector, Vector) item in toDel)
-                {
-                    Graph.removeEdge(item.Item1, item.Item2);
+                    catch { };
+                    try
+                    {
+                        Graph.addConnection(grid[i, j], grid[i, j - 1]);
+                    }
+                    catch { };
                 }
             }
         }

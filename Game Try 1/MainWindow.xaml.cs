@@ -31,7 +31,7 @@ namespace Game_Try_1
         public MainWindow()
         {
             InitializeComponent();
-            network = new RoadNetwork((int)canvas.Height, (int)canvas.Width, null, 25, 290821);
+            network = new RoadNetwork((int)canvas.Height, (int)canvas.Width, null, 5, 290821);
             foreach (Vector Key in network.keys)
             {
                 foreach (Vector node in network.Graph[Key])
@@ -116,7 +116,7 @@ namespace Game_Try_1
         private void Button_Click(object sender, RoutedEventArgs el)
         {
             canvas.Children.Clear();
-            RoadNetwork network = new RoadNetwork((int)canvas.Height, (int)canvas.Width, null, 25, new Random().Next(19919,3872987));
+            RoadNetwork network = new RoadNetwork((int)canvas.Height, (int)canvas.Width, null, 5, new Random().Next(19919,3872987));
 
             foreach (Vector Key in network.keys)
             {
