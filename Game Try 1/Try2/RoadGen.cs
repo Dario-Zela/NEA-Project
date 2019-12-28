@@ -186,6 +186,13 @@ namespace Game_Try_1
             double Y = Math.Sqrt(Math.Pow(node2.Y - node3.Y, 2) - Math.Pow(node2.X - node3.X, 2));
             return Math.Atan2(Y, X);
         }
+
+        public Vector Normal(double angle, double size)
+        {
+            double x = Math.Cos(angle) * size;
+            double y = Math.Sin(angle) * size;
+            return (x + X, y + Y);
+        }
     }
 
     class Graph
@@ -254,21 +261,61 @@ namespace Game_Try_1
         }
     }
 
+    class Block
+    {
+        Graph Face;
+        Graph Countour;
+        double Size;
+
+        public Block(double Size)
+        {
+            this.Size = Size;
+            this.Face = new Graph();
+        }
+
+        public void StraightSkeleton()
+        {
+            Countour = new Graph();
+            foreach (Vector node in Face.keys)
+            {
+                double angle = Vector.angle(Face[node][0], node, Face[node][0]);
+
+                Countour.addNode(node.Normal(angle, Size));
+
+            }
+        }
+    }
+
     class RoadNetwork
     {
         public Graph Graph = new Graph();
         public List<Vector> keys => Graph.keys;
-        public LinkedList<(Vector, Vector)> toDel;
+        public List<Block> blocks;
 
-        public RoadNetwork(int mapHeight, int mapWidth, double[,] heightMap, int numRows, int seed)
+
+        public RoadNetwork(int mapHeight, int mapWidth, int numRows, int seed)
         {
             SetUp(mapHeight, mapWidth, numRows, seed);
         }
 
+        #region Create parcels
+
+        public void CreateBlocks()
+        {
+            foreach (Vector Key in keys)
+            {
+
+            }
+        }
+
+        #endregion
+
+        #region SetUp
         private void SetUp(int mapHeight, int mapWidth, int numRows, int seed)
         {
             Random rand = new Random(seed);
             Vector[,] grid = new Vector[numRows, numRows];
+            blocks = new List<Block>();
             CreateNodes(mapHeight, mapWidth, numRows, rand, ref grid);
             addAllEdges(numRows, grid);
         }
@@ -306,5 +353,6 @@ namespace Game_Try_1
                 }
             }
         }
+        #endregion
     }
 }
