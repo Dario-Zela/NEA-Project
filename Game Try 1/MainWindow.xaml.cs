@@ -26,12 +26,11 @@ namespace Game_Try_1
         Vector point2 = Vector.Max;
         Vector point3 = Vector.Max;
         RoadNetwork network;
-        LinkedListNode<(Vector, Vector)> toDel;
 
         public MainWindow()
         {
             InitializeComponent();
-            network = new RoadNetwork((int)canvas.Height, (int)canvas.Width, 5, 290821);
+            network = new RoadNetwork((int)canvas.Height, (int)canvas.Width, 6, 290821);
             foreach (Vector Key in network.keys)
             {
                 foreach (Vector node in network.Graph[Key])
@@ -116,7 +115,7 @@ namespace Game_Try_1
         private void Button_Click(object sender, RoutedEventArgs el)
         {
             canvas.Children.Clear();
-            RoadNetwork network = new RoadNetwork((int)canvas.Height, (int)canvas.Width, 5, new Random().Next(19919,3872987));
+            RoadNetwork network = new RoadNetwork((int)canvas.Height, (int)canvas.Width, 6, new Random().Next(19919,3872987));
 
             foreach (Vector Key in network.keys)
             {

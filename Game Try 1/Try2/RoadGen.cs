@@ -205,6 +205,18 @@ namespace Game_Try_1
             graph = new Dictionary<Vector, List<Vector>>();
         }
 
+        public void ClearUnusedNodes()
+        {
+            Dictionary<Vector, List<Vector>> pairs = new Dictionary<Vector, List<Vector>>(graph);
+            foreach (Vector Key in pairs.Keys)
+            {
+                if(pairs[Key].Count == 0)
+                {
+                    removeNode(Key);
+                }
+            }
+        }
+
         public void addNode(Vector position)
         {
             if (!graph.ContainsKey(position)) graph.Add(position, new List<Vector>());
@@ -292,10 +304,10 @@ namespace Game_Try_1
         public List<Vector> keys => Graph.keys;
         public List<Block> blocks;
 
-
         public RoadNetwork(int mapHeight, int mapWidth, int numRows, int seed)
         {
             SetUp(mapHeight, mapWidth, numRows, seed);
+            Graph.ClearUnusedNodes();
         }
 
         #region Create parcels
@@ -328,6 +340,26 @@ namespace Game_Try_1
                 {
                     int X = rand.Next((mapWidth * (i - 1) / numRows) + (mapWidth / (numRows * 4)), (mapWidth * i / numRows) - (mapWidth / (numRows * 4)));
                     int Y = rand.Next((mapHeight * (j - 1) / numRows) + (mapHeight / (numRows * 4)), (mapHeight * j / numRows) - (mapHeight / (numRows * 4)));
+                    bool check = i == numRows / 2 && j == numRows / 2;
+                    bool check1 = (i == numRows / 2 + 1 && j == numRows / 2);
+                    bool check2 = (i == numRows / 2 && j == numRows / 2 + 1);
+                    bool check3 = (i == numRows / 2 + 1 && j == numRows / 2 + 1);
+                    if (check)
+                    {
+                        X = (int)(mapWidth * (numRows / 2 - 0.5) / numRows); Y = (int)(mapHeight * (numRows / 2 - 0.5) / numRows);
+                    }
+                    if (check1)
+                    {
+                        X = (int)(mapWidth * (numRows / 2 + 0.5) / numRows); Y = (int)(mapHeight * (numRows / 2 - 0.5) / numRows);
+                    }
+                    if (check2)
+                    {
+                        X = (int)(mapWidth * (numRows / 2 - 0.5) / numRows); Y = (int)(mapHeight * (numRows / 2 + 0.5) / numRows);
+                    }
+                    if (check3)
+                    {
+                        X = (int)(mapWidth * (numRows / 2 + 0.5) / numRows); Y = (int)(mapHeight * (numRows / 2 + 0.5) / numRows);
+                    }
                     Graph.addNode((X, Y));
                     grid[i - 1, j - 1] = (X, Y);
                 }
@@ -340,16 +372,18 @@ namespace Game_Try_1
             {
                 for (int j = 0; j < numRows; j++)
                 {
-                    try
-                    {
-                        Graph.addConnection(grid[i, j], grid[i + 1, j]);
-                    }
-                    catch { };
-                    try
-                    {
-                        Graph.addConnection(grid[i, j], grid[i, j - 1]);
-                    }
-                    catch { };
+                    if (j != 0 && j != numRows - 1)
+                        try
+                        {
+                            Graph.addConnection(grid[i, j], grid[i + 1, j]);
+                        }
+                        catch { };
+                    if (i != 0 && i != numRows - 1)
+                        try
+                        {
+                            Graph.addConnection(grid[i, j], grid[i, j - 1]);
+                        }
+                        catch { };
                 }
             }
         }
