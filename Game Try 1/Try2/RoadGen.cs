@@ -193,6 +193,19 @@ namespace Game_Try_1
             double y = Math.Sin(angle) * size;
             return (x + X, y + Y);
         }
+
+        public LinkedList<Vector> Subdivide(int sections, Vector target)
+        {
+            LinkedList<Vector> ret = new LinkedList<Vector>();
+            double grad = (double)(target.Y - Y) / (target.X - X);
+            double yInt = Y - grad * X;
+            int xDis = (target.X - X)/sections;
+            for (int i = 0; i < sections + 1; i++)
+            {
+                ret.AddLast((X + xDis * i, yInt + grad * (X + xDis * i)));
+            }
+            return ret;
+        }
     }
 
     class Graph
@@ -217,6 +230,33 @@ namespace Game_Try_1
             }
         }
 
+        public void SubDivide(int sections)
+        {
+            Dictionary<Vector, List<Vector>> refe = new Dictionary<Vector, List<Vector>>(graph);
+            List<(Vector, Vector)> added = new List<(Vector, Vector)>();
+            foreach (Vector node in refe.Keys)
+            {
+                foreach (Vector edge in refe[node])
+                {
+                    if(added.Contains((node, edge)) || added.Contains((edge, node))) { }
+                    else
+                    {
+                        removeEdge(node, edge, true);
+                        LinkedList<Vector> points = node.Subdivide(sections, edge);
+                        LinkedListNode<Vector> current = points.First;
+                        for (int i = 0; i < points.Count; i++)
+                        {
+                            if (!graph.Keys.Contains(current.Next.Value))
+                            {
+                                addNode(current.Next.Value);
+                            }
+                            addConnection(current.Value, current.Next.Value);
+                        }
+                        added.Add((node, edge));
+                    }
+                }
+            }
+        }
         public void addNode(Vector position)
         {
             if (!graph.ContainsKey(position)) graph.Add(position, new List<Vector>());
@@ -246,14 +286,14 @@ namespace Game_Try_1
             }
         }
 
-        public void removeEdge(Vector node1, Vector node2)
+        public void removeEdge(Vector node1, Vector node2, bool suppressRemoval = false)
         {
             if (graph.ContainsKey(node1) && graph.ContainsKey(node2))
             {
                 graph[node1].Remove(node2);
                 graph[node2].Remove(node1);
-                if (graph[node1].Count == 0) removeNode(node1);
-                if (graph[node2].Count == 0) removeNode(node2);
+                if (graph[node1].Count == 0 && !suppressRemoval) removeNode(node1);
+                if (graph[node2].Count == 0 && !suppressRemoval) removeNode(node2);
             }
         }
 
@@ -273,51 +313,23 @@ namespace Game_Try_1
         }
     }
 
-    class Block
-    {
-        Graph Face;
-        Graph Countour;
-        double Size;
-
-        public Block(double Size)
-        {
-            this.Size = Size;
-            this.Face = new Graph();
-        }
-
-        public void StraightSkeleton()
-        {
-            Countour = new Graph();
-            foreach (Vector node in Face.keys)
-            {
-                double angle = Vector.angle(Face[node][0], node, Face[node][0]);
-
-                Countour.addNode(node.Normal(angle, Size));
-
-            }
-        }
-    }
-
     class RoadNetwork
     {
         public Graph Graph = new Graph();
         public List<Vector> keys => Graph.keys;
-        public List<Block> blocks;
 
         public RoadNetwork(int mapHeight, int mapWidth, int numRows, int seed)
         {
             SetUp(mapHeight, mapWidth, numRows, seed);
             Graph.ClearUnusedNodes();
+            Graph.SubDivide(5);
         }
 
         #region Create parcels
 
-        public void CreateBlocks()
+        private void CreateBlocks()
         {
-            foreach (Vector Key in keys)
-            {
 
-            }
         }
 
         #endregion
@@ -327,7 +339,6 @@ namespace Game_Try_1
         {
             Random rand = new Random(seed);
             Vector[,] grid = new Vector[numRows, numRows];
-            blocks = new List<Block>();
             CreateNodes(mapHeight, mapWidth, numRows, rand, ref grid);
             addAllEdges(numRows, grid);
         }
