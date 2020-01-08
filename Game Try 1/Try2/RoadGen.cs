@@ -232,7 +232,11 @@ namespace Game_Try_1
 
         public void SubDivide(int sections)
         {
-            Dictionary<Vector, List<Vector>> refe = new Dictionary<Vector, List<Vector>>(graph);
+            Dictionary<Vector, List<Vector>> refe = new Dictionary<Vector, List<Vector>>();
+            foreach (Vector Key in graph.Keys)
+            {
+                refe.Add(Key, new List<Vector>(graph[Key]));
+            }
             List<(Vector, Vector)> added = new List<(Vector, Vector)>();
             foreach (Vector node in refe.Keys)
             {
