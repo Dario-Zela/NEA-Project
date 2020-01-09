@@ -17,68 +17,93 @@ using System.Windows.Shapes;
 
 namespace Game_Try_1
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
-        LSytem sytem;
-        double lenght;
-
+        City c;
+        Image Image = new Image();
         public MainWindow()
         {
             InitializeComponent();
-            sytem = new LSytem("F");
-            sytem.AddRule('F', "F+F+[F+F]F+[F-F]");
-            lenght = 500;
-            Draw();
+            CreateMap();
         }
-        public void Draw()
+
+        private void CreateImage2(byte[] imageData, int Height, int Width)
         {
-            canvas.Children.Clear();
-            Vector pos = (canvas.ActualWidth/2, canvas.ActualHeight/2);
-            lenght *= 0.5;
-            double angle = Math.PI / 2;
-            List<(Vector, double)> prePos = new List<(Vector, double)>();
-            foreach (char input in sytem.currentSentence)
+            WriteableBitmap bitmap = new WriteableBitmap(Width, Height, 96.8, 96.8, PixelFormats.Bgra32, null);
+            bitmap.WritePixels(new Int32Rect(0, 0, Width, Height), imageData, 4 * Width, 0);
+            Image.Source = bitmap;
+        }
+
+        static byte[] PlotPixel(int x, int y, byte[] _imageBuffer, float[,] initial, int Width)
+        {
+            int offset = ((Width * 4) * y) + (x * 4);
+
+            _imageBuffer[offset] = initial[x, y] < 0.25 ? (byte)255 : initial[x, y] < 0.75 ? (byte)0 : (byte)0;
+            _imageBuffer[offset + 1] = initial[x, y] < 0.25 ? (byte)0 : initial[x, y] < 0.75 ? (byte)255 : (byte)0;
+            _imageBuffer[offset + 2] = initial[x, y] < 0.25 ? (byte)0 : initial[x, y] < 0.75 ? (byte)0 : (byte)255;
+            // Fixed alpha value (No transparency)
+            _imageBuffer[offset + 3] = 255;
+
+            return _imageBuffer;
+        }
+
+        private void CreateMap()
+        {
+            c = new City(canvas.Height, canvas.Width);
+            Image.Height = canvas.Height;
+            Image.Width = canvas.Width;
+            byte[] image = new byte[(int)(canvas.Height * canvas.Width * 4)];
+            for (int i = 0; i < canvas.Height; i++)
             {
-                if(input == 'F')
+                for (int j = 0; j < canvas.Width; j++)
                 {
-                    Line line = new Line();
-                    line.X1 = pos.X;
-                    line.Y1 = pos.Y;
-                    line.X2 = pos.X + Math.Cos(angle) * lenght;
-                    line.Y2 = pos.Y + Math.Sin(angle) * lenght;
-                    pos += (Math.Cos(angle) * lenght, Math.Sin(angle) * lenght);
+                    image = PlotPixel(i, j, image, c.x, (int)canvas.Width);
+                }
+            }
+            CreateImage2(image, (int)canvas.Height, (int)canvas.Width);
+            canvas.Children.Add(Image);
+            foreach (var branch in c.t.Branches)
+            {
+                Ellipse el = new Ellipse() { Width = 2, Height = 2 };
+                el.Fill = Brushes.Red;
+                Canvas.SetLeft(el, branch.position.X - 1);
+                Canvas.SetTop(el, branch.position.Y - 1);
+                canvas.Children.Add(el);
+                if (branch.parent != null)
+                {
+                    Line line = new Line() { X1 = branch.parent.position.X, X2 = branch.position.X, Y1 = branch.parent.position.Y, Y2 = branch.position.Y };
                     line.Stroke = Brushes.White;
                     line.StrokeThickness = 0.5;
                     canvas.Children.Add(line);
                 }
-                else if(input == '+')
-                {
-                    angle += Math.PI / 6;
-                }
-                else if (input == '-')
-                {
-                    angle -= Math.PI / 6;
-                }
-                else if (input == '[')
-                {
-                    prePos.Add((pos, angle));
-                }
-                else if(input == ']')
-                {
-                    pos = prePos.Last().Item1;
-                    angle = prePos.Last().Item2;
-                    prePos.RemoveAt(prePos.Count - 1);
-                }
             }
+
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Submit_Click(object sender, RoutedEventArgs e)
         {
-            sytem.Generate();
-            Draw();
+            c.GenX(Slider.Value);
+            byte[] image = new byte[(int)(canvas.Height * canvas.Width * 4)];
+            for (int i = 0; i < canvas.Height; i++)
+            {
+                for (int j = 0; j < canvas.Width; j++)
+                {
+                    image = PlotPixel(i, j, image, c.x, (int)canvas.Width);
+                }
+            }
+            CreateImage2(image, (int)canvas.Height, (int)canvas.Width);
+        }
+
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            Text.Text = Slider.Value.ToString();
+        }
+
+        private void Text_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            double x = 0;
+            double.TryParse(Text.Text, out x);
+            Slider.Value = x;
         }
     }
 }
