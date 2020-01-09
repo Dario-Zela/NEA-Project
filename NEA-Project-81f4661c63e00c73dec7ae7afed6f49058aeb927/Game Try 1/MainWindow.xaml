@@ -19,9 +19,11 @@
     </Window.Resources>
     <Grid >
         <Button Style="{Binding CanvasButtonStyle}" Click="Submit_Click">
-            <Canvas x:Name="canvas" Height="500" Width="500" Background="Black"></Canvas>
+            <Canvas x:Name="canvas" Height="500" Width="500" Background="Black" VerticalAlignment="Bottom"></Canvas>
         </Button>
         <Grid x:Name="Settings" Width="800" Height="100" VerticalAlignment="Top">
+            <TextBox Width="100" Height="40" TextChanged="Text_TextChanged" VerticalAlignment="Top" x:Name="Text"></TextBox>
+            <Slider ValueChanged="Slider_ValueChanged" x:Name="Slider" Maximum="100" Minimum="1" Width="100" VerticalAlignment="Bottom"></Slider>
         </Grid>
     </Grid>
 </Window>
