@@ -208,200 +208,47 @@ namespace Game_Try_1
         }
     }
 
-    class Graph
+    class LSytem
     {
-        private Dictionary<Vector, List<Vector>> graph;
-        public List<Vector> keys => graph.Keys.ToList();
-
-        public Graph()
+        struct Rule
         {
-            graph = new Dictionary<Vector, List<Vector>>();
-        }
-
-        public void ClearUnusedNodes()
-        {
-            Dictionary<Vector, List<Vector>> pairs = new Dictionary<Vector, List<Vector>>(graph);
-            foreach (Vector Key in pairs.Keys)
+            public readonly char input;
+            public readonly string output;
+            public Rule(char input, string output)
             {
-                if(pairs[Key].Count == 0)
-                {
-                    removeNode(Key);
-                }
+                this.input = input;
+                this.output = output;
             }
         }
 
-        public void SubDivide(int sections)
+        private List<Rule> Rules;
+        public string currentSentence; 
+
+        public LSytem(string axiom)
         {
-            Dictionary<Vector, List<Vector>> refe = new Dictionary<Vector, List<Vector>>();
-            foreach (Vector Key in graph.Keys)
+            Rules = new List<Rule>();
+            currentSentence = axiom;
+        }
+
+        public void AddRule(char input, string output)
+        {
+            Rules.Add(new Rule(input, output));
+        }
+        
+        public void Generate()
+        {
+            string newSentence = "";
+            foreach (char input in currentSentence)
             {
-                refe.Add(Key, new List<Vector>(graph[Key]));
-            }
-            List<(Vector, Vector)> added = new List<(Vector, Vector)>();
-            foreach (Vector node in refe.Keys)
-            {
-                foreach (Vector edge in refe[node])
+                foreach (Rule rule in Rules)
                 {
-                    if(added.Contains((node, edge)) || added.Contains((edge, node))) { }
-                    else
+                    if (input == rule.input)
                     {
-                        removeEdge(node, edge, true);
-                        LinkedList<Vector> points = node.Subdivide(sections, edge);
-                        LinkedListNode<Vector> current = points.First;
-                        for (int i = 0; i < points.Count; i++)
-                        {
-                            if (!graph.Keys.Contains(current.Next.Value))
-                            {
-                                addNode(current.Next.Value);
-                            }
-                            addConnection(current.Value, current.Next.Value);
-                        }
-                        added.Add((node, edge));
+                        newSentence += rule.output;
                     }
                 }
             }
+            currentSentence = newSentence;
         }
-        public void addNode(Vector position)
-        {
-            if (!graph.ContainsKey(position)) graph.Add(position, new List<Vector>());
-        }
-
-        public void addConnection(Vector node1, Vector node2)
-        {
-            if (graph[node1].Count == 0 || !graph[node1].Contains(node2))
-            {
-                graph[node1].Add(node2);
-                graph[node2].Add(node1);
-            }
-        }
-
-        public int Count => graph.Count;
-
-        public void removeNode(Vector node)
-        {
-            if (graph.ContainsKey(node))
-            {
-                List<Vector> toDel = graph[node];
-                graph.Remove(node);
-                foreach (Vector key in toDel)
-                {
-                    graph[key].Remove(node);
-                }
-            }
-        }
-
-        public void removeEdge(Vector node1, Vector node2, bool suppressRemoval = false)
-        {
-            if (graph.ContainsKey(node1) && graph.ContainsKey(node2))
-            {
-                graph[node1].Remove(node2);
-                graph[node2].Remove(node1);
-                if (graph[node1].Count == 0 && !suppressRemoval) removeNode(node1);
-                if (graph[node2].Count == 0 && !suppressRemoval) removeNode(node2);
-            }
-        }
-
-        public List<Vector> this[Vector key]
-        {
-            get
-            {
-                if (graph.ContainsKey(key))
-                {
-                    return graph[key];
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
-    }
-
-    class RoadNetwork
-    {
-        public Graph Graph = new Graph();
-        public List<Vector> keys => Graph.keys;
-
-        public RoadNetwork(int mapHeight, int mapWidth, int numRows, int seed)
-        {
-            SetUp(mapHeight, mapWidth, numRows, seed);
-            Graph.ClearUnusedNodes();
-            Graph.SubDivide(5);
-        }
-
-        #region Create parcels
-
-        private void CreateBlocks()
-        {
-
-        }
-
-        #endregion
-
-        #region SetUp
-        private void SetUp(int mapHeight, int mapWidth, int numRows, int seed)
-        {
-            Random rand = new Random(seed);
-            Vector[,] grid = new Vector[numRows, numRows];
-            CreateNodes(mapHeight, mapWidth, numRows, rand, ref grid);
-            addAllEdges(numRows, grid);
-        }
-
-        private void CreateNodes(int mapHeight, int mapWidth, int numRows, Random rand, ref Vector[,] grid)
-        {
-            for (int i = 1; i < numRows + 1; i++)
-            {
-                for (int j = 1; j < numRows + 1; j++)
-                {
-                    int X = rand.Next((mapWidth * (i - 1) / numRows) + (mapWidth / (numRows * 4)), (mapWidth * i / numRows) - (mapWidth / (numRows * 4)));
-                    int Y = rand.Next((mapHeight * (j - 1) / numRows) + (mapHeight / (numRows * 4)), (mapHeight * j / numRows) - (mapHeight / (numRows * 4)));
-                    bool check = i == numRows / 2 && j == numRows / 2;
-                    bool check1 = (i == numRows / 2 + 1 && j == numRows / 2);
-                    bool check2 = (i == numRows / 2 && j == numRows / 2 + 1);
-                    bool check3 = (i == numRows / 2 + 1 && j == numRows / 2 + 1);
-                    if (check)
-                    {
-                        X = (int)(mapWidth * (numRows / 2 - 0.5) / numRows); Y = (int)(mapHeight * (numRows / 2 - 0.5) / numRows);
-                    }
-                    if (check1)
-                    {
-                        X = (int)(mapWidth * (numRows / 2 + 0.5) / numRows); Y = (int)(mapHeight * (numRows / 2 - 0.5) / numRows);
-                    }
-                    if (check2)
-                    {
-                        X = (int)(mapWidth * (numRows / 2 - 0.5) / numRows); Y = (int)(mapHeight * (numRows / 2 + 0.5) / numRows);
-                    }
-                    if (check3)
-                    {
-                        X = (int)(mapWidth * (numRows / 2 + 0.5) / numRows); Y = (int)(mapHeight * (numRows / 2 + 0.5) / numRows);
-                    }
-                    Graph.addNode((X, Y));
-                    grid[i - 1, j - 1] = (X, Y);
-                }
-            }
-        }
-
-        private void addAllEdges(int numRows, Vector[,] grid)
-        {
-            for (int i = 0; i < numRows; i++)
-            {
-                for (int j = 0; j < numRows; j++)
-                {
-                    if (j != 0 && j != numRows - 1)
-                        try
-                        {
-                            Graph.addConnection(grid[i, j], grid[i + 1, j]);
-                        }
-                        catch { };
-                    if (i != 0 && i != numRows - 1)
-                        try
-                        {
-                            Graph.addConnection(grid[i, j], grid[i, j - 1]);
-                        }
-                        catch { };
-                }
-            }
-        }
-        #endregion
     }
 }

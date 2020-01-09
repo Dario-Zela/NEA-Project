@@ -22,121 +22,63 @@ namespace Game_Try_1
     /// </summary>
     public partial class MainWindow : Window
     {
-        Vector point1 = Vector.Max;
-        Vector point2 = Vector.Max;
-        Vector point3 = Vector.Max;
-        RoadNetwork network;
+        LSytem sytem;
+        double lenght;
 
         public MainWindow()
         {
             InitializeComponent();
-            network = new RoadNetwork((int)canvas.Height, (int)canvas.Width, 6, 290821);
-            foreach (Vector Key in network.keys)
+            sytem = new LSytem("F");
+            sytem.AddRule('F', "F+F+[F+F]F+[F-F]");
+            lenght = 500;
+            Draw();
+        }
+        public void Draw()
+        {
+            canvas.Children.Clear();
+            Vector pos = (canvas.ActualWidth/2, canvas.ActualHeight/2);
+            lenght *= 0.5;
+            double angle = Math.PI / 2;
+            List<(Vector, double)> prePos = new List<(Vector, double)>();
+            foreach (char input in sytem.currentSentence)
             {
-                foreach (Vector node in network.Graph[Key])
+                if(input == 'F')
                 {
-                    Line line = new Line() { X1 = Key.X, X2 = node.X, Y1 = Key.Y, Y2 = node.Y };
+                    Line line = new Line();
+                    line.X1 = pos.X;
+                    line.Y1 = pos.Y;
+                    line.X2 = pos.X + Math.Cos(angle) * lenght;
+                    line.Y2 = pos.Y + Math.Sin(angle) * lenght;
+                    pos += (Math.Cos(angle) * lenght, Math.Sin(angle) * lenght);
                     line.Stroke = Brushes.White;
                     line.StrokeThickness = 0.5;
                     canvas.Children.Add(line);
                 }
-            }
-
-            foreach (var Key in network.keys)
-            {
-                Ellipse e = new Ellipse() { Width = 4, Height = 4 };
-                Canvas.SetLeft(e, Key.X - 2);
-                Canvas.SetTop(e, Key.Y - 2);
-                e.Fill = Brushes.Red;
-                canvas.Children.Add(e);
-            }
-        }
-        /*
-        private void Button_Click(object sender, RoutedEventArgs el)
-        {
-            canvas.Children.Clear();
-            network.Graph.removeEdge(toDel.Value.Item1, toDel.Value.Item2);
-            toDel = toDel.Next;
-            foreach (Vector Key in network.keys)
-            {
-                foreach (Vector node in network.Graph[Key])
+                else if(input == '+')
                 {
-                    Line line = new Line() { X1 = Key.X, X2 = node.X, Y1 = Key.Y, Y2 = node.Y };
-                    line.Stroke = network.toDel.First.Value == (Key, node) ? Brushes.Red : Brushes.White;
-                    line.StrokeThickness = toDel.Value == (Key, node) ? 1.5 : 0.5;
-                    canvas.Children.Add(line);
+                    angle += Math.PI / 6;
+                }
+                else if (input == '-')
+                {
+                    angle -= Math.PI / 6;
+                }
+                else if (input == '[')
+                {
+                    prePos.Add((pos, angle));
+                }
+                else if(input == ']')
+                {
+                    pos = prePos.Last().Item1;
+                    angle = prePos.Last().Item2;
+                    prePos.RemoveAt(prePos.Count - 1);
                 }
             }
-
-            foreach (var Key in network.keys)
-            {
-                Ellipse e = new Ellipse() { Width = 4, Height = 4 };
-                Canvas.SetLeft(e, Key.X - 2);
-                Canvas.SetTop(e, Key.Y - 2);
-                e.Fill = Brushes.Red;
-                canvas.Children.Add(e);
-            }
         }
-        */
-        /*
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            if(point1 == Vector.Max)
-            {
-                var temp = Mouse.GetPosition(canvas);
-                Vector pos = (temp.X, temp.Y);
-                point1 = pos.nearestNode(network.keys);
-            }
-            else if(point2 == Vector.Max)
-            {
-                var temp = Mouse.GetPosition(canvas);
-                Vector pos = (temp.X, temp.Y);
-                point2 = pos.nearestNode(network.keys);
-            }
-            else if(point3 == Vector.Max)
-            {
-                var temp = Mouse.GetPosition(canvas);
-                Vector pos = (temp.X, temp.Y);
-                point3 = pos.nearestNode(network.keys);
-            }
-            else
-            {
-                var temp = Mouse.GetPosition(canvas);
-                Vector pos = (temp.X, temp.Y);
-                var point4 = pos.nearestNode(network.keys);
-                Console.WriteLine(Vector.doIntersect(point1, point2, point3, point4));
-                point1 = Vector.Max;
-                point2 = Vector.Max;
-                point3 = Vector.Max;
-            }
+            sytem.Generate();
+            Draw();
         }
-        */
-        
-        private void Button_Click(object sender, RoutedEventArgs el)
-        {
-            canvas.Children.Clear();
-            RoadNetwork network = new RoadNetwork((int)canvas.Height, (int)canvas.Width, 6, new Random().Next(19919,3872987));
-
-            foreach (Vector Key in network.keys)
-            {
-                foreach (Vector node in network.Graph[Key])
-                {
-                    Line line = new Line() { X1 = Key.X, X2 = node.X, Y1 = Key.Y, Y2 = node.Y };
-                    line.Stroke = Brushes.White;
-                    line.StrokeThickness = 0.5;
-                    canvas.Children.Add(line);
-                }
-            }
-
-            foreach (var Key in network.keys)
-            {
-                Ellipse e = new Ellipse() { Width = 4, Height = 4 };
-                Canvas.SetLeft(e, Key.X - 2);
-                Canvas.SetTop(e, Key.Y - 2);
-                e.Fill = Brushes.Red;
-                canvas.Children.Add(e);
-            }
-        }
-        
     }
 }
