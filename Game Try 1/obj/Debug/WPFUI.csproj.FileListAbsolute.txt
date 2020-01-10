@@ -1,0 +1,14 @@
+C:\Users\zelad005.319\Downloads\NEA-Project-Tester\Game Try 1\bin\Debug\Game Try 1.exe.config
+C:\Users\zelad005.319\Downloads\NEA-Project-Tester\Game Try 1\bin\Debug\Game Try 1.exe
+C:\Users\zelad005.319\Downloads\NEA-Project-Tester\Game Try 1\bin\Debug\Game Try 1.pdb
+C:\Users\zelad005.319\Downloads\NEA-Project-Tester\Game Try 1\obj\Debug\WPFUI.csprojResolveAssemblyReference.cache
+C:\Users\zelad005.319\Downloads\NEA-Project-Tester\Game Try 1\obj\Debug\MainWindow.g.cs
+C:\Users\zelad005.319\Downloads\NEA-Project-Tester\Game Try 1\obj\Debug\App.g.cs
+C:\Users\zelad005.319\Downloads\NEA-Project-Tester\Game Try 1\obj\Debug\Game Try 1_MarkupCompile.cache
+C:\Users\zelad005.319\Downloads\NEA-Project-Tester\Game Try 1\obj\Debug\Game Try 1_MarkupCompile.lref
+C:\Users\zelad005.319\Downloads\NEA-Project-Tester\Game Try 1\obj\Debug\MainWindow.baml
+C:\Users\zelad005.319\Downloads\NEA-Project-Tester\Game Try 1\obj\Debug\Game Try 1.g.resources
+C:\Users\zelad005.319\Downloads\NEA-Project-Tester\Game Try 1\obj\Debug\Game_Try_1.Properties.Resources.resources
+C:\Users\zelad005.319\Downloads\NEA-Project-Tester\Game Try 1\obj\Debug\WPFUI.csproj.GenerateResource.Cache
+C:\Users\zelad005.319\Downloads\NEA-Project-Tester\Game Try 1\obj\Debug\Game Try 1.exe
+C:\Users\zelad005.319\Downloads\NEA-Project-Tester\Game Try 1\obj\Debug\Game Try 1.pdb

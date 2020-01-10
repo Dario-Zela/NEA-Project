@@ -411,7 +411,7 @@ namespace Game_Try_1
             this.Width = Width;
             this.Height = Height;
             t = new Tree(400, 29, new Vector(Height / 2, Width / 2), (int)Height, (int)Width, 50);
-            float[,] v = new MapGen().GenerateNoiseMap((int)Height, (int)Width, 800f, 21987, 6, 0.5f, 2f);
+            float[,] v = new MapGen().GenerateNoiseMap((int)Height, (int)Width, 2500f, new Random().Next(0, 102138), 6, 0.5f, 2f);
             GenX(10);
             for (int i = 0; i < Height; i++)
             {
