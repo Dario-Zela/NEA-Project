@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Models.WorldGen
 {
+    #region OLD
     public class GetBiome
     {
         private Random random = new Random();
@@ -383,6 +384,87 @@ namespace Models.WorldGen
                     }
                     break;
             }
+        }
+    }
+    #endregion
+
+    class BiomeMap
+    {
+        public void buildBiomes(ref Map World, ref Random rng)
+        {
+            int nBiomes = Constants.WORLD_TILES_COUNT / (32 + rng.Next(1, 33));
+
+            List<(int, int)> centroids = new List<(int, int)>();
+            for (int i = 0; i < nBiomes; i++)
+            {
+                centroids.Add((rng.Next(1, Constants.WORLD_WIDTH), rng.Next(1, Constants.WORLD_HEIGHT)));
+                World.biomes.Add(new Biome());
+            }
+
+            for (int y = 0; y < Constants.WORLD_HEIGHT; y++)
+            {
+                for (int x = 0; x < Constants.WORLD_WIDTH; x++)
+                {
+                    int distance = int.MaxValue;
+                    int closestIndex = -1;
+
+                    for (int i = 0; i < nBiomes; ++i)
+                    {
+                        int biomeX = centroids[i].Item1;
+                        int biomeY = centroids[i].Item2;
+                        int dx = (int)(biomeX - x);
+                        int dy = (int)(biomeY - y);
+                        int biomeDistance = (dx * dx) + (dy * dy);
+                        if (biomeDistance < distance)
+                        {
+                            distance = biomeDistance;
+                            closestIndex = i;
+                        }
+                    }
+
+                    World.landBlocks[World.idx(x, y)].biome_idx = closestIndex;
+                }
+            }
+
+            int count = 0;
+            int noMatch = 0;
+            foreach (Biome biome in World.biomes)
+            {
+                auto membership_count = biome_membership(planet, count);
+                if (!membership_count.empty())
+                {
+                    auto possible_types = find_possible_biomes(membership_count, biome);
+                    if (!possible_types.empty())
+                    {
+
+                        auto max_roll = 0.0;
+                        for (const auto &possible : possible_types) {
+                max_roll += possible.first;
+            }
+            auto dice_roll = rng.roll_dice(1, static_cast<int>(max_roll));
+            for (const auto &possible : possible_types) {
+                dice_roll -= static_cast<int>(possible.first);
+                if (dice_roll < 0)
+                {
+                    biome.type = possible.second;
+                    break;
+                }
+            }
+            if (biome.type == -1) biome.type = possible_types[possible_types.size() - 1].second;
+            biome.name = name_biome(planet, rng, biome);
+        } else {
+				++ no_match;
+			}
+        }
+planet_display_update_zoomed(planet, biome.center_x, biome.center_y);
+
+// Update the status
+const auto pct = static_cast<double>(count) / planet.biomes.size() * 100.0;
+fmt::MemoryWriter ss;
+ss << "Biome design: " << pct << "%";
+		set_worldgen_status(ss.str());
+		++count;
+	}
         }
     }
 }

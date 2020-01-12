@@ -149,7 +149,7 @@ namespace Models.WorldGen
             {
                 if(road.count > 0)
                 {
-                    road.direction /= road.count;
+                    road.direction /= road.count + 1;
                     Road newRoad = road.NextRoad();
                     temp.AddLast(newRoad);
                 }

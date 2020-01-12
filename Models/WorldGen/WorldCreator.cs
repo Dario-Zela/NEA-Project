@@ -19,7 +19,7 @@ namespace Models.WorldGen
     /// Created by Ken Perlin in his second paper;
     /// Slightly modified by me to implement a seed mechanic;
     /// </summary>
-    class PerlinNoise
+    public class PerlinNoise
     {
         /// <summary>
         /// The Permutations array used in the function;
@@ -51,16 +51,22 @@ namespace Models.WorldGen
         /// </summary>
         private float seed = new float();
 
+        int octaves;
+        float persistence, lacunarity;
+
         /// <summary>
         /// Class constructor;
         /// Assigns the seed value of the world;
         /// </summary>
-        public PerlinNoise(float seed = 1)
+        public PerlinNoise(int octaves, float persistence, float lacunarity, float seed = 1)
         {
             this.seed = (seed * 36) / 128.0f;
             p = new int[512];
             permutations.CopyTo(p, 0);
             permutations.CopyTo(p, 256);
+            this.octaves = octaves;
+            this.persistence = persistence;
+            this.lacunarity = lacunarity;
         }
 
         /// <summary>
@@ -74,7 +80,7 @@ namespace Models.WorldGen
         /// <returns>It returns the smoothed out value</returns>
         private float fade(float t)
         {
-            float val = (float)Math.Pow(t, 3) * (t * (t * 6 - 15) + 10);
+            float val = t * t * t * (t * (t * 6 - 15) + 10);
             return val;
         }
 
@@ -196,7 +202,7 @@ namespace Models.WorldGen
         /// <param name="lacunarity">How the frequency should change between executions;
         /// Usually 2, it can be changed to edit how the frequency changes between octaves</param>
         /// <returns></returns>
-        public float OctaveNoiseGen(float x, float y, int octaves, float persistence, float lacunarity = 2)
+        public float OctaveNoiseGen(float x, float y)
         {
             float total = 0;
             float frequency = 1;
@@ -223,19 +229,10 @@ namespace Models.WorldGen
     /// </summary>
     public class MapGen
     {
-        /// <summary>
-        /// The constructor of the class;
-        /// </summary>
         public MapGen() { }
 
-        /// <summary>
-        /// This function generates a 2D array where the index indicates the coordinates;
-        /// While the value is the noise at the position.
-        /// </summary>
-        /// <param name="mapDepth">The size of the map (x)</param>
-        /// <param name="mapWidth">The size of the map (y)</param>
-        /// <param name="Scale">The zoom of the function</param>
-        /// <returns>The noise map</returns>
+        /*
+        #region Old
         public float[,] GenerateNoiseMap(int mapDepth, int mapWidth, float Scale, int seed, int Octaves, float Persistance, float Lacunarity)
         {
             float[,] NoiseMap = new float[mapDepth, mapWidth];
@@ -275,24 +272,345 @@ namespace Models.WorldGen
         {
             return (value - min) / (max - min);
         }
+        #endregion
+        */
+
+        public PerlinNoise noiseMap(ref Map World, int seed, int octaves, float persistence, int lucanarity)
+        {
+            const int REGION_FRACTION_TO_CONSIDER = 64;
+            PerlinNoise noise = new PerlinNoise(octaves, persistence, lucanarity, seed);
+            const float maxTemperature = 56.7f;
+            const float minTemperature = -55.2f;
+            const float temperatureRange = maxTemperature - minTemperature;
+            float halfHeight = Constants.WORLD_HEIGHT / 2.0f;
+
+            for (int y = 0; y < Constants.WORLD_HEIGHT; y++)
+            {
+                int distanceFromEquator = (int)(halfHeight / 2) - y;
+                float tempRangePct = 1.0f - (float)(distanceFromEquator / halfHeight);
+                float baseTempByLatitulde = (tempRangePct * temperatureRange) + minTemperature;
+                for (int x = 0; x < Constants.WORLD_WIDTH; x++)
+                {
+                    float totalHeight = 0;
+
+                    int max = 0;
+                    int min = int.MaxValue;
+                    int nTiles = 0;
+                    for (int i = 0; i < Constants.REGION_HEIGHT / REGION_FRACTION_TO_CONSIDER; i++)
+                    {
+                        for (int j = 0; j < Constants.REGION_WIDTH / REGION_FRACTION_TO_CONSIDER; j++)
+                        {
+                            float noiseHeight = noise.OctaveNoiseGen(noiseX(x, i * REGION_FRACTION_TO_CONSIDER), noiseY(y, j * REGION_FRACTION_TO_CONSIDER));
+                            int Height = noiseToHeight(noiseHeight);
+                            if (Height < min) min = Height;
+                            if (Height > max) max = Height;
+                            totalHeight += noiseHeight;
+                            nTiles++;
+                        }
+                    }
+                    World.landBlocks[World.idx(x, y)].height = (int)(totalHeight / nTiles);
+                    World.landBlocks[World.idx(x, y)].type = 0;
+                    World.landBlocks[World.idx(x, y)].variance = max - min;
+                    float altitudeDeduction = (int)(World.landBlocks[World.idx(x, y)].height - World.waterHeight) / 10f;
+                    World.landBlocks[World.idx(x, y)].temperature = (int)(baseTempByLatitulde - altitudeDeduction);
+                    if (World.landBlocks[World.idx(x, y)].temperature < -55) World.landBlocks[World.idx(x, y)].temperature = -55;
+                    if (World.landBlocks[World.idx(x, y)].temperature > 55) World.landBlocks[World.idx(x, y)].temperature = 55;
+                }
+            }
+            return noise;
+        }
+
+        const float NOISE_SIZE = 384.0f;
+
+        private float noiseX(int worldX, int regionX)
+        {
+            float bigX = (worldX * Constants.WORLD_WIDTH) + regionX;
+            return bigX / Constants.WORLD_WIDTH * Constants.REGION_WIDTH * NOISE_SIZE;
+        }
+
+        private float noiseY(int worldY, int regionY)
+        {
+            float bigY = (worldY * Constants.WORLD_HEIGHT) + regionY;
+            return bigY / Constants.WORLD_HEIGHT * Constants.REGION_HEIGHT * NOISE_SIZE;
+        }
+
+        private int noiseToHeight(float noiseHeight)
+        {
+            return (int)((noiseHeight + 1) * 150f);
+        }
+
+        private int determineProportions(ref Map World, ref int candidate, int target)
+        {
+            int count = 0;
+            while (count < target)
+            {
+                int copy = candidate;
+                count = World.landBlocks.FindAll(block => block.height <= copy).Count;
+                if (count >= target)
+                {
+                    return candidate;
+                }
+                else
+                {
+                    candidate++;
+                }
+            }
+            throw new Exception();
+        }
+
+        public void baseTypeAllocation(ref Map World)
+        {
+            int candidate = 0;
+            int remainingDivisor = 10 - (World.waterDivisor + World.plainsDivisor);
+            int nCellWater = (Constants.WORLD_TILES_COUNT / World.waterDivisor);
+            int nCellPlains = (Constants.WORLD_TILES_COUNT / World.plainsDivisor) + nCellWater;
+            int nCellHills = (Constants.WORLD_TILES_COUNT / remainingDivisor) + nCellPlains;
+
+            World.waterHeight = determineProportions(ref World, ref candidate, nCellWater);
+            World.plainsHeight = determineProportions(ref World, ref candidate, nCellPlains);
+            World.hillsHeight = determineProportions(ref World, ref candidate, nCellHills);
+
+            for (int i = 0; i < World.landBlocks.Count; i++)
+            {
+                if (World.landBlocks[i].height <= World.waterHeight)
+                {
+                    World.landBlocks[i].type = (int)blockType.WATER;
+                    World.landBlocks[i].rainfall = 10;
+                    if (World.landBlocks[i].height + World.landBlocks[i].variance / 2 > World.waterHeight)
+                        World.landBlocks[i].type = (int)blockType.SALT_MARSH;
+                }
+                else if (World.landBlocks[i].height <= World.plainsHeight)
+                {
+                    World.landBlocks[i].type = (int)blockType.PLAINS;
+                    World.landBlocks[i].rainfall = 10;
+                    if (World.landBlocks[i].height - World.landBlocks[i].variance / 2 > World.waterHeight)
+                        World.landBlocks[i].type = (int)blockType.MARSH;
+                }
+                else if (World.landBlocks[i].height <= World.hillsHeight)
+                {
+                    World.landBlocks[i].type = (int)blockType.HILLS;
+                    World.landBlocks[i].rainfall = 20;
+                    if (World.landBlocks[i].variance < 2)
+                    {
+                        World.landBlocks[i].type = (int)blockType.HIGHLANDS;
+                        World.landBlocks[i].rainfall = 10;
+                    }
+                }
+                else
+                {
+                    World.landBlocks[i].type = (int)blockType.MOUNTAINS;
+                    World.landBlocks[i].rainfall = 30;
+                    if (World.landBlocks[i].variance < 3)
+                    {
+                        World.landBlocks[i].type = (int)blockType.PLATEAU;
+                        World.landBlocks[i].rainfall = 10;
+                    }
+                }
+            }
+        }
+
+        public void markCoastlines(ref Map World)
+        {
+            for (int y = 1; y < Constants.WORLD_HEIGHT - 1; y++)
+            {
+                for (int x = 1; x < Constants.WORLD_WIDTH - 1; x++)
+                {
+                    if (World.landBlocks[World.idx(x, y)].type > (int)blockType.WATER)
+                    {
+                        if (
+                            World.landBlocks[World.idx(x - 1, y - 1)].type == (int)blockType.WATER ||
+                            World.landBlocks[World.idx(x, y - 1)].type == (int)blockType.WATER ||
+                            World.landBlocks[World.idx(x + 1, y - 1)].type == (int)blockType.WATER ||
+                            World.landBlocks[World.idx(x - 1, y)].type == (int)blockType.WATER ||
+                            World.landBlocks[World.idx(x + 1, y)].type == (int)blockType.WATER ||
+                            World.landBlocks[World.idx(x - 1, y + 1)].type == (int)blockType.WATER ||
+                            World.landBlocks[World.idx(x, y + 1)].type == (int)blockType.WATER ||
+                            World.landBlocks[World.idx(x + 1, y + 1)].type == (int)blockType.WATER
+                        )
+                        {
+                            World.landBlocks[World.idx(x, y)].type = (int)blockType.COASTAL;
+                            World.landBlocks[World.idx(x, y)].rainfall = 20;
+                        }
+                    }
+                }
+            }
+        }
+
+        public void createRainfall(ref Map World)
+        {
+            for (int y = 0; y < Constants.WORLD_HEIGHT; ++y)
+            {
+                int rain_amount = 10;
+                for (int x = 0; x < Constants.WORLD_WIDTH; ++x)
+                {
+                    if (World.landBlocks[World.idx(x, y)].type == (int)blockType.MOUNTAINS)
+                    {
+                        rain_amount -= 20;
+                    }
+                    else if (World.landBlocks[World.idx(x, y)].type == (int)blockType.HILLS)
+                    {
+                        rain_amount -= 10;
+                    }
+                    else if (World.landBlocks[World.idx(x, y)].type == (int)blockType.COASTAL)
+                    {
+                        rain_amount -= 5;
+                    }
+                    else
+                    {
+                        rain_amount += 1;
+                    }
+                    if (rain_amount < 0) rain_amount = 0;
+                    if (rain_amount > 20) rain_amount = 20;
+
+                    World.landBlocks[World.idx(x, y)].rainfall += rain_amount;
+                    if (World.landBlocks[World.idx(x, y)].rainfall < 0) World.landBlocks[World.idx(x, y)].rainfall = 0;
+                    if (World.landBlocks[World.idx(x, y)].rainfall > 100) World.landBlocks[World.idx(x, y)].rainfall = 100;
+                }
+            }
+        }
     }
+    #endregion
+
+    #region Header
+
+    enum blockType
+    {
+        MAX_BLOCK_TYPE = 9,
+        NONE = 0,
+        WATER = 1,
+        PLAINS = 2,
+        HILLS = 3,
+        MOUNTAINS = 4,
+        MARSH = 5,
+        PLATEAU = 6,
+        HIGHLANDS = 7,
+        COASTAL = 8,
+        SALT_MARSH = 9,
+    }
+
+    public struct lifeEvent
+    {
+        public readonly int year;
+        public readonly string type;
+        lifeEvent(int year, string type)
+        {
+            this.year = year;
+            this.type = type;
+        }
+
+    }
+
+    public class History
+    {
+        public Dictionary<int, List<lifeEvent>> settlerLifeEvent;
+    }
+
+    public class Civ
+    {
+        public int techLevel = 0, glyph = 0;
+        public bool extinct = false;
+        public string speciesTag = "", name = "", leaderName = "", origin = "";
+        public byte r = 0, g = 0, b = 0;
+        public int startX = 0, startY = 0, cordexFeelings;
+        public bool metCordex = false;
+        public Dictionary<int, int> relations;
+    }
+
+    public class regionInfo
+    {
+        public int ownerCiv = 0, blightLevel = 0, settelmentSize = 0;
+        public List<string> improvements;
+    }
+
+    public class Unit
+    {
+        public int ownerCiv = 0, worldX = 0, worldY = 0;
+        public string unitType = "";
+        public bool dead = false;
+    }
+
+    public class civHolder
+    {
+        public List<Civ> civs;
+        public List<Unit> units;
+        public List<regionInfo> regionInfo;
+    }
+
+    public class River
+    {
+        public string name = "River";
+        public int startX = 0, startY = 0;
+        public List<RiverStep> route;
+
+        public struct RiverStep
+        {
+            int x;
+            int y;
+
+            public RiverStep(int x, int y)
+            {
+                this.x = x;
+                this.y = y;
+            }
+        }
+
+        public void addStep(int x, int y)
+        {
+            RiverStep step = new RiverStep(x, y);
+            route.Add(step);
+        }
+    }
+
+    public class Biome
+    {
+        public string name = "";
+        public int type = 0, meanTemperature = 0, meanRainfall = 0, meanAltitude = 0;
+        public int meanVariance = 0, warpMutation = 0, evil = 0, savagery = 0;
+        public int centerX = 0, centerY = 0;
+    }
+
+    public class Block
+    {
+        public int height = 0, variance = 0, type = 0;
+        public int temperature = 0, rainfall = 0, biome_idx = -1;
+    }
+
+    public class Map
+    {
+        public string name = "Test World";
+
+        public int rngSeed, perlinSeed, remainingSettlers, migrantCounter;
+        public int waterDivisor = 3, plainsDivisor = 3, startingSettlers = 10;
+
+        public int waterHeight, plainsHeight, hillsHeight;
+
+        public List<Block> landBlocks;
+        public List<Biome> biomes;
+        public List<River> rivers;
+        public int idx(int x, int y) { return y * Constants.WORLD_WIDTH + x; }
+        public civHolder civs;
+        public History history;
+    }
+
     #endregion
 
     public class WorldCreator
     {
-        private float scale = 80f;
-        private float Persistance = 0.5f;
-        private float Lacunarity = 2.5f;
-        private int Octaves = 3;
+        private const float scale = 80f;
+        private const float Persistance = 0.5f;
+        private const float Lacunarity = 2f;
+        private const int Octaves = 5;
         public GetBiome biomeMap;
 
         public WorldCreator(int Height, int Width, int seedHeight, int seedTemp, int seedHumid)
         {
             MapGen gen = new MapGen();
+            /*
             float[,] heightMap = gen.GenerateNoiseMap(Height, Width, scale, seedHeight, Octaves, Persistance, Lacunarity);
             float[,] tempMap = gen.GenerateNoiseMap(Height, Width, scale, seedTemp, Octaves, Persistance, Lacunarity - 1);
             float[,] humidMap = gen.GenerateNoiseMap(Height, Width, scale, seedHumid, Octaves, Persistance, Lacunarity - 1);
             biomeMap = new GetBiome(heightMap, humidMap, tempMap, Width, Height);
+            */
         }
     }
 }
