@@ -502,7 +502,7 @@ namespace Models.WorldGen
 
     public class History
     {
-        public Dictionary<int, List<lifeEvent>> settlerLifeEvent;
+        public Dictionary<int, List<lifeEvent>> settlerLifeEvent = new Dictionary<int,List<lifeEvent>>();
     }
 
     public class Civ
@@ -513,13 +513,13 @@ namespace Models.WorldGen
         public byte r = 0, g = 0, b = 0;
         public int startX = 0, startY = 0, cordexFeelings;
         public bool metCordex = false;
-        public Dictionary<int, int> relations;
+        public Dictionary<int, int> relations = new Dictionary<int,int>();
     }
 
     public class regionInfo
     {
         public int ownerCiv = 0, blightLevel = 0, settelmentSize = 0;
-        public List<string> improvements;
+        public List<string> improvements = new List<string>();
     }
 
     public class Unit
@@ -531,16 +531,16 @@ namespace Models.WorldGen
 
     public class civHolder
     {
-        public List<Civ> civs;
-        public List<Unit> units;
-        public List<regionInfo> regionInfo;
+        public List<Civ> civs = new List<Civ>();
+        public List<Unit> units = new List<Unit>();
+        public List<regionInfo> regionInfo = new List<regionInfo>();
     }
 
     public class River
     {
         public string name = "River";
         public int startX = 0, startY = 0;
-        public List<RiverStep> route;
+        public List<RiverStep> route = new List<RiverStep>();
 
         public struct RiverStep
         {
@@ -584,12 +584,12 @@ namespace Models.WorldGen
 
         public int waterHeight, plainsHeight, hillsHeight;
 
-        public List<Block> landBlocks;
-        public List<Biome> biomes;
-        public List<River> rivers;
+        public List<Block> landBlocks = new List<Block>();
+        public List<Biome> biomes = new List<Biome>();
+        public List<River> rivers = new List<River>();
         public int idx(int x, int y) { return y * Constants.WORLD_WIDTH + x; }
-        public civHolder civs;
-        public History history;
+        public civHolder civs = new civHolder();
+        public History history = new History();
     }
 
     #endregion

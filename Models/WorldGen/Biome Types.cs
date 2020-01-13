@@ -390,10 +390,99 @@ namespace Models.WorldGen
 
     class BiomeMap
     {
+        static Dictionary<int, double> biome_membership(ref Map World, ref int idx){
+	        Dictionary<int, double> percents = new Dictionary<int,double>();
+	        Dictionary<int, long> counts = new Dictionary<int,long>();
+	        int nCells = 0;
+	        int totalTemperature = 0;
+	        int totalRainfall = 0;
+	        int totalHeight = 0;
+	        int totalVariance = 0;
+	        int totalX = 0;
+	        int totalY = 0;
+
+	        for (int y=0; y<Constants.WORLD_HEIGHT; y++) {
+		        for (int x=0; x<Constants.WORLD_WIDTH; x++) {
+			        int blockIdx = planet.idx(x,y);
+
+			        if (World.landBlocks[blockIdx].biomeIdx == idx) {
+				        // Increment total counters
+				        nCells++;
+				        totalTemperature += planet.landblocks[block_idx].temperature;
+				        totalRainfall += planet.landblocks[block_idx].rainfall;
+				        totalHeight += planet.landblocks[block_idx].height;
+				        totalVariance += planet.landblocks[block_idx].variance;
+				        totalX += x;
+				        totalY += y;
+
+				        // Increment count by cell type
+				        bool finder = counts.ContainsKey(planet.landblocks[block_idx].type);
+				        if (finder == false) 
+                        {
+					        counts.Add(planet.landblocks[block_idx].type, 1);
+				        } 
+                        else 
+                        {
+					        counts[planet.landblocks[block_idx].type]++;
+				        }
+			        }
+		        }
+	        }
+
+	        // Calculate the averages
+	        if (nCells == 0) {
+		        //std::unordered_map<uint8_t, double>();
+		        nCells = 1;
+	        }
+
+	        double counter =(double)(nCells);
+	        World.biomes[idx].meanAltitude = (int)(total_height / counter);
+	        World.biomes[idx].meanRainfall = (int)(total_rainfall / counter);
+	        World.biomes[idx].meanTemperature = (int)(total_temperature / counter);
+	        World.biomes[idx].meanVariance = (int)(total_variance / counter);
+	        World.biomes[idx].centerX = totalX / nCells;
+	        World.biomes[idx].centerY = totalY / nCells;
+
+	        int distancePole = (int)(Math.Min( distance2d(planet.biomes[idx].center_x,planet.biomes[idx].center_y, WORLD_WIDTH/2, 0), 
+                distance2d(planet.biomes[idx].center_x, planet.biomes[idx].center_y, WORLD_WIDTH/2, WORLD_HEIGHT) ));
+	        int distanceCenter = static_cast<int>(distance2d(planet.biomes[idx].center_x,planet.biomes[idx].center_y, WORLD_WIDTH/2, WORLD_HEIGHT/2));
+
+	        if (distancePole > 200) 
+            {
+		        planet.biomes[idx].warp_mutation = 0;
+	        } 
+            else 
+            {
+		        planet.biomes[idx].warp_mutation = (200 - distance_from_pole)/2;
+	        }
+	        planet.biomes[idx].savagery = Math.Min(100, distance_from_center);
+
+	        for (int i=0; i< (int)blockType.MAX_BLOCK_TYPE + 1; i++) {
+		        bool finder = counts.ContainsKey(i);
+		        if (finder == false) {
+			        percents.Add(i, 0.0);
+		        } 
+                else 
+                {
+			        double pct = (double)(counts[i]) / counter;
+			        percents.Add(i, pct);
+		        }
+
+	        }
+
+	        return percents;
+        }
+
+        private float distance2d(int x1, int y1, int x2, int y2)
+        {
+            float dx = (float)x1 - (float)x2;
+            float dy = (float)y1 - (float)y2;
+            return Math.Sqrt((dx*dx) + (dy*dy));
+        }
+
         public void buildBiomes(ref Map World, ref Random rng)
         {
             int nBiomes = Constants.WORLD_TILES_COUNT / (32 + rng.Next(1, 33));
-
             List<(int, int)> centroids = new List<(int, int)>();
             for (int i = 0; i < nBiomes; i++)
             {
@@ -462,5 +551,6 @@ namespace Models.WorldGen
         		}
 			}
         }
+
     }
 }
