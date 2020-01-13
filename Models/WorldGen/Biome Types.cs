@@ -390,7 +390,7 @@ namespace Models.WorldGen
 
     class BiomeMap
     {
-        static Dictionary<int, double> biome_membership(ref Map World, ref int idx){
+        private Dictionary<int, double> biome_membership(ref Map World, ref int idx){
 	        Dictionary<int, double> percents = new Dictionary<int,double>();
 	        Dictionary<int, long> counts = new Dictionary<int,long>();
 	        int nCells = 0;
@@ -552,5 +552,73 @@ namespace Models.WorldGen
 			}
         }
 
+    }
+
+    class RiverBuilder
+    {
+        public void planet_rivers(ref Map World, Random rng) {
+	        int nRivers = Constants.WORLD_WIDTH/2;
+	        HashSet<int> usedStarts = new HashSet<int>();
+
+	        for (int i=0; i<n_rivers; ++i) {
+		        River river = new River();
+
+		        bool startOk = false;
+		        while (!start_ok) 
+                {
+			        river.startX = rng.Next(1, Constants.WORLD_WIDTH)-1;
+			        river.startY = rng.Next(1, Constants.WORLD_HEIGHT)-1;
+			        int pidx = World.idx(river.startX, river.startY);
+			        if ((World.landBlocks[pidx].type == (int)blockType.MOUNTAINS || World.landBlocks[pidx].type == (int)blockType.HILLS) && !usedStarts.Contains(pidx)) start_ok = true;
+		        }
+		        usedStarts.Add(planet.idx(river.startX, river.startY));
+
+		        HashSet<int> usedSteps = new HashSet<int>();
+		        bool done = false;
+		        int x = river.startX;
+		        int y = river.startY;
+		        while (!done) {
+			        Dictionary<int,(int, int)> candidates = new Dictionary<int,(int, int)>();
+			        if (x > 0 && !usedSteps.Contains(World.idx(x-1, y))) candidates.Add(World.landBlocks[planet.idx(x-1, y)].height, (x-1, y));
+			        if (x < Constants.WORLD_WIDTH-1 && !usedSteps.Contains(World.idx(x+1, y))) candidates.Add(World.landBlocks[World.idx(x+1, y)].height, (x+1, y));
+			        if (y > 0 && !usedSteps.Contains(World.idx(x, y-1))) candidates.Add(World.landBlocks[World.idx(x, y-1)].height, (x, y-1));
+			        if (y < Constants.WORLD_HEIGHT-1 && !usedSteps.Contains(World.idx(x, y+1))) candidates.Add(World.landBlocks[World.idx(x, y+1)].height, (x, y+1));
+			        riverStep step = new riverStep();
+			        if (candidates.empty()) {
+				        done = true;
+			        } 
+                    else
+                    {
+				        foreach(River test in World.rivers)
+                        {
+					        if (!done) 
+                            {
+						        foreach(riverStep step in test.steps)
+                                {
+							        if (x==step.x && y==step.y) { done=true; break; }
+						        }
+					        }
+				        }
+                        //Left Here
+				        if (!done) {
+					        step.x = candidates.begin()->second.first;
+					        step.y = candidates.begin()->second.second;
+
+					        if (planet.landblocks[planet.idx(x,y)].type == block_type::WATER || x == 0 || x == WORLD_WIDTH || y ==0 || y==WORLD_HEIGHT) {
+						        done = true;
+					        } else {
+						        river.steps.push_back(step);
+						        used_steps.insert(planet.idx(step.x, step.y));
+						        x = step.x;
+						        y = step.y;
+					        }
+				        }
+			        }
+		        }
+
+		        planet_display_update_zoomed(planet, WORLD_WIDTH/2, WORLD_HEIGHT/2);
+		        planet.rivers.push_back(river);
+	        }
+        }
     }
 }
