@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Models.WorldGen
 {
+    /*
     #region OLD
     public class GetBiome
     {
@@ -387,97 +388,564 @@ namespace Models.WorldGen
         }
     }
     #endregion
-
+    */
     class BiomeMap
     {
-        private Dictionary<int, double> biome_membership(ref Map World, ref int idx){
-	        Dictionary<int, double> percents = new Dictionary<int,double>();
-	        Dictionary<int, long> counts = new Dictionary<int,long>();
-	        int nCells = 0;
-	        int totalTemperature = 0;
-	        int totalRainfall = 0;
-	        int totalHeight = 0;
-	        int totalVariance = 0;
-	        int totalX = 0;
-	        int totalY = 0;
 
-	        for (int y=0; y<Constants.WORLD_HEIGHT; y++) {
-		        for (int x=0; x<Constants.WORLD_WIDTH; x++) {
-			        int blockIdx = planet.idx(x,y);
+        List<biomeType> BiomeTypes = new List<biomeType>();
 
-			        if (World.landBlocks[blockIdx].biomeIdx == idx) {
-				        // Increment total counters
-				        nCells++;
-				        totalTemperature += planet.landblocks[block_idx].temperature;
-				        totalRainfall += planet.landblocks[block_idx].rainfall;
-				        totalHeight += planet.landblocks[block_idx].height;
-				        totalVariance += planet.landblocks[block_idx].variance;
-				        totalX += x;
-				        totalY += y;
+        public BiomeMap()
+        {
+            generateTypes();
+        }
 
-				        // Increment count by cell type
-				        bool finder = counts.ContainsKey(planet.landblocks[block_idx].type);
-				        if (finder == false) 
-                        {
-					        counts.Add(planet.landblocks[block_idx].type, 1);
-				        } 
-                        else 
-                        {
-					        counts[planet.landblocks[block_idx].type]++;
-				        }
-			        }
-		        }
-	        }
+        private enum biomeTypes
+        {
+            ocean = 1,
+            plains = 2,
+            hills = 3,
+            mountains = 4,
+            marsh = 5,
+            plateau = 6,
+            highlands = 7,
+            coast = 8,
+            salt_marsh = 9
+        }
 
-	        // Calculate the averages
-	        if (nCells == 0) {
-		        //std::unordered_map<uint8_t, double>();
-		        nCells = 1;
-	        }
+        private void generateTypes()
+        {
+            #region Ocean
+            BiomeTypes.Add(new biomeType() {
+                name = "Frozen Ocean", minTemp = -100, maxTemp = -5, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.ocean, (int)biomeTypes.coast }, soilPct = 50, sandPct = 50,
+                plants = { ("none", 20), ("grass", 20), ("lavendar", 1), ("daisy", 1), ("reeds", 2) },
+                deciduousTreeChance = 0,
+                evergreenTreeChance = 1,
+                wildlife = { "deer" }, nouns = { "Arctic", "Pole", "Frozen Sea" },
+            });
 
-	        double counter =(double)(nCells);
-	        World.biomes[idx].meanAltitude = (int)(total_height / counter);
-	        World.biomes[idx].meanRainfall = (int)(total_rainfall / counter);
-	        World.biomes[idx].meanTemperature = (int)(total_temperature / counter);
-	        World.biomes[idx].meanVariance = (int)(total_variance / counter);
-	        World.biomes[idx].centerX = totalX / nCells;
-	        World.biomes[idx].centerY = totalY / nCells;
+            BiomeTypes.Add(new biomeType() {
+                name = "Icy Ocean", minTemp = -10, maxTemp = 10, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.ocean, (int)biomeTypes.coast } , soilPct =50, sandPct = 50 ,
+                plants = { ("none" , 10), ("grass" , 20), ("lavendar", 1), ("daisy", 1), ("reeds", 2), ("potato", 1), ("radish", 1), ("turnip", 1)},
+                deciduousTreeChance = 0, evergreenTreeChance = 5,
+                wildlife = { "deer" }, nouns = { "Arctic", "Ice Sea", "Sea of Razors", "Iceberg" }
+            });
 
-	        int distancePole = (int)(Math.Min( distance2d(planet.biomes[idx].center_x,planet.biomes[idx].center_y, WORLD_WIDTH/2, 0), 
-                distance2d(planet.biomes[idx].center_x, planet.biomes[idx].center_y, WORLD_WIDTH/2, WORLD_HEIGHT) ));
-	        int distanceCenter = static_cast<int>(distance2d(planet.biomes[idx].center_x,planet.biomes[idx].center_y, WORLD_WIDTH/2, WORLD_HEIGHT/2));
-
-	        if (distancePole > 200) 
+            BiomeTypes.Add(new biomeType()
             {
-		        planet.biomes[idx].warp_mutation = 0;
-	        } 
-            else 
-            {
-		        planet.biomes[idx].warp_mutation = (200 - distance_from_pole)/2;
-	        }
-	        planet.biomes[idx].savagery = Math.Min(100, distance_from_center);
+                name = "Ocean", minTemp = 0, maxTemp = 30, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,       
+                occurs = { (int)biomeTypes.ocean, (int)biomeTypes.coast } , soilPct=50, sandPct=50,
+                plants = {("none",5), ("grass",20), ("sage",1), ("daisy",1), ("reeds",2), ("strawberry",1), ("cabbage",1), ("caper",1), ("celery",1), ("leek",1), ("lentil",1), ("onion",1), ("parsnip",1), ("potato",1), ("radish",1), ("red_bean",1), ("soybean",1), ("spinach",1), ("turnip",1), ("hemp",1), ("cotton",1)}, 
+                deciduousTreeChance = 5, evergreenTreeChance = 5,
+                wildlife = { "deer","boar"}, nouns = { "Sea", "Ocean", "Drink", "High Sea" }
+            });
 
-	        for (int i=0; i< (int)blockType.MAX_BLOCK_TYPE + 1; i++) {
-		        bool finder = counts.ContainsKey(i);
-		        if (finder == false) {
-			        percents.Add(i, 0.0);
-		        } 
-                else 
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Tropical Ocean", minTemp = 30, maxTemp = 100, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,       
+                occurs = { (int)biomeTypes.ocean, (int)biomeTypes.coast } , soilPct=50, sandPct=50,
+                plants = { ("none",5), ("grass",20), ("reeds_giant",2), ("reeds_paper",2), ("sage",1), ("daisy",1), ("reeds",2), ("strawberry",1), ("goya",1), ("cabbage",1), ("caper",1), ("cassava",1), ("celery",1), ("horned_melon",1), ("lentil",1), ("onion",1), ("parsnip",1), ("soybean",1), ("yam",1), ("jute",1), ("hemp",1), ("ramie",1), ("cotton",1) },
+                deciduousTreeChance = 10, evergreenTreeChance = 0,
+                wildlife = { "deer","armadillo","antelope"}, nouns = { "Tropical Sea", "Equatorial Sea", "Warm Ocean" }
+            });
+            #endregion
+
+            #region Costal
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Arctic Coast", minTemp = -100, maxTemp = -5, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,       
+                occurs = { (int)biomeTypes.coast  }, soilPct=50, sandPct=50,
+                plants = { ("none",20), ("grass",20), ("lavendar",1), ("daisy",1), ("reeds",2), ("heather",2) },
+                deciduousTreeChance = 0, evergreenTreeChance = 1 ,
+                wildlife = { "deer"}, nouns = { "Ice Cliffs", "Ice Shelf", "Glacier", "Needles" },
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Cold Coast", minTemp = -5, maxTemp = 5, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.coast }, soilPct = 50, sandPct = 50,
+                plants = { ("none", 10), ("grass", 20), ("lavendar", 1), ("daisy", 1), ("reeds", 2), ("heather", 2), ("cabbage", 1), ("cress", 1), ("garlic", 1), ("leek", 1), ("onion", 1), ("parsnip", 1), ("potato", 1), ("radish", 1), ("turnip", 1), ("hemp", 1) },
+                deciduousTreeChance = 0, evergreenTreeChance = 5,
+                wildlife = { "deer", "boar" }, nouns = { "Coast", "Seashore", "Littoral" },
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Temperate Coast", minTemp = 5, maxTemp = 25, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.coast }, soilPct = 50, sandPct = 50,
+                plants = { ("none", 5), ("grass", 20), ("sage", 1), ("daisy", 1), ("reeds", 2), ("strawberry", 1), ("beetroot", 1), ("cabbage", 1), ("cress", 1), ("leek", 1), ("lentil", 1), ("onion", 1), ("parsnip", 1), ("pea", 1), ("potato", 1), ("radish", 1), ("red_bean", 1), ("rhubarb", 1), ("soybean", 1), ("spinach", 1), ("turnip", 1), ("hemp", 1), ("cotton", 1) },
+                deciduousTreeChance = 5, evergreenTreeChance = 5,
+                wildlife = { "deer", "badger", "boar", "antelope", "horse" }, nouns = { "Coast", "Cliffs", "Seashore", "Littoral" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Tropical Coast", minTemp = 25, maxTemp = 55, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,       
+                occurs = { (int)biomeTypes.coast  }, soilPct=50, sandPct=50,
+                plants = { ("none",5), ("grass",20), ("reeds_paper",2), ("reeds_giant",2), ("sage",1), ("daisy",1), ("reeds",2), ("strawberry",1), ("goya",1), ("cabbage",1), ("caper",1), ("cassava",1), ("horned_melon",1), ("lentil",1), ("lettuce",1), ("onion",1), ("parsnip",1), ("soybean",1), ("watermelon",1), ("yam",1), ("jute",1), ("ramie",1), ("cotton",1) },
+                deciduousTreeChance = 10, evergreenTreeChance = 0 ,
+                wildlife = { "deer","armadillo","boar","antelope","horse"},
+                nouns = { "Coast", "Cliffs", "Seashore", "Seaside", "Resort", "Littoral", "Bay" }
+            });
+            #endregion
+
+            #region Salt-Marsh
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Arctic Coast", minTemp = -100, maxTemp = -5, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,       
+                occurs = { (int)biomeTypes.salt_marsh  }, soilPct=70, sandPct=30,
+                plants = { ("none",20), ("grass",20), ("lavendar",1), ("daisy",1), ("reeds",2) },
+                deciduousTreeChance = 0, evergreenTreeChance = 5,
+                wildlife = { "deer","mammoth"},
+                nouns = { "Arctic", "Tundra", "Devil's Icebox" },
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Cold Coast", minTemp = -5, maxTemp = 5, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.salt_marsh }, soilPct = 70, sandPct = 30,
+                plants = { ("none", 10), ("grass", 20), ("lavendar", 1), ("daisy", 1), ("reeds", 2), ("cabbage", 1), ("cress", 1) },
+                deciduousTreeChance = 3, evergreenTreeChance = 10,
+                wildlife = { "deer", "mammoth" },
+                nouns = { "Tundra", "Cold Desert" },
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Temperate Coast", minTemp = 5, maxTemp = 25, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,       
+                occurs = { (int)biomeTypes.salt_marsh  }, soilPct=70, sandPct=30,
+                deciduousTreeChance = 15, evergreenTreeChance = 0,
+                wildlife = { "deer","boar"},
+                nouns = { "Badlands", "Waste", "Flats" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Tropical Coast", minTemp = 25, maxTemp = 55, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.salt_marsh }, soilPct = 50, sandPct = 50,
+                deciduousTreeChance = 15, evergreenTreeChance = 0,
+                wildlife = { "deer", "boar" },
+                nouns = { "Badlands", "Waste", "Flats", "Alkali Flat" },
+            });
+            #endregion
+
+            #region Flatlands
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Permafrost Plain", minTemp = -100, maxTemp = 3, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.plains , (int)biomeTypes.coast , (int)biomeTypes.marsh  }, soilPct=50, sandPct=50 ,
+                plants = { ("none",20), ("grass",20), ("lavendar",1), ("daisy",1), ("reeds",2), ("heather",2) },
+                deciduousTreeChance = 0, evergreenTreeChance = 1 ,
+                wildlife = { "deer","mammoth"},
+                nouns = { "Permafrost", "Tundra", "Frozen Plain" },
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Rocky Plain", minTemp = -5, maxTemp = 5, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.plains, (int)biomeTypes.coast, (int)biomeTypes.marsh }, soilPct = 50, sandPct = 50,
+                plants = { ("none", 25), ("grass", 20), ("sage", 1), ("daisy", 1), ("reeds", 2), ("cabbage", 1), ("leek", 1), ("hemp", 1) },
+                deciduousTreeChance = 0, evergreenTreeChance = 1,
+                wildlife = { "deer", "horse" },
+                nouns = { "Plain", "Scarp", "Scree", "Boulderland" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Grass Plain", minTemp = 0, maxTemp = 25, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.plains , (int)biomeTypes.coast , (int)biomeTypes.marsh  }, soilPct=75, sandPct=25 ,
+                plants = { ("none",3), ("grass",20), ("sage",1), ("daisy",1), ("reeds",2), ("strawberry",1), ("artichoke",1), ("asparagus",1), ("string_bean",1), ("broad_bean",1), ("beetroot",1), ("cabbage",1), ("carrot",1), ("celery",1), ("chickpea",1), ("chickory",1), ("cucumber",1), ("cress",1), ("garlic",1), ("leek",1), ("lentil",1), ("onion",1), ("parsnip",1), ("pea",1), ("potato",1), ("radish",1), ("red_bean",1), ("rhubarb",1), ("soybean",1), ("spinach",1), ("turnip",1), ("hemp",1), ("ramie",1), ("cotton",1)},
+                deciduousTreeChance = 20, evergreenTreeChance = 3 ,
+                wildlife = { "deer","boar","hedgehog","horse"},
+                nouns = { "Grasslands", "Plain", "Prairie", "Heath", "Level" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Savannah Plain", minTemp = 25, maxTemp = 55, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.plains, (int)biomeTypes.coast, (int)biomeTypes.marsh }, soilPct = 25, sandPct = 75,
+                plants = { ("none", 3), ("grass", 25), ("reeds_giant", 2), ("sage", 1), ("daisy", 1), ("reeds", 2), ("strawberry", 1), ("asparagus", 1), ("string_bean", 1), ("broad_bean", 1), ("caper", 1), ("carrot", 1), ("cassava", 1), ("celery", 1), ("chickpea", 1), ("chickory", 1), ("cowpea", 1), ("cucumber", 1), ("eggplant", 1), ("garlic", 1), ("horned_melon", 1), ("lentil", 1), ("lettuce", 1), ("mung_bean", 1), ("onion", 1), ("parsnip", 1), ("peanut", 1), ("pepper", 1), ("soybean", 1), ("spinach", 1), ("squash", 1), ("sweet_potato", 1), ("tomatillo", 1), ("watermelon", 1), ("yam", 1), ("reeds_paper", 2), ("jute", 1), ("hemp", 1), ("ramie", 1), ("cotton", 1) },
+                deciduousTreeChance = 20, evergreenTreeChance = 0,
+                wildlife = { "deer", "armadillo", "boar", "elephant", "antelope", "horse" },
+                nouns = { "Savannah", "Grassland", "Heath", "Scrub", "Level" },
+            });
+            #endregion
+
+            #region Hills
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Permafrost Hills", minTemp = -100, maxTemp = 3, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.hills, (int)biomeTypes.highlands }, soilPct = 80, sandPct = 20,
+                plants = { ("none",20), ("grass",20), ("lavendar",1), ("daisy",1), ("reeds",2), ("heather",2) },
+                deciduousTreeChance = 0, evergreenTreeChance = 1,
+                wildlife = { "deer", "mammoth" },
+                nouns = { "Ice Hill", "Hill", "Mound", "Roughs" },
+            });
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Rocky Hills", minTemp = -5, maxTemp = 5, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.hills, (int)biomeTypes.highlands }, soilPct = 50, sandPct = 50,
+                plants = { ("none", 30), ("grass", 20), ("lavendar", 1), ("daisy", 1), ("reeds", 2), ("heather", 2), ("cabbage", 1), ("parsnip", 1), ("hemp", 1) },
+                deciduousTreeChance = 0, evergreenTreeChance = 1,
+                wildlife = { "deer", "horse" },
+                nouns = { "Rocky Hills", "Hill", "Mound", "Bump", "Scree", "Scar" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Grass Hills", minTemp = 0, maxTemp = 25, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.hills, (int)biomeTypes.highlands }, soilPct = 75, sandPct = 25,
+                plants = { ("none", 5), ("grass", 20), ("sage", 1), ("daisy", 1), ("reeds", 2), ("strawberry", 1), ("artichoke", 1), ("asparagus", 1), ("string_bean", 1), ("broad_bean", 1), ("beetroot", 1), ("cabbage", 1), ("carrot", 1), ("celery", 1), ("chickpea", 1), ("chickory", 1), ("cress", 1), ("garlic", 1), ("lentil", 1), ("onion", 1), ("parsnip", 1), ("pea", 1), ("soybean", 1), ("turnip", 1), ("hemp", 1), ("ramie", 1), ("cotton", 1) },
+                deciduousTreeChance = 5, evergreenTreeChance = 3,
+                wildlife = { "deer", "boar", "horse" },
+                nouns = { "Rolling Hill", "Hill", "Rolling Heath", "Moor" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Savannah Hills", minTemp = 25, maxTemp = 55, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.hills, (int)biomeTypes.highlands }, soilPct = 50, sandPct = 50,
+                plants = { ("none", 5), ("grass", 20), ("sage", 1), ("daisy", 1), ("reeds", 2), ("asparagus", 1), ("cabbage", 1), ("caper", 1), ("carrot", 1), ("celery", 1), ("chickpea", 1), ("chickory", 1), ("eggplant", 1), ("lentil", 1), ("onion", 1), ("peanut", 1), ("pepper", 1), ("soybean", 1), ("jute", 1), ("ramie", 1), ("cotton", 1) },
+                deciduousTreeChance = 10, evergreenTreeChance = 0,
+                wildlife = { "deer", "boar", "elephant", "antelope", "horse" },
+                nouns = { "Savannah Hills", "Hill", "Rolling Savannah", "Savannah Moor" },
+            });
+            #endregion
+
+            #region Plateau
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Permafrost Plateau", minTemp = -100, maxTemp = 3, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.plateau }, soilPct = 50, sandPct = 50,
+                plants = { ("none", 20), ("grass", 20), ("lavendar", 1), ("daisy", 1), ("reeds", 2), ("heather", 2) },
+                deciduousTreeChance = 0, evergreenTreeChance = 1,
+                wildlife = { "deer" },
+                nouns = { "Glacier", "Plateau", "Ice Plain", "Steppe" },
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Rocky Plateau", minTemp = -5, maxTemp = 5, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.plateau }, soilPct = 50, sandPct = 50,
+                plants = { ("none", 15), ("grass", 20), ("sage", 1), ("daisy", 1), ("reeds", 2), ("cabbage", 1), ("hemp", 1) },
+                deciduousTreeChance = 0, evergreenTreeChance = 3,
+                wildlife = { "deer", "horse" },
+                nouns = { "Tableland", "Tablerock", "Plateau", "Rocky Plateau" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Grass Plateau", minTemp = 0, maxTemp = 25, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.plateau }, soilPct = 50, sandPct = 50,
+                plants = { ("none", 5), ("grass", 20), ("sage", 1), ("daisy", 1), ("reeds", 2), ("strawberry", 1), ("asparagus", 1), ("beetroot", 1), ("cabbage", 1), ("celery", 1), ("chickpea", 1), ("chickory", 1), ("cucumber", 1), ("lentil", 1), ("garlic", 1), ("onion", 1), ("soybean", 1), ("turnip", 1), ("hemp", 1), ("ramie", 1), ("cotton", 1) },
+                deciduousTreeChance = 20, evergreenTreeChance = 5,
+                wildlife = { "deer", "badger", "boar", "horse" },
+                nouns = { "Hog's Back", "Plateau", "Table", "Fell", "Downs" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Savannah Plateau", minTemp = 25, maxTemp = 55, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.plateau }, soilPct = 50, sandPct = 50,
+                plants = { ("none", 2), ("grass", 20), ("sage", 1), ("daisy", 1), ("reeds", 2), ("strawberry", 1), ("asparagus", 1), ("bambara_groundnut", 1), ("goya", 1), ("cabbage", 1), ("caper", 1), ("celery", 1), ("chickpea", 1), ("chickory", 1), ("cucumber", 1), ("eggplant", 1), ("horned_melon", 1), ("lentil", 1), ("onion", 1), ("soybean", 1), ("tomatillo", 1), ("hemp", 1), ("ramie", 1), ("cotton", 1) },
+                deciduousTreeChance = 25, evergreenTreeChance = 0,
+                wildlife = { "deer", "armadillo", "boar", "antelope", "horse" },
+                nouns = { "Upland", "Table", "Plateau" },
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Badlands", minTemp = 25, maxTemp = 55, minRain = 0, maxRain = 20, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.plateau }, soilPct = 50, sandPct = 50,
+                deciduousTreeChance = 1, evergreenTreeChance = 0,
+                wildlife = { "deer", "armadillo" },
+                nouns = { "Devil's Table", "Badland Plateau" },
+            });
+            #endregion
+
+            #region Highlands
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Permafrost Highlands", minTemp = -100, maxTemp = 3, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.highlands }, soilPct = 50, sandPct = 50,
+                plants = { ("none", 20), ("grass", 10), ("lavendar", 1), ("daisy", 1), ("reeds", 2), ("heather", 2) },
+                deciduousTreeChance = 0, evergreenTreeChance = 1,
+                wildlife = { "deer" },
+                nouns = { "High Waste", "High Tundra", "Hillock", "Promontary" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Rocky Highlands", minTemp = -5, maxTemp = 5, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.highlands }, soilPct = 50, sandPct = 50,
+                plants = { ("none", 25), ("grass", 10), ("sage", 1), ("daisy", 1), ("reeds", 2), ("cabbage", 1) },
+                deciduousTreeChance = 0, evergreenTreeChance = 5,
+                wildlife = { "deer", "boar", "horse" },
+                nouns = { "Waste", "Scree", "Fell", "Promontary", "Dales", "Pike" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Grass Highlands", minTemp = 0, maxTemp = 25, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.highlands }, soilPct = 50, sandPct = 50,
+                plants = { ("none", 5), ("grass", 20), ("sage", 1), ("daisy", 1), ("reeds", 2), ("beetroot", 1), ("strawberry", 1), ("cabbage", 1), ("onion", 1), ("turnip", 1), ("hemp", 1) },
+                deciduousTreeChance = 10, evergreenTreeChance = 3,
+                wildlife = { "deer", "badger", "boar", "horse" },
+                nouns = { "Moor", "Heath", "Uplands", "Dales", "Scar" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Savannah Highlands", minTemp = 25, maxTemp = 55, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.highlands }, soilPct = 25, sandPct = 75,
+                plants = { ("none", 2), ("grass", 20), ("sage", 1), ("daisy", 1), ("reeds", 2), ("beetroot", 1), ("strawberry", 1), ("goya", 1), ("cabbage", 1), ("hemp", 1) },
+                deciduousTreeChance = 20, evergreenTreeChance = 1,
+                wildlife = { "deer", "armadillo", "boar", "horse" },
+                nouns = { "Savannah Hills", "Highlands", "Uplands", "Peaks", "Mounds" },
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Badland Highlands", minTemp = 25, maxTemp = 55, minRain = 0, maxRain = 20, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.highlands }, soilPct = 10, sandPct = 90,
+                deciduousTreeChance = 1, evergreenTreeChance = 0,
+                wildlife = { "deer", "armadillo" },
+                nouns = { "Scree", "Heights" }
+            });
+            #endregion
+
+            #region Mountain
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Permafrost Mountains", minTemp = -100, maxTemp = 3, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.mountains }, soilPct = 50, sandPct = 50,
+                plants = { ("none", 40), ("grass", 20), ("lavendar", 1), ("daisy", 1), ("reeds", 2), ("heather", 2) },
+                deciduousTreeChance = 0, evergreenTreeChance = 1,
+                wildlife = { "deer" },
+                nouns = { "Mountains", "Peaks", "Pikes", "Alps" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Rocky Mountains", minTemp = -5, maxTemp = 5, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.mountains }, soilPct = 50, sandPct = 50,
+                plants = { ("none", 25), ("grass", 20), ("sage", 1), ("daisy", 1), ("reeds", 2) },
+                deciduousTreeChance = 0, evergreenTreeChance = 1,
+                wildlife = { "deer", "horse" },
+                nouns = { "Mountains", "Peaks", "Pikes", "Alps" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Grass Mountains", minTemp = 0, maxTemp = 25, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.mountains }, soilPct = 50, sandPct = 50,
+                plants = { ("none", 5), ("grass", 20), ("sage", 1), ("daisy", 1), ("reeds", 2), ("hemp", 1) },
+                deciduousTreeChance = 0, evergreenTreeChance = 5,
+                wildlife = { "deer", "boar", "horse" },
+                nouns = { "Mountains", "Peaks", "Pikes", "Alps" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Savannah Mountains", minTemp = 25, maxTemp = 55, minRain = 0, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.mountains }, soilPct = 25, sandPct = 75,
+                plants = { ("none", 2), ("grass", 20), ("sage", 1), ("daisy", 1), ("reeds", 2), ("goya", 1), ("hemp", 1) },
+                deciduousTreeChance = 3, evergreenTreeChance = 0,
+                wildlife = { "deer", "armadillo", "boar", "horse" },
+                nouns = { "Mountains", "Peaks", "Pikes", "Alps" },
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Badlands", minTemp = 25, maxTemp = 55, minRain = 0, maxRain = 20, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.mountains }, soilPct = 10, sandPct = 90,
+                deciduousTreeChance = 1, evergreenTreeChance = 0,
+                wildlife = { "deer", "armadillo" },
+                nouns = { "Mountains", "Peaks", "Pikes", "Alps" },
+            });
+            #endregion
+
+            #region Low precipitation desert areas
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Tundra", minTemp = -100, maxTemp = 3, minRain = 0, maxRain = 10, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.plains, (int)biomeTypes.hills, (int)biomeTypes.highlands, (int)biomeTypes.plateau, (int)biomeTypes.coast }, soilPct = 50, sandPct = 50,
+                plants = { ("none", 40), ("grass", 20), ("lavendar", 1), ("daisy", 1), ("reeds", 2), ("heather", 2) },
+                deciduousTreeChance = 0, evergreenTreeChance = 1,
+                wildlife = { "deer" },
+                nouns = { "Tundra", "Waste", "Ice Waste" },
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Cold Desert", minTemp = 1, maxTemp = 10, minRain = 0, maxRain = 10, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.plains, (int)biomeTypes.hills, (int)biomeTypes.highlands, (int)biomeTypes.plateau, (int)biomeTypes.coast }, soilPct = 15, sandPct = 85,
+                plants = { ("none", 40), ("grass", 20), ("lavendar", 1), ("daisy", 1), ("reeds", 2), ("heather", 2) },
+                deciduousTreeChance = 0, evergreenTreeChance = 1,
+                wildlife = { "deer" },
+                nouns = { "Semi-Tundra", "Expanse", "Steppe" },
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Sand Desert", minTemp = 9, maxTemp = 100, minRain = 0, maxRain = 10, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.plains, (int)biomeTypes.hills, (int)biomeTypes.coast }, soilPct = 5, sandPct = 95,
+                deciduousTreeChance = 1, evergreenTreeChance = 0,
+                wildlife = { "deer", "horse" },
+                nouns = { "Desert", "Waste", "Wild", "Dunes", "Barren" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Rocky Desert", minTemp = 9, maxTemp = 100, minRain = 0, maxRain = 10, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.mountains, (int)biomeTypes.plateau, (int)biomeTypes.hills, (int)biomeTypes.coast }, soilPct = 50, sandPct = 50,
+                deciduousTreeChance = 1, evergreenTreeChance = 0,
+                wildlife = { "deer", "armadillo", "horse" },
+                nouns = { "Barrens", "Platter" },
+            });
+            #endregion
+
+            #region High-precipitation areas
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Deciduous Broadleaf", minTemp = 5, maxTemp = 34, minRain = 15, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.plains, (int)biomeTypes.hills, (int)biomeTypes.coast }, soilPct = 80, sandPct = 20,
+                plants = { ("none", 5), ("grass", 20), ("sage", 1), ("daisy", 1), ("reeds", 2), ("bambara_groundnut", 1), ("strawberry", 1), ("cucumber", 1), ("eggplant", 1), ("garlic", 1), ("tomato", 1), ("tomatillo", 1), ("hemp", 1) },
+                deciduousTreeChance = 100, evergreenTreeChance = 0,
+                wildlife = { "deer", "badger", "boar", "hedgehog", "antelope", "horse" },
+                nouns = { "Forest", "Backwoods", "Old Forest", "Grove", "Timberland", "Chase" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Deciduous Needleleaf", minTemp = 5, maxTemp = 34, minRain = 15, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.highlands, (int)biomeTypes.hills, (int)biomeTypes.plateau }, soilPct = 80, sandPct = 20,
+                plants = { ("none", 5), ("grass", 20), ("sage", 1), ("daisy", 1), ("reeds", 2), ("cucumber", 1), ("garlic", 1), ("tomato", 1), ("tomatillo", 1), ("hemp", 1) },
+                deciduousTreeChance = 100, evergreenTreeChance = 5,
+                wildlife = { "deer", "badger", "boar", "hedgehog", "antelope", "horse" },
+                nouns = { "Forest", "Woods", "Old WOods", "Grove", "Chase", "Weald" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Evergreen Broadleaf", minTemp = -5, maxTemp = 20, minRain = 15, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.highlands, (int)biomeTypes.hills, (int)biomeTypes.plateau }, soilPct = 80, sandPct = 20,
+                plants = { ("none", 5), ("grass", 20), ("sage", 1), ("daisy", 1), ("reeds", 2), ("garlic", 1), ("hemp", 1) },
+                deciduousTreeChance = 0, evergreenTreeChance = 100,
+                wildlife = { "deer", "badger", "boar", "hedgehog", "horse" },
+                nouns = { "Forest", "Coppice", "Chase", "Weald", "Pines" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Evergreen Broadleaf", minTemp = -15, maxTemp = 30, minRain = 15, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.highlands, (int)biomeTypes.mountains, (int)biomeTypes.plateau }, soilPct = 80, sandPct = 20,
+                plants = { ("none", 5), ("grass", 20), ("sage", 1), ("daisy", 1), ("reeds", 2), ("garlic", 1), ("hemp", 1) },
+                deciduousTreeChance = 5, evergreenTreeChance = 100,
+                wildlife = { "deer", "badger", "boar", "horse" },
+                nouns = { "Forest", "Coppice", "Chase", "Weald", "Pines", "Timber" }
+            });
+
+            BiomeTypes.Add(new biomeType()
+            {
+                name = "Rainforest", minTemp = 20, maxTemp = 34, minRain = 25, maxRain = 100, minMutation = 0, maxMutation = 100,
+                occurs = { (int)biomeTypes.plains, (int)biomeTypes.hills, (int)biomeTypes.coast }, soilPct = 90, sandPct = 10,
+                deciduousTreeChance = 200, evergreenTreeChance = 0,
+                wildlife = { "deer", "antelope" },
+                nouns = { "Jungle", "Morass", "Tangle" }
+            });
+            #endregion
+        }
+
+        private Dictionary<int, double> biomeMembership(ref Map World, ref int idx) {
+            Dictionary<int, double> percents = new Dictionary<int, double>();
+            Dictionary<int, long> counts = new Dictionary<int, long>();
+            int nCells = 0;
+            int totalTemperature = 0;
+            int totalRainfall = 0;
+            int totalHeight = 0;
+            int totalVariance = 0;
+            int totalX = 0;
+            int totalY = 0;
+
+            for (int y = 0; y < Constants.WORLD_HEIGHT; y++) {
+                for (int x = 0; x < Constants.WORLD_WIDTH; x++) {
+                    int blockIdx = World.idx(x, y);
+
+                    if (World.landBlocks[blockIdx].biomeIdx == idx) {
+                        // Increment total counters
+                        nCells++;
+                        totalTemperature += World.landBlocks[blockIdx].temperature;
+                        totalRainfall += World.landBlocks[blockIdx].rainfall;
+                        totalHeight += World.landBlocks[blockIdx].height;
+                        totalVariance += World.landBlocks[blockIdx].variance;
+                        totalX += x;
+                        totalY += y;
+
+                        // Increment count by cell type
+                        bool finder = counts.ContainsKey(World.landBlocks[blockIdx].type);
+                        if (finder == false)
+                        {
+                            counts.Add(World.landBlocks[blockIdx].type, 1);
+                        }
+                        else
+                        {
+                            counts[World.landBlocks[blockIdx].type]++;
+                        }
+                    }
+                }
+            }
+
+            // Calculate the averages
+            if (nCells == 0) {
+                //std::unordered_map<uint8_t, double>();
+                nCells = 1;
+            }
+
+            double counter = (double)(nCells);
+            World.biomes[idx].meanAltitude = (int)(totalHeight / counter);
+            World.biomes[idx].meanRainfall = (int)(totalRainfall / counter);
+            World.biomes[idx].meanTemperature = (int)(totalTemperature / counter);
+            World.biomes[idx].meanVariance = (int)(totalVariance / counter);
+            World.biomes[idx].centerX = totalX / nCells;
+            World.biomes[idx].centerY = totalY / nCells;
+
+            int distancePole = (int)(Math.Min(distance2d(World.biomes[idx].centerX, World.biomes[idx].centerY, Constants.WORLD_WIDTH / 2, 0),
+                distance2d(World.biomes[idx].centerX, World.biomes[idx].centerY, Constants.WORLD_WIDTH / 2, Constants.WORLD_HEIGHT)));
+            int distanceCenter = (int)(distance2d(World.biomes[idx].centerY, World.biomes[idx].centerY, Constants.WORLD_WIDTH / 2, Constants.WORLD_HEIGHT / 2));
+
+            if (distancePole > 200)
+            {
+                World.biomes[idx].warpMutation = 0;
+            }
+            else
+            {
+                World.biomes[idx].warpMutation = (200 - distancePole) / 2;
+            }
+            World.biomes[idx].savagery = Math.Min(100, distanceCenter);
+
+            for (int i = 0; i < (int)blockType.MAX_BLOCK_TYPE + 1; i++) {
+                bool finder = counts.ContainsKey(i);
+                if (finder == false) {
+                    percents.Add(i, 0.0);
+                }
+                else
                 {
-			        double pct = (double)(counts[i]) / counter;
-			        percents.Add(i, pct);
-		        }
+                    double pct = counts[i] / counter;
+                    percents.Add(i, pct);
+                }
 
-	        }
+            }
 
-	        return percents;
+            return percents;
         }
 
         private float distance2d(int x1, int y1, int x2, int y2)
         {
-            float dx = (float)x1 - (float)x2;
-            float dy = (float)y1 - (float)y2;
-            return Math.Sqrt((dx*dx) + (dy*dy));
+            float dx = x1 - x2;
+            float dy = y1 - y2;
+            return (float)Math.Sqrt((dx * dx) + (dy * dy));
         }
 
         public void buildBiomes(ref Map World, ref Random rng)
@@ -501,8 +969,8 @@ namespace Models.WorldGen
                     {
                         int biomeX = centroids[i].Item1;
                         int biomeY = centroids[i].Item2;
-                        int dx = (int)(biomeX - x);
-                        int dy = (int)(biomeY - y);
+                        int dx = (biomeX - x);
+                        int dy = (biomeY - y);
                         int biomeDistance = (dx * dx) + (dy * dy);
                         if (biomeDistance < distance)
                         {
@@ -511,7 +979,7 @@ namespace Models.WorldGen
                         }
                     }
 
-                    World.landBlocks[World.idx(x, y)].biome_idx = closestIndex;
+                    World.landBlocks[World.idx(x, y)].biomeIdx = closestIndex;
                 }
             }
 
@@ -519,44 +987,283 @@ namespace Models.WorldGen
             int noMatch = 0;
             foreach (Biome biome in World.biomes)
             {
-                Dictionary<int, doubles> membershipCount = biomeMembership(planet, count);
-                if (!(membership_count.Count == 0))
+                Dictionary<int, double> membershipCount = biomeMembership(ref World, ref count);
+                if (!(membershipCount.Count == 0))
                 {
-                    List<(double, int)> possibleTypes = findPossibleBiomes(membership_count, biome);
+                    List<(double, int)> possibleTypes = findPossibleBiomes(ref membershipCount, ref World.biomes, World.biomes.IndexOf(biome));
                     if (!(possibleTypes.Count == 0))
                     {
                         double maxRoll = 0.0;
-						foreach(var possible in possibleTypes)
-						{
-							maxRoll += possible.first;
-						}
-            		    int diceRoll = rng.Next(1, (int)maxRoll);
-					
-					    foreach(var possible in possibleTypes)
-					    {
-						    diceRoll -= (int)(possible.Item1);
-                		    if (diceRoll < 0)
-                		    {
-                    		    biome.type = possible.Item2;
-                    		    break;
-                		    }
-					    }
-            		    if (biome.type == -1) biome.type = possibleTypes[possible_types.size() - 1].Item2;
-						biome.name = nameBiome(planet, rng, biome);
+                        foreach (var possible in possibleTypes)
+                        {
+                            maxRoll += possible.Item1;
+                        }
+                        int diceRoll = rng.Next(1, (int)maxRoll);
+
+                        foreach (var possible in possibleTypes)
+                        {
+                            diceRoll -= (int)(possible.Item1);
+                            if (diceRoll < 0)
+                            {
+                                biome.type = possible.Item2;
+                                break;
+                            }
+                        }
+                        if (biome.type == -1) biome.type = possibleTypes[possibleTypes.Count - 1].Item2;
+                        biome.name = nameBiome(ref World, ref rng, biome);
                     }
-					else 
-					{
-						noMatch++;
-					}
-        		}
-			}
+                    else
+                    {
+                        noMatch++;
+                    }
+                }
+            }
         }
 
+        public List<(double, int)> findPossibleBiomes(ref Dictionary<int, double> percents, ref List<Biome> biomes, int index)
+        {
+            List<(double, int)> result = new List<(double, int)>();
+
+            int idx = 0;
+            for (int i = 0; i < BiomeTypes.Count; i++)
+            {
+                possibleBiomesMethod(BiomeTypes[i], ref percents, ref biomes, ref result, ref idx, index);
+            }
+            return result;
+        }
+
+        private void possibleBiomesMethod(biomeType bt, ref Dictionary<int, double> percents, ref List<Biome> biomes, ref List<(double, int)> results, ref int idx, int index)
+        {
+            if (biomes[index].meanTemperature >= bt.minTemp && biomes[index].meanTemperature <= bt.maxTemp
+                && biomes[index].meanRainfall >= bt.minRain && biomes[index].meanRainfall <= bt.maxRain
+                && biomes[index].warpMutation >= bt.minMutation && biomes[index].warpMutation <= bt.maxMutation)
+            {
+
+                // It's possible, so check to see if tile types are available
+                foreach (int occour in bt.occurs)
+                {
+                    bool finder = percents.ContainsKey(occour);
+                    if (finder && percents[occour] > 0)
+                    {
+                        results.Add((percents[occour] * 100.0, idx));
+                    }
+                }
+            }
+            idx++;
+        }
+
+        private string nameBiome(ref Map World, ref Random rng, Biome biome)
+        {
+	        string name;
+
+            List<string> adjectives = new List<string>();
+
+	        // Location-based adjective
+	        if (Math.Abs(biome.centerX - Constants.WORLD_WIDTH/2) < Constants.WORLD_WIDTH /10 && Math.Abs(biome.centerY - Constants.WORLD_HEIGHT /2) < Constants.WORLD_HEIGHT /10) {
+		        adjectives.Add("Central");
+	        } 
+            else
+            {
+		        if (biome.centerX < Constants.WORLD_WIDTH / 2) adjectives.Add("Western");
+		        if (biome.centerX > Constants.WORLD_WIDTH / 2) adjectives.Add("Eastern");
+		        if (biome.centerY < Constants.WORLD_HEIGHT / 2) adjectives.Add("Northern");
+		        if (biome.centerY > Constants.WORLD_WIDTH / 2) adjectives.Add("Southern");
+	        }
+
+	        // Water-based adjectives
+	        if (biome.meanRainfall< 10) {
+		        switch (rng.Next(1,4)) {
+			        case 1 :
+				        adjectives.Add("Dry");
+				        break;
+			        case 2 :
+				        adjectives.Add("Arid");
+				        break;
+			        case 3 :
+				        adjectives.Add("Parched");
+				        break;
+			        case 4 :
+				        adjectives.Add("Cracked");
+				        break;
+		        }
+	        } 
+            else if (biome.meanRainfall< 30) {
+		        switch (rng.Next(1,4)) {
+			        case 1 :
+				        adjectives.Add("Dusty");
+				        break;
+			        case 2 :
+				        adjectives.Add("Withered");
+				        break;
+			        case 3 :
+				        adjectives.Add("Droughty");
+				        break;
+			        case 4 :
+				        adjectives.Add("Dehydrated");
+				        break;
+		        }
+	        } 
+            else if (biome.meanRainfall< 50) {
+		        switch (rng.Next(1,4)) {
+			        case 1 :
+				        adjectives.Add("Pleasant");
+				        break;
+			        case 2 :
+				        adjectives.Add("Kind");
+				        break;
+			        case 3 :
+				        adjectives.Add("Gentle");
+				        break;
+			        case 4 :
+				        adjectives.Add("Timid");
+				        break;
+		        }
+	        } 
+            else if (biome.meanRainfall< 70) {
+		        switch (rng.Next(1,4)) {
+			        case 1 :
+				        adjectives.Add("Damp");
+				        break;
+			        case 2 :
+				        adjectives.Add("Dank");
+				        break;
+			        case 3 :
+				        adjectives.Add("Moist");
+				        break;
+			        case 4 :
+				        adjectives.Add("Fresh");
+				        break;
+		        }
+	        } 
+            else {
+		        switch (rng.Next(1,4)) {
+			        case 1 :
+				        adjectives.Add("Wet");
+				        break;
+			        case 2 :
+				        adjectives.Add("Soggy");
+				        break;
+			        case 3 :
+				        adjectives.Add("Soaked");
+				        break;
+			        case 4 :
+				        adjectives.Add("Drenched");
+				        break;
+		        }
+	        }
+
+	        // Temperature based adjectives
+	        if (biome.meanTemperature< 10) {
+		        switch (rng.Next(1,4)) {
+			        case 1 :
+				        adjectives.Add("Frozen");
+				        break;
+			        case 2 :
+				        adjectives.Add("Cold");
+				        break;
+			        case 3 :
+				        adjectives.Add("Icy");
+				        break;
+			        case 4 :
+				        adjectives.Add("Biting");
+				        break;
+		        }
+	        } 
+            else if (biome.meanTemperature< 20) {
+		        switch (rng.Next(1,4)) {
+			        case 1 :
+				        adjectives.Add("Chilly");
+				        break;
+			        case 2 :
+				        adjectives.Add("Frigid");
+				        break;
+			        case 3 :
+				        adjectives.Add("Chilling");
+				        break;
+			        case 4 :
+				        adjectives.Add("Shivering");
+				        break;
+		        }
+	        } 
+            else if (biome.meanTemperature< 30) {
+		        switch (rng.Next(1,4)) {
+			        case 1 :
+				        adjectives.Add("Pleasant");
+				        break;
+			        case 2 :
+				        adjectives.Add("Nice");
+				        break;
+			        case 3 :
+				        adjectives.Add("Temperate");
+				        break;
+			        case 4 :
+				        adjectives.Add("Comfortable");
+				        break;
+		        }
+	        } 
+            else if (biome.meanTemperature< 40) {
+		        switch (rng.Next(1,4)) {
+			        case 1 :
+				        adjectives.Add("Warm");
+				        break;
+			        case 2 :
+				        adjectives.Add("Toasty");
+				        break;
+			        case 3 :
+				        adjectives.Add("Cozy");
+				        break;
+			        case 4 :
+				        adjectives.Add("Snug");
+				        break;
+		        }
+	        } 
+            else  {
+		        switch (rng.Next(1,4)) {
+			        case 1 :
+				        adjectives.Add("Hot");
+				        break;
+			        case 2 :
+				        adjectives.Add("Scorching");
+				        break;
+			        case 3 :
+				        adjectives.Add("Burning");
+				        break;
+			        case 4 :
+				        adjectives.Add("Fuming");
+				        break;
+		        }
+	        }
+
+	        string noun = "";
+            biomeType bt = BiomeTypes[biome.type];
+	        if (bt.nouns.Count == 0) {
+		        Console.WriteLine("No nouns defined for {0}", bt.name);
+	        }
+            else
+            {
+		        noun = bt.nouns[rng.Next(1, bt.nouns.Count) - 1];
+	        }
+
+	        name = noun;
+	        if (!(adjectives.Count == 0))
+            {
+		        int adj1 = rng.Next(1, adjectives.Count) - 1;
+                name = adjectives[adj1] + " " + noun;
+		        if (adjectives.Count > 1 && rng.Next(1,6)>2) {
+			        int adj2 = rng.Next(1, adjectives.Count) - 1;
+			        while (adj1 == adj2) {
+				        adj2 = rng.Next(1, adjectives.Count)-1;
+			        }
+			        name = adjectives[adj2] + " " + name;
+		        }
+	        }
+	        return name;
+        }
     }
 
     class RiverBuilder
     {
-        public void planet_rivers(ref Map World, Random rng) {
+        public void World_rivers(ref Map World, Random rng) {
 	        int nRivers = Constants.WORLD_WIDTH/2;
 	        HashSet<int> usedStarts = new HashSet<int>();
 
@@ -571,7 +1278,7 @@ namespace Models.WorldGen
 			        int pidx = World.idx(river.startX, river.startY);
 			        if ((World.landBlocks[pidx].type == (int)blockType.MOUNTAINS || World.landBlocks[pidx].type == (int)blockType.HILLS) && !usedStarts.Contains(pidx)) start_ok = true;
 		        }
-		        usedStarts.Add(planet.idx(river.startX, river.startY));
+		        usedStarts.Add(World.idx(river.startX, river.startY));
 
 		        HashSet<int> usedSteps = new HashSet<int>();
 		        bool done = false;
@@ -579,7 +1286,7 @@ namespace Models.WorldGen
 		        int y = river.startY;
 		        while (!done) {
 			        Dictionary<int,(int, int)> candidates = new Dictionary<int,(int, int)>();
-			        if (x > 0 && !usedSteps.Contains(World.idx(x-1, y))) candidates.Add(World.landBlocks[planet.idx(x-1, y)].height, (x-1, y));
+			        if (x > 0 && !usedSteps.Contains(World.idx(x-1, y))) candidates.Add(World.landBlocks[World.idx(x-1, y)].height, (x-1, y));
 			        if (x < Constants.WORLD_WIDTH-1 && !usedSteps.Contains(World.idx(x+1, y))) candidates.Add(World.landBlocks[World.idx(x+1, y)].height, (x+1, y));
 			        if (y > 0 && !usedSteps.Contains(World.idx(x, y-1))) candidates.Add(World.landBlocks[World.idx(x, y-1)].height, (x, y-1));
 			        if (y < Constants.WORLD_HEIGHT-1 && !usedSteps.Contains(World.idx(x, y+1))) candidates.Add(World.landBlocks[World.idx(x, y+1)].height, (x, y+1));
@@ -604,11 +1311,11 @@ namespace Models.WorldGen
 					        step.x = candidates.begin()->second.first;
 					        step.y = candidates.begin()->second.second;
 
-					        if (planet.landblocks[planet.idx(x,y)].type == block_type::WATER || x == 0 || x == WORLD_WIDTH || y ==0 || y==WORLD_HEIGHT) {
+					        if (World.landblocks[World.idx(x,y)].type == block_type::WATER || x == 0 || x == WORLD_WIDTH || y ==0 || y==WORLD_HEIGHT) {
 						        done = true;
 					        } else {
 						        river.steps.push_back(step);
-						        used_steps.insert(planet.idx(step.x, step.y));
+						        used_steps.insert(World.idx(step.x, step.y));
 						        x = step.x;
 						        y = step.y;
 					        }
@@ -616,8 +1323,8 @@ namespace Models.WorldGen
 			        }
 		        }
 
-		        planet_display_update_zoomed(planet, WORLD_WIDTH/2, WORLD_HEIGHT/2);
-		        planet.rivers.push_back(river);
+		        World_display_update_zoomed(World, WORLD_WIDTH/2, WORLD_HEIGHT/2);
+		        World.rivers.push_back(river);
 	        }
         }
     }

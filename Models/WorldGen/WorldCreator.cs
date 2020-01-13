@@ -275,6 +275,16 @@ namespace Models.WorldGen
         #endregion
         */
 
+        public void startMap(ref Map World)
+        {
+            World.landBlocks.Capacity = Constants.WORLD_TILES_COUNT;
+            World.landBlocks.ForEach(block => block = new Block());
+            World.migrantCounter = 0;
+            World.remainingSettlers = 200;
+            World.civs.regionInfo.Capacity = Constants.WORLD_TILES_COUNT;
+            World.civs.regionInfo.ForEach(info => info = null);
+        }
+
         public PerlinNoise noiseMap(ref Map World, int seed, int octaves, float persistence, int lucanarity)
         {
             const int REGION_FRACTION_TO_CONSIDER = 64;
@@ -440,29 +450,29 @@ namespace Models.WorldGen
         {
             for (int y = 0; y < Constants.WORLD_HEIGHT; ++y)
             {
-                int rain_amount = 10;
+                int rainAmount = 10;
                 for (int x = 0; x < Constants.WORLD_WIDTH; ++x)
                 {
                     if (World.landBlocks[World.idx(x, y)].type == (int)blockType.MOUNTAINS)
                     {
-                        rain_amount -= 20;
+                        rainAmount -= 20;
                     }
                     else if (World.landBlocks[World.idx(x, y)].type == (int)blockType.HILLS)
                     {
-                        rain_amount -= 10;
+                        rainAmount -= 10;
                     }
                     else if (World.landBlocks[World.idx(x, y)].type == (int)blockType.COASTAL)
                     {
-                        rain_amount -= 5;
+                        rainAmount -= 5;
                     }
                     else
                     {
-                        rain_amount += 1;
+                        rainAmount += 1;
                     }
-                    if (rain_amount < 0) rain_amount = 0;
-                    if (rain_amount > 20) rain_amount = 20;
+                    if (rainAmount < 0) rainAmount = 0;
+                    if (rainAmount > 20) rainAmount = 20;
 
-                    World.landBlocks[World.idx(x, y)].rainfall += rain_amount;
+                    World.landBlocks[World.idx(x, y)].rainfall += rainAmount;
                     if (World.landBlocks[World.idx(x, y)].rainfall < 0) World.landBlocks[World.idx(x, y)].rainfall = 0;
                     if (World.landBlocks[World.idx(x, y)].rainfall > 100) World.landBlocks[World.idx(x, y)].rainfall = 100;
                 }
@@ -472,6 +482,20 @@ namespace Models.WorldGen
     #endregion
 
     #region Header
+
+    class biomeType
+    {
+        public string name = "";
+        public int minRain = 0, maxRain = 100, minTemp = -100, maxTemp = 100;
+        public int minMutation = 0, maxMutation = 100, soilPct = 50, sandPct = 50;
+        public List<int> occurs = new List<int>();
+        public int worldgenTextureIndex = 0;
+        public List<(string, int)> plants = new List<(string, int)>();
+        public List<string> wildlife = new List<string>();
+        public int deciduousTreeChance = 0;
+        public int evergreenTreeChance = 0;
+        public List<string> nouns = new List<string>();
+    };
 
     enum blockType
     {
@@ -572,7 +596,7 @@ namespace Models.WorldGen
     public class Block
     {
         public int height = 0, variance = 0, type = 0;
-        public int temperature = 0, rainfall = 0, biome_idx = -1;
+        public int temperature = 0, rainfall = 0, biomeIdx = -1;
     }
 
     public class Map
