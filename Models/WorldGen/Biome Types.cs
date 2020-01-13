@@ -430,41 +430,37 @@ namespace Models.WorldGen
             int noMatch = 0;
             foreach (Biome biome in World.biomes)
             {
-                auto membership_count = biome_membership(planet, count);
-                if (!membership_count.empty())
+                Dictionary<int, doubles> membershipCount = biomeMembership(planet, count);
+                if (!(membership_count.Count == 0))
                 {
-                    auto possible_types = find_possible_biomes(membership_count, biome);
-                    if (!possible_types.empty())
+                    List<(double, int)> possibleTypes = findPossibleBiomes(membership_count, biome);
+                    if (!(possibleTypes.Count == 0))
                     {
-
-                        auto max_roll = 0.0;
-                        for (const auto &possible : possible_types) {
-                max_roll += possible.first;
-            }
-            auto dice_roll = rng.roll_dice(1, static_cast<int>(max_roll));
-            for (const auto &possible : possible_types) {
-                dice_roll -= static_cast<int>(possible.first);
-                if (dice_roll < 0)
-                {
-                    biome.type = possible.second;
-                    break;
-                }
-            }
-            if (biome.type == -1) biome.type = possible_types[possible_types.size() - 1].second;
-            biome.name = name_biome(planet, rng, biome);
-        } else {
-				++ no_match;
+                        double maxRoll = 0.0;
+						foreach(var possible in possibleTypes)
+						{
+							maxRoll += possible.first;
+						}
+            		    int diceRoll = rng.Next(1, (int)maxRoll);
+					
+					    foreach(var possible in possibleTypes)
+					    {
+						    diceRoll -= (int)(possible.Item1);
+                		    if (diceRoll < 0)
+                		    {
+                    		    biome.type = possible.Item2;
+                    		    break;
+                		    }
+					    }
+            		    if (biome.type == -1) biome.type = possibleTypes[possible_types.size() - 1].Item2;
+						biome.name = nameBiome(planet, rng, biome);
+                    }
+					else 
+					{
+						noMatch++;
+					}
+        		}
 			}
-        }
-planet_display_update_zoomed(planet, biome.center_x, biome.center_y);
-
-// Update the status
-const auto pct = static_cast<double>(count) / planet.biomes.size() * 100.0;
-fmt::MemoryWriter ss;
-ss << "Biome design: " << pct << "%";
-		set_worldgen_status(ss.str());
-		++count;
-	}
         }
     }
 }
