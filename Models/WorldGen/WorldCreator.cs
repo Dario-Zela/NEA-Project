@@ -483,6 +483,144 @@ namespace Models.WorldGen
 
     #region Header
 
+    public enum Diet
+    {
+        Omnivore, 
+        Herbivore, 
+        Carnivore 
+    };
+
+    public enum Alignment
+    { 
+        Good, 
+        Neutral, 
+        Evil, 
+        Devour 
+    };
+
+    public class Colour
+    {
+        public Colour(byte R, byte G, byte B) {
+            r = R;
+            g = G;
+            b = B;
+        }
+
+        public byte r;
+        public byte g;
+        public byte b;
+
+        public static bool operator ==(Colour A ,Colour B)
+        {
+			return A.r == B.r && A.g == B.g && A.b == B.b;
+		}
+
+        public static bool operator !=(Colour A, Colour B)
+        {
+            return !(A == B);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Colour colour &&
+                   r == colour.r &&
+                   g == colour.g &&
+                   b == colour.b;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -839137856;
+            hashCode = hashCode * -1521134295 + r.GetHashCode();
+            hashCode = hashCode * -1521134295 + g.GetHashCode();
+            hashCode = hashCode * -1521134295 + b.GetHashCode();
+            return hashCode;
+        }
+    };
+
+    public class rawSpecies
+    {
+        public string tag = "", name = "", maleName = "", femaleName = "", collectiveName = "", description = "";
+        public Dictionary<string, int> statMods = new Dictionary<string, int>();
+        public List<(string, int, int)> bodyParts = new List<(string, int, int)>();
+        public Diet diet = Diet.Omnivore;
+        public Alignment alignment = Alignment.Neutral;
+        public bool spreadsBlight = false;
+        public int maxAge = 90, infantAge = 5, childAge = 12;
+        public char glyph = '@', glyphAscii = '@', worldgenGlyph = '@';
+        public bool renderComposite = false;
+        public int baseMaleGlyph = 352, baseFemaleGlyph = 353;
+        public int voxelModel = 0;
+        public List<(string, Colour)> skinColors = new List<(string, Colour)>(), hairColors = new List<(string, Colour)>();
+    };
+
+    public class civUnitNaturalAttack
+    {
+        public string type = "";
+        public int hitBonus = 0;
+        public int Dice = 0;
+        public int dieType = 6;
+        public int dieMod = 0;
+        public int range = 0;
+    };
+
+    public class civEquipment
+    {
+        public List<(int, string, string)> startingClothes = new List<(int, string, string)>();
+        public string melee = "";
+        public string ranged = "";
+        public string ammo = "";
+        public string mount = "";
+    };
+
+    public class civUnitSentient
+    {
+        public int count = 0;
+        public int baseLevel = 0;
+        public string tag = "";
+        public string name = "";
+        public int baseArmorClass = 10;
+        public int hp = 1;
+        public int hpDice = 10;
+        public int hpMod = 0;
+        public string gender = "male";
+        public List<civUnitNaturalAttack> natural_attacks = new List<civUnitNaturalAttack>();
+        public civEquipment equipment = new civEquipment();
+    };
+
+    public class civUnit
+    {
+        public string tag = "";
+        public int bpPerTurn = 0;
+        public int speed = 0;
+        public string name = "";
+        public List<civUnitSentient> sentients = new List<civUnitSentient>();
+        public int worldgenStrength = 1;
+    };
+
+    public class Civilization
+    {
+        public int techLevel = 0;
+        public string tag = "";
+        public string speciesTag = "";
+        public string ai = "";
+        public string nameGenerator = "normal";
+        public Dictionary<string, civUnit> units = new Dictionary<string, civUnit>();
+        public List<string> evolvesInto = new List<string>();
+        public List<string> canBuild = new List<string>();
+    };
+
+    class stringTable
+    {
+        public List<string> strings = new List<string>();
+
+        public string randomEntry(Random rng)
+        {
+            int position = rng.Next(1, strings.Count) - 1;
+            return strings[position];
+        }
+    }
+
     class biomeType
     {
         public string name = "";

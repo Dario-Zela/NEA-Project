@@ -1,0 +1,2638 @@
+[
+  {
+    "name": "Frozen Ocean",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": -100,
+    "maxTemp": -5,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 1, 8 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 20
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "lavendar",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      }
+    ],
+    "wildlife": [ "deer" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 1,
+    "nouns": [ "Arctic", "Pole", "Frozen Sea" ]
+  },
+  {
+    "name": "Icy Ocean",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": -10,
+    "maxTemp": 10,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 1, 8 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 10
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "lavendar",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "potato",
+        "Item2": 1
+      },
+      {
+        "Item1": "radish",
+        "Item2": 1
+      },
+      {
+        "Item1": "turnip",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 5,
+    "nouns": [ "Arctic", "Ice Sea", "Sea of Razors", "Iceberg" ]
+  },
+  {
+    "name": "Ocean",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": 0,
+    "maxTemp": 30,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 1, 8 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 5
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "strawberry",
+        "Item2": 1
+      },
+      {
+        "Item1": "cabbage",
+        "Item2": 1
+      },
+      {
+        "Item1": "caper",
+        "Item2": 1
+      },
+      {
+        "Item1": "celery",
+        "Item2": 1
+      },
+      {
+        "Item1": "leek",
+        "Item2": 1
+      },
+      {
+        "Item1": "lentil",
+        "Item2": 1
+      },
+      {
+        "Item1": "onion",
+        "Item2": 1
+      },
+      {
+        "Item1": "parsnip",
+        "Item2": 1
+      },
+      {
+        "Item1": "potato",
+        "Item2": 1
+      },
+      {
+        "Item1": "radish",
+        "Item2": 1
+      },
+      {
+        "Item1": "red_bean",
+        "Item2": 1
+      },
+      {
+        "Item1": "soybean",
+        "Item2": 1
+      },
+      {
+        "Item1": "spinach",
+        "Item2": 1
+      },
+      {
+        "Item1": "turnip",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      },
+      {
+        "Item1": "cotton",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "boar" ],
+    "deciduousTreeChance": 5,
+    "evergreenTreeChance": 5,
+    "nouns": [ "Sea", "Ocean", "Drink", "High Sea" ]
+  },
+  {
+    "name": "Tropical Ocean",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": 30,
+    "maxTemp": 100,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 1, 8 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 5
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "reeds_giant",
+        "Item2": 2
+      },
+      {
+        "Item1": "reeds_paper",
+        "Item2": 2
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "strawberry",
+        "Item2": 1
+      },
+      {
+        "Item1": "goya",
+        "Item2": 1
+      },
+      {
+        "Item1": "cabbage",
+        "Item2": 1
+      },
+      {
+        "Item1": "caper",
+        "Item2": 1
+      },
+      {
+        "Item1": "cassava",
+        "Item2": 1
+      },
+      {
+        "Item1": "celery",
+        "Item2": 1
+      },
+      {
+        "Item1": "horned_melon",
+        "Item2": 1
+      },
+      {
+        "Item1": "lentil",
+        "Item2": 1
+      },
+      {
+        "Item1": "onion",
+        "Item2": 1
+      },
+      {
+        "Item1": "parsnip",
+        "Item2": 1
+      },
+      {
+        "Item1": "soybean",
+        "Item2": 1
+      },
+      {
+        "Item1": "yam",
+        "Item2": 1
+      },
+      {
+        "Item1": "jute",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      },
+      {
+        "Item1": "ramie",
+        "Item2": 1
+      },
+      {
+        "Item1": "cotton",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "armadillo", "antelope" ],
+    "deciduousTreeChance": 10,
+    "evergreenTreeChance": 0,
+    "nouns": [ "Tropical Sea", "Equatorial Sea", "Warm Ocean" ]
+  },
+  {
+    "name": "Arctic Coast",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": -100,
+    "maxTemp": -5,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 8 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 20
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "lavendar",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "heather",
+        "Item2": 2
+      }
+    ],
+    "wildlife": [ "deer" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 1,
+    "nouns": [ "Ice Cliffs", "Ice Shelf", "Glacier", "Needles" ]
+  },
+  {
+    "name": "Cold Coast",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": -5,
+    "maxTemp": 5,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 8 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 10
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "lavendar",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "heather",
+        "Item2": 2
+      },
+      {
+        "Item1": "cabbage",
+        "Item2": 1
+      },
+      {
+        "Item1": "cress",
+        "Item2": 1
+      },
+      {
+        "Item1": "garlic",
+        "Item2": 1
+      },
+      {
+        "Item1": "leek",
+        "Item2": 1
+      },
+      {
+        "Item1": "onion",
+        "Item2": 1
+      },
+      {
+        "Item1": "parsnip",
+        "Item2": 1
+      },
+      {
+        "Item1": "potato",
+        "Item2": 1
+      },
+      {
+        "Item1": "radish",
+        "Item2": 1
+      },
+      {
+        "Item1": "turnip",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "boar" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 5,
+    "nouns": [ "Coast", "Seashore", "Littoral" ]
+  },
+  {
+    "name": "Temperate Coast",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": 5,
+    "maxTemp": 25,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 8 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 5
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "strawberry",
+        "Item2": 1
+      },
+      {
+        "Item1": "beetroot",
+        "Item2": 1
+      },
+      {
+        "Item1": "cabbage",
+        "Item2": 1
+      },
+      {
+        "Item1": "cress",
+        "Item2": 1
+      },
+      {
+        "Item1": "leek",
+        "Item2": 1
+      },
+      {
+        "Item1": "lentil",
+        "Item2": 1
+      },
+      {
+        "Item1": "onion",
+        "Item2": 1
+      },
+      {
+        "Item1": "parsnip",
+        "Item2": 1
+      },
+      {
+        "Item1": "pea",
+        "Item2": 1
+      },
+      {
+        "Item1": "potato",
+        "Item2": 1
+      },
+      {
+        "Item1": "radish",
+        "Item2": 1
+      },
+      {
+        "Item1": "red_bean",
+        "Item2": 1
+      },
+      {
+        "Item1": "rhubarb",
+        "Item2": 1
+      },
+      {
+        "Item1": "soybean",
+        "Item2": 1
+      },
+      {
+        "Item1": "spinach",
+        "Item2": 1
+      },
+      {
+        "Item1": "turnip",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      },
+      {
+        "Item1": "cotton",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "badger", "boar", "antelope", "horse" ],
+    "deciduousTreeChance": 5,
+    "evergreenTreeChance": 5,
+    "nouns": [ "Coast", "Cliffs", "Seashore", "Littoral" ]
+  },
+  {
+    "name": "Tropical Coast",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": 25,
+    "maxTemp": 55,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 8 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 5
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "reeds_paper",
+        "Item2": 2
+      },
+      {
+        "Item1": "reeds_giant",
+        "Item2": 2
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "strawberry",
+        "Item2": 1
+      },
+      {
+        "Item1": "goya",
+        "Item2": 1
+      },
+      {
+        "Item1": "cabbage",
+        "Item2": 1
+      },
+      {
+        "Item1": "caper",
+        "Item2": 1
+      },
+      {
+        "Item1": "cassava",
+        "Item2": 1
+      },
+      {
+        "Item1": "horned_melon",
+        "Item2": 1
+      },
+      {
+        "Item1": "lentil",
+        "Item2": 1
+      },
+      {
+        "Item1": "lettuce",
+        "Item2": 1
+      },
+      {
+        "Item1": "onion",
+        "Item2": 1
+      },
+      {
+        "Item1": "parsnip",
+        "Item2": 1
+      },
+      {
+        "Item1": "soybean",
+        "Item2": 1
+      },
+      {
+        "Item1": "watermelon",
+        "Item2": 1
+      },
+      {
+        "Item1": "yam",
+        "Item2": 1
+      },
+      {
+        "Item1": "jute",
+        "Item2": 1
+      },
+      {
+        "Item1": "ramie",
+        "Item2": 1
+      },
+      {
+        "Item1": "cotton",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "armadillo", "boar", "antelope", "horse" ],
+    "deciduousTreeChance": 10,
+    "evergreenTreeChance": 0,
+    "nouns": [ "Coast", "Cliffs", "Seashore", "Seaside", "Resort", "Littoral", "Bay" ]
+  },
+  {
+    "name": "Arctic Coast",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": -100,
+    "maxTemp": -5,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 70,
+    "sandPct": 30,
+    "occurs": [ 9 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 20
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "lavendar",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      }
+    ],
+    "wildlife": [ "deer", "mammoth" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 5,
+    "nouns": [ "Arctic", "Tundra", "Devil's Icebox" ]
+  },
+  {
+    "name": "Cold Coast",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": -5,
+    "maxTemp": 5,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 70,
+    "sandPct": 30,
+    "occurs": [ 9 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 10
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "lavendar",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "cabbage",
+        "Item2": 1
+      },
+      {
+        "Item1": "cress",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "mammoth" ],
+    "deciduousTreeChance": 3,
+    "evergreenTreeChance": 10,
+    "nouns": [ "Tundra", "Cold Desert" ]
+  },
+  {
+    "name": "Temperate Coast",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": 5,
+    "maxTemp": 25,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 70,
+    "sandPct": 30,
+    "occurs": [ 9 ],
+    "worldgenTextureIndex": 0,
+    "plants": [],
+    "wildlife": [ "deer", "boar" ],
+    "deciduousTreeChance": 15,
+    "evergreenTreeChance": 0,
+    "nouns": [ "Badlands", "Waste", "Flats" ]
+  },
+  {
+    "name": "Tropical Coast",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": 25,
+    "maxTemp": 55,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 9 ],
+    "worldgenTextureIndex": 0,
+    "plants": [],
+    "wildlife": [ "deer", "boar" ],
+    "deciduousTreeChance": 15,
+    "evergreenTreeChance": 0,
+    "nouns": [ "Badlands", "Waste", "Flats", "Alkali Flat" ]
+  },
+  {
+    "name": "Permafrost Plain",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": -100,
+    "maxTemp": 3,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 2, 8, 5 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 20
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "lavendar",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "heather",
+        "Item2": 2
+      }
+    ],
+    "wildlife": [ "deer", "mammoth" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 1,
+    "nouns": [ "Permafrost", "Tundra", "Frozen Plain" ]
+  },
+  {
+    "name": "Rocky Plain",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": -5,
+    "maxTemp": 5,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 2, 8, 5 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 25
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "cabbage",
+        "Item2": 1
+      },
+      {
+        "Item1": "leek",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "horse" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 1,
+    "nouns": [ "Plain", "Scarp", "Scree", "Boulderland" ]
+  },
+  {
+    "name": "Grass Plain",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": 0,
+    "maxTemp": 25,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 75,
+    "sandPct": 25,
+    "occurs": [ 2, 8, 5 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 3
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "strawberry",
+        "Item2": 1
+      },
+      {
+        "Item1": "artichoke",
+        "Item2": 1
+      },
+      {
+        "Item1": "asparagus",
+        "Item2": 1
+      },
+      {
+        "Item1": "string_bean",
+        "Item2": 1
+      },
+      {
+        "Item1": "broad_bean",
+        "Item2": 1
+      },
+      {
+        "Item1": "beetroot",
+        "Item2": 1
+      },
+      {
+        "Item1": "cabbage",
+        "Item2": 1
+      },
+      {
+        "Item1": "carrot",
+        "Item2": 1
+      },
+      {
+        "Item1": "celery",
+        "Item2": 1
+      },
+      {
+        "Item1": "chickpea",
+        "Item2": 1
+      },
+      {
+        "Item1": "chickory",
+        "Item2": 1
+      },
+      {
+        "Item1": "cucumber",
+        "Item2": 1
+      },
+      {
+        "Item1": "cress",
+        "Item2": 1
+      },
+      {
+        "Item1": "garlic",
+        "Item2": 1
+      },
+      {
+        "Item1": "leek",
+        "Item2": 1
+      },
+      {
+        "Item1": "lentil",
+        "Item2": 1
+      },
+      {
+        "Item1": "onion",
+        "Item2": 1
+      },
+      {
+        "Item1": "parsnip",
+        "Item2": 1
+      },
+      {
+        "Item1": "pea",
+        "Item2": 1
+      },
+      {
+        "Item1": "potato",
+        "Item2": 1
+      },
+      {
+        "Item1": "radish",
+        "Item2": 1
+      },
+      {
+        "Item1": "red_bean",
+        "Item2": 1
+      },
+      {
+        "Item1": "rhubarb",
+        "Item2": 1
+      },
+      {
+        "Item1": "soybean",
+        "Item2": 1
+      },
+      {
+        "Item1": "spinach",
+        "Item2": 1
+      },
+      {
+        "Item1": "turnip",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      },
+      {
+        "Item1": "ramie",
+        "Item2": 1
+      },
+      {
+        "Item1": "cotton",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "boar", "hedgehog", "horse" ],
+    "deciduousTreeChance": 20,
+    "evergreenTreeChance": 3,
+    "nouns": [ "Grasslands", "Plain", "Prairie", "Heath", "Level" ]
+  },
+  {
+    "name": "Savannah Plain",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": 25,
+    "maxTemp": 55,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 25,
+    "sandPct": 75,
+    "occurs": [ 2, 8, 5 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 3
+      },
+      {
+        "Item1": "grass",
+        "Item2": 25
+      },
+      {
+        "Item1": "reeds_giant",
+        "Item2": 2
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "strawberry",
+        "Item2": 1
+      },
+      {
+        "Item1": "asparagus",
+        "Item2": 1
+      },
+      {
+        "Item1": "string_bean",
+        "Item2": 1
+      },
+      {
+        "Item1": "broad_bean",
+        "Item2": 1
+      },
+      {
+        "Item1": "caper",
+        "Item2": 1
+      },
+      {
+        "Item1": "carrot",
+        "Item2": 1
+      },
+      {
+        "Item1": "cassava",
+        "Item2": 1
+      },
+      {
+        "Item1": "celery",
+        "Item2": 1
+      },
+      {
+        "Item1": "chickpea",
+        "Item2": 1
+      },
+      {
+        "Item1": "chickory",
+        "Item2": 1
+      },
+      {
+        "Item1": "cowpea",
+        "Item2": 1
+      },
+      {
+        "Item1": "cucumber",
+        "Item2": 1
+      },
+      {
+        "Item1": "eggplant",
+        "Item2": 1
+      },
+      {
+        "Item1": "garlic",
+        "Item2": 1
+      },
+      {
+        "Item1": "horned_melon",
+        "Item2": 1
+      },
+      {
+        "Item1": "lentil",
+        "Item2": 1
+      },
+      {
+        "Item1": "lettuce",
+        "Item2": 1
+      },
+      {
+        "Item1": "mung_bean",
+        "Item2": 1
+      },
+      {
+        "Item1": "onion",
+        "Item2": 1
+      },
+      {
+        "Item1": "parsnip",
+        "Item2": 1
+      },
+      {
+        "Item1": "peanut",
+        "Item2": 1
+      },
+      {
+        "Item1": "pepper",
+        "Item2": 1
+      },
+      {
+        "Item1": "soybean",
+        "Item2": 1
+      },
+      {
+        "Item1": "spinach",
+        "Item2": 1
+      },
+      {
+        "Item1": "squash",
+        "Item2": 1
+      },
+      {
+        "Item1": "sweet_potato",
+        "Item2": 1
+      },
+      {
+        "Item1": "tomatillo",
+        "Item2": 1
+      },
+      {
+        "Item1": "watermelon",
+        "Item2": 1
+      },
+      {
+        "Item1": "yam",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds_paper",
+        "Item2": 2
+      },
+      {
+        "Item1": "jute",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      },
+      {
+        "Item1": "ramie",
+        "Item2": 1
+      },
+      {
+        "Item1": "cotton",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "armadillo", "boar", "elephant", "antelope", "horse" ],
+    "deciduousTreeChance": 20,
+    "evergreenTreeChance": 0,
+    "nouns": [ "Savannah", "Grassland", "Heath", "Scrub", "Level" ]
+  },
+  {
+    "name": "Permafrost Hills",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": -100,
+    "maxTemp": 3,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 80,
+    "sandPct": 20,
+    "occurs": [ 3, 7 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 20
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "lavendar",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "heather",
+        "Item2": 2
+      }
+    ],
+    "wildlife": [ "deer", "mammoth" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 1,
+    "nouns": [ "Ice Hill", "Hill", "Mound", "Roughs" ]
+  },
+  {
+    "name": "Rocky Hills",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": -5,
+    "maxTemp": 5,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 3, 7 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 30
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "lavendar",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "heather",
+        "Item2": 2
+      },
+      {
+        "Item1": "cabbage",
+        "Item2": 1
+      },
+      {
+        "Item1": "parsnip",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "horse" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 1,
+    "nouns": [ "Rocky Hills", "Hill", "Mound", "Bump", "Scree", "Scar" ]
+  },
+  {
+    "name": "Grass Hills",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": 0,
+    "maxTemp": 25,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 75,
+    "sandPct": 25,
+    "occurs": [ 3, 7 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 5
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "strawberry",
+        "Item2": 1
+      },
+      {
+        "Item1": "artichoke",
+        "Item2": 1
+      },
+      {
+        "Item1": "asparagus",
+        "Item2": 1
+      },
+      {
+        "Item1": "string_bean",
+        "Item2": 1
+      },
+      {
+        "Item1": "broad_bean",
+        "Item2": 1
+      },
+      {
+        "Item1": "beetroot",
+        "Item2": 1
+      },
+      {
+        "Item1": "cabbage",
+        "Item2": 1
+      },
+      {
+        "Item1": "carrot",
+        "Item2": 1
+      },
+      {
+        "Item1": "celery",
+        "Item2": 1
+      },
+      {
+        "Item1": "chickpea",
+        "Item2": 1
+      },
+      {
+        "Item1": "chickory",
+        "Item2": 1
+      },
+      {
+        "Item1": "cress",
+        "Item2": 1
+      },
+      {
+        "Item1": "garlic",
+        "Item2": 1
+      },
+      {
+        "Item1": "lentil",
+        "Item2": 1
+      },
+      {
+        "Item1": "onion",
+        "Item2": 1
+      },
+      {
+        "Item1": "parsnip",
+        "Item2": 1
+      },
+      {
+        "Item1": "pea",
+        "Item2": 1
+      },
+      {
+        "Item1": "soybean",
+        "Item2": 1
+      },
+      {
+        "Item1": "turnip",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      },
+      {
+        "Item1": "ramie",
+        "Item2": 1
+      },
+      {
+        "Item1": "cotton",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "boar", "horse" ],
+    "deciduousTreeChance": 5,
+    "evergreenTreeChance": 3,
+    "nouns": [ "Rolling Hill", "Hill", "Rolling Heath", "Moor" ]
+  },
+  {
+    "name": "Savannah Hills",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": 25,
+    "maxTemp": 55,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 3, 7 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 5
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "asparagus",
+        "Item2": 1
+      },
+      {
+        "Item1": "cabbage",
+        "Item2": 1
+      },
+      {
+        "Item1": "caper",
+        "Item2": 1
+      },
+      {
+        "Item1": "carrot",
+        "Item2": 1
+      },
+      {
+        "Item1": "celery",
+        "Item2": 1
+      },
+      {
+        "Item1": "chickpea",
+        "Item2": 1
+      },
+      {
+        "Item1": "chickory",
+        "Item2": 1
+      },
+      {
+        "Item1": "eggplant",
+        "Item2": 1
+      },
+      {
+        "Item1": "lentil",
+        "Item2": 1
+      },
+      {
+        "Item1": "onion",
+        "Item2": 1
+      },
+      {
+        "Item1": "peanut",
+        "Item2": 1
+      },
+      {
+        "Item1": "pepper",
+        "Item2": 1
+      },
+      {
+        "Item1": "soybean",
+        "Item2": 1
+      },
+      {
+        "Item1": "jute",
+        "Item2": 1
+      },
+      {
+        "Item1": "ramie",
+        "Item2": 1
+      },
+      {
+        "Item1": "cotton",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "boar", "elephant", "antelope", "horse" ],
+    "deciduousTreeChance": 10,
+    "evergreenTreeChance": 0,
+    "nouns": [ "Savannah Hills", "Hill", "Rolling Savannah", "Savannah Moor" ]
+  },
+  {
+    "name": "Permafrost Plateau",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": -100,
+    "maxTemp": 3,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 6 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 20
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "lavendar",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "heather",
+        "Item2": 2
+      }
+    ],
+    "wildlife": [ "deer" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 1,
+    "nouns": [ "Glacier", "Plateau", "Ice Plain", "Steppe" ]
+  },
+  {
+    "name": "Rocky Plateau",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": -5,
+    "maxTemp": 5,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 6 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 15
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "cabbage",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "horse" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 3,
+    "nouns": [ "Tableland", "Tablerock", "Plateau", "Rocky Plateau" ]
+  },
+  {
+    "name": "Grass Plateau",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": 0,
+    "maxTemp": 25,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 6 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 5
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "strawberry",
+        "Item2": 1
+      },
+      {
+        "Item1": "asparagus",
+        "Item2": 1
+      },
+      {
+        "Item1": "beetroot",
+        "Item2": 1
+      },
+      {
+        "Item1": "cabbage",
+        "Item2": 1
+      },
+      {
+        "Item1": "celery",
+        "Item2": 1
+      },
+      {
+        "Item1": "chickpea",
+        "Item2": 1
+      },
+      {
+        "Item1": "chickory",
+        "Item2": 1
+      },
+      {
+        "Item1": "cucumber",
+        "Item2": 1
+      },
+      {
+        "Item1": "lentil",
+        "Item2": 1
+      },
+      {
+        "Item1": "garlic",
+        "Item2": 1
+      },
+      {
+        "Item1": "onion",
+        "Item2": 1
+      },
+      {
+        "Item1": "soybean",
+        "Item2": 1
+      },
+      {
+        "Item1": "turnip",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      },
+      {
+        "Item1": "ramie",
+        "Item2": 1
+      },
+      {
+        "Item1": "cotton",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "badger", "boar", "horse" ],
+    "deciduousTreeChance": 20,
+    "evergreenTreeChance": 5,
+    "nouns": [ "Hog's Back", "Plateau", "Table", "Fell", "Downs" ]
+  },
+  {
+    "name": "Savannah Plateau",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": 25,
+    "maxTemp": 55,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 6 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 2
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "strawberry",
+        "Item2": 1
+      },
+      {
+        "Item1": "asparagus",
+        "Item2": 1
+      },
+      {
+        "Item1": "bambara_groundnut",
+        "Item2": 1
+      },
+      {
+        "Item1": "goya",
+        "Item2": 1
+      },
+      {
+        "Item1": "cabbage",
+        "Item2": 1
+      },
+      {
+        "Item1": "caper",
+        "Item2": 1
+      },
+      {
+        "Item1": "celery",
+        "Item2": 1
+      },
+      {
+        "Item1": "chickpea",
+        "Item2": 1
+      },
+      {
+        "Item1": "chickory",
+        "Item2": 1
+      },
+      {
+        "Item1": "cucumber",
+        "Item2": 1
+      },
+      {
+        "Item1": "eggplant",
+        "Item2": 1
+      },
+      {
+        "Item1": "horned_melon",
+        "Item2": 1
+      },
+      {
+        "Item1": "lentil",
+        "Item2": 1
+      },
+      {
+        "Item1": "onion",
+        "Item2": 1
+      },
+      {
+        "Item1": "soybean",
+        "Item2": 1
+      },
+      {
+        "Item1": "tomatillo",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      },
+      {
+        "Item1": "ramie",
+        "Item2": 1
+      },
+      {
+        "Item1": "cotton",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "armadillo", "boar", "antelope", "horse" ],
+    "deciduousTreeChance": 25,
+    "evergreenTreeChance": 0,
+    "nouns": [ "Upland", "Table", "Plateau" ]
+  },
+  {
+    "name": "Badlands",
+    "minRain": 0,
+    "maxRain": 20,
+    "minTemp": 25,
+    "maxTemp": 55,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 6 ],
+    "worldgenTextureIndex": 0,
+    "plants": [],
+    "wildlife": [ "deer", "armadillo" ],
+    "deciduousTreeChance": 1,
+    "evergreenTreeChance": 0,
+    "nouns": [ "Devil's Table", "Badland Plateau" ]
+  },
+  {
+    "name": "Permafrost Highlands",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": -100,
+    "maxTemp": 3,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 7 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 20
+      },
+      {
+        "Item1": "grass",
+        "Item2": 10
+      },
+      {
+        "Item1": "lavendar",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "heather",
+        "Item2": 2
+      }
+    ],
+    "wildlife": [ "deer" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 1,
+    "nouns": [ "High Waste", "High Tundra", "Hillock", "Promontary" ]
+  },
+  {
+    "name": "Rocky Highlands",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": -5,
+    "maxTemp": 5,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 7 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 25
+      },
+      {
+        "Item1": "grass",
+        "Item2": 10
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "cabbage",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "boar", "horse" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 5,
+    "nouns": [ "Waste", "Scree", "Fell", "Promontary", "Dales", "Pike" ]
+  },
+  {
+    "name": "Grass Highlands",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": 0,
+    "maxTemp": 25,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 7 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 5
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "beetroot",
+        "Item2": 1
+      },
+      {
+        "Item1": "strawberry",
+        "Item2": 1
+      },
+      {
+        "Item1": "cabbage",
+        "Item2": 1
+      },
+      {
+        "Item1": "onion",
+        "Item2": 1
+      },
+      {
+        "Item1": "turnip",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "badger", "boar", "horse" ],
+    "deciduousTreeChance": 10,
+    "evergreenTreeChance": 3,
+    "nouns": [ "Moor", "Heath", "Uplands", "Dales", "Scar" ]
+  },
+  {
+    "name": "Savannah Highlands",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": 25,
+    "maxTemp": 55,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 25,
+    "sandPct": 75,
+    "occurs": [ 7 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 2
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "beetroot",
+        "Item2": 1
+      },
+      {
+        "Item1": "strawberry",
+        "Item2": 1
+      },
+      {
+        "Item1": "goya",
+        "Item2": 1
+      },
+      {
+        "Item1": "cabbage",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "armadillo", "boar", "horse" ],
+    "deciduousTreeChance": 20,
+    "evergreenTreeChance": 1,
+    "nouns": [ "Savannah Hills", "Highlands", "Uplands", "Peaks", "Mounds" ]
+  },
+  {
+    "name": "Badland Highlands",
+    "minRain": 0,
+    "maxRain": 20,
+    "minTemp": 25,
+    "maxTemp": 55,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 10,
+    "sandPct": 90,
+    "occurs": [ 7 ],
+    "worldgenTextureIndex": 0,
+    "plants": [],
+    "wildlife": [ "deer", "armadillo" ],
+    "deciduousTreeChance": 1,
+    "evergreenTreeChance": 0,
+    "nouns": [ "Scree", "Heights" ]
+  },
+  {
+    "name": "Permafrost Mountains",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": -100,
+    "maxTemp": 3,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 4 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 40
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "lavendar",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "heather",
+        "Item2": 2
+      }
+    ],
+    "wildlife": [ "deer" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 1,
+    "nouns": [ "Mountains", "Peaks", "Pikes", "Alps" ]
+  },
+  {
+    "name": "Rocky Mountains",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": -5,
+    "maxTemp": 5,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 4 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 25
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      }
+    ],
+    "wildlife": [ "deer", "horse" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 1,
+    "nouns": [ "Mountains", "Peaks", "Pikes", "Alps" ]
+  },
+  {
+    "name": "Grass Mountains",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": 0,
+    "maxTemp": 25,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 4 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 5
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "boar", "horse" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 5,
+    "nouns": [ "Mountains", "Peaks", "Pikes", "Alps" ]
+  },
+  {
+    "name": "Savannah Mountains",
+    "minRain": 0,
+    "maxRain": 100,
+    "minTemp": 25,
+    "maxTemp": 55,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 25,
+    "sandPct": 75,
+    "occurs": [ 4 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 2
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "goya",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "armadillo", "boar", "horse" ],
+    "deciduousTreeChance": 3,
+    "evergreenTreeChance": 0,
+    "nouns": [ "Mountains", "Peaks", "Pikes", "Alps" ]
+  },
+  {
+    "name": "Badlands",
+    "minRain": 0,
+    "maxRain": 20,
+    "minTemp": 25,
+    "maxTemp": 55,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 10,
+    "sandPct": 90,
+    "occurs": [ 4 ],
+    "worldgenTextureIndex": 0,
+    "plants": [],
+    "wildlife": [ "deer", "armadillo" ],
+    "deciduousTreeChance": 1,
+    "evergreenTreeChance": 0,
+    "nouns": [ "Mountains", "Peaks", "Pikes", "Alps" ]
+  },
+  {
+    "name": "Tundra",
+    "minRain": 0,
+    "maxRain": 10,
+    "minTemp": -100,
+    "maxTemp": 3,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 2, 3, 7, 6, 8 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 40
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "lavendar",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "heather",
+        "Item2": 2
+      }
+    ],
+    "wildlife": [ "deer" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 1,
+    "nouns": [ "Tundra", "Waste", "Ice Waste" ]
+  },
+  {
+    "name": "Cold Desert",
+    "minRain": 0,
+    "maxRain": 10,
+    "minTemp": 1,
+    "maxTemp": 10,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 15,
+    "sandPct": 85,
+    "occurs": [ 2, 3, 7, 6, 8 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 40
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "lavendar",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "heather",
+        "Item2": 2
+      }
+    ],
+    "wildlife": [ "deer" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 1,
+    "nouns": [ "Semi-Tundra", "Expanse", "Steppe" ]
+  },
+  {
+    "name": "Sand Desert",
+    "minRain": 0,
+    "maxRain": 10,
+    "minTemp": 9,
+    "maxTemp": 100,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 5,
+    "sandPct": 95,
+    "occurs": [ 2, 3, 8 ],
+    "worldgenTextureIndex": 0,
+    "plants": [],
+    "wildlife": [ "deer", "horse" ],
+    "deciduousTreeChance": 1,
+    "evergreenTreeChance": 0,
+    "nouns": [ "Desert", "Waste", "Wild", "Dunes", "Barren" ]
+  },
+  {
+    "name": "Rocky Desert",
+    "minRain": 0,
+    "maxRain": 10,
+    "minTemp": 9,
+    "maxTemp": 100,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 50,
+    "sandPct": 50,
+    "occurs": [ 4, 6, 3, 8 ],
+    "worldgenTextureIndex": 0,
+    "plants": [],
+    "wildlife": [ "deer", "armadillo", "horse" ],
+    "deciduousTreeChance": 1,
+    "evergreenTreeChance": 0,
+    "nouns": [ "Barrens", "Platter" ]
+  },
+  {
+    "name": "Deciduous Broadleaf",
+    "minRain": 15,
+    "maxRain": 100,
+    "minTemp": 5,
+    "maxTemp": 34,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 80,
+    "sandPct": 20,
+    "occurs": [ 2, 3, 8 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 5
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "bambara_groundnut",
+        "Item2": 1
+      },
+      {
+        "Item1": "strawberry",
+        "Item2": 1
+      },
+      {
+        "Item1": "cucumber",
+        "Item2": 1
+      },
+      {
+        "Item1": "eggplant",
+        "Item2": 1
+      },
+      {
+        "Item1": "garlic",
+        "Item2": 1
+      },
+      {
+        "Item1": "tomato",
+        "Item2": 1
+      },
+      {
+        "Item1": "tomatillo",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "badger", "boar", "hedgehog", "antelope", "horse" ],
+    "deciduousTreeChance": 100,
+    "evergreenTreeChance": 0,
+    "nouns": [ "Forest", "Backwoods", "Old Forest", "Grove", "Timberland", "Chase" ]
+  },
+  {
+    "name": "Deciduous Needleleaf",
+    "minRain": 15,
+    "maxRain": 100,
+    "minTemp": 5,
+    "maxTemp": 34,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 80,
+    "sandPct": 20,
+    "occurs": [ 7, 3, 6 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 5
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "cucumber",
+        "Item2": 1
+      },
+      {
+        "Item1": "garlic",
+        "Item2": 1
+      },
+      {
+        "Item1": "tomato",
+        "Item2": 1
+      },
+      {
+        "Item1": "tomatillo",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "badger", "boar", "hedgehog", "antelope", "horse" ],
+    "deciduousTreeChance": 100,
+    "evergreenTreeChance": 5,
+    "nouns": [ "Forest", "Woods", "Old WOods", "Grove", "Chase", "Weald" ]
+  },
+  {
+    "name": "Evergreen Broadleaf",
+    "minRain": 15,
+    "maxRain": 100,
+    "minTemp": -5,
+    "maxTemp": 20,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 80,
+    "sandPct": 20,
+    "occurs": [ 7, 3, 6 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 5
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "garlic",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "badger", "boar", "hedgehog", "horse" ],
+    "deciduousTreeChance": 0,
+    "evergreenTreeChance": 100,
+    "nouns": [ "Forest", "Coppice", "Chase", "Weald", "Pines" ]
+  },
+  {
+    "name": "Evergreen Broadleaf",
+    "minRain": 15,
+    "maxRain": 100,
+    "minTemp": -15,
+    "maxTemp": 30,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 80,
+    "sandPct": 20,
+    "occurs": [ 7, 4, 6 ],
+    "worldgenTextureIndex": 0,
+    "plants": [
+      {
+        "Item1": "none",
+        "Item2": 5
+      },
+      {
+        "Item1": "grass",
+        "Item2": 20
+      },
+      {
+        "Item1": "sage",
+        "Item2": 1
+      },
+      {
+        "Item1": "daisy",
+        "Item2": 1
+      },
+      {
+        "Item1": "reeds",
+        "Item2": 2
+      },
+      {
+        "Item1": "garlic",
+        "Item2": 1
+      },
+      {
+        "Item1": "hemp",
+        "Item2": 1
+      }
+    ],
+    "wildlife": [ "deer", "badger", "boar", "horse" ],
+    "deciduousTreeChance": 5,
+    "evergreenTreeChance": 100,
+    "nouns": [ "Forest", "Coppice", "Chase", "Weald", "Pines", "Timber" ]
+  },
+  {
+    "name": "Rainforest",
+    "minRain": 25,
+    "maxRain": 100,
+    "minTemp": 20,
+    "maxTemp": 34,
+    "minMutation": 0,
+    "maxMutation": 100,
+    "soilPct": 90,
+    "sandPct": 10,
+    "occurs": [ 2, 3, 8 ],
+    "worldgenTextureIndex": 0,
+    "plants": [],
+    "wildlife": [ "deer", "antelope" ],
+    "deciduousTreeChance": 200,
+    "evergreenTreeChance": 0,
+    "nouns": [ "Jungle", "Morass", "Tangle" ]
+  }
+]
