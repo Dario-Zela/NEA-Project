@@ -560,13 +560,7 @@ namespace Models.WorldGen
         public List<regionInfo> regionInfo = new List<regionInfo>();
     }
 
-    public class River
-    {
-        public string name = "River";
-        public int startX = 0, startY = 0;
-        public List<RiverStep> route = new List<RiverStep>();
-
-        public struct RiverStep
+    public struct RiverStep
         {
             int x;
             int y;
@@ -578,11 +572,11 @@ namespace Models.WorldGen
             }
         }
 
-        public void addStep(int x, int y)
-        {
-            RiverStep step = new RiverStep(x, y);
-            route.Add(step);
-        }
+    public class River
+    {
+        public string name = "River";
+        public int startX = 0, startY = 0;
+        public List<RiverStep> route = new List<RiverStep>();
     }
 
     public class Biome

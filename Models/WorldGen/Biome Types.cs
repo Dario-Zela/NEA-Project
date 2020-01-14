@@ -1271,7 +1271,7 @@ namespace Models.WorldGen
 		        River river = new River();
 
 		        bool startOk = false;
-		        while (!start_ok) 
+		        while (!startOk) 
                 {
 			        river.startX = rng.Next(1, Constants.WORLD_WIDTH)-1;
 			        river.startY = rng.Next(1, Constants.WORLD_HEIGHT)-1;
@@ -1308,14 +1308,13 @@ namespace Models.WorldGen
 				        }
                         //Left Here
 				        if (!done) {
-					        step.x = candidates.begin()->second.first;
-					        step.y = candidates.begin()->second.second;
-
-					        if (World.landblocks[World.idx(x,y)].type == block_type::WATER || x == 0 || x == WORLD_WIDTH || y ==0 || y==WORLD_HEIGHT) {
+                            step.x = candidates[candidates.Keys.ToList()[0]].Item1;
+					        step.y = candidates[candidates.Keys.ToList()[0]].Item1;
+					        if (World.landBlocks[World.idx(x,y)].type == (int)blockType.WATER || x == 0 || x == Constants.WORLD_WIDTH || y ==0 || y==Constants.WORLD_HEIGHT) {
 						        done = true;
 					        } else {
-						        river.steps.push_back(step);
-						        used_steps.insert(World.idx(step.x, step.y));
+						        river.steps.Add(step);
+						        usedSteps.insert(World.idx(step.x, step.y));
 						        x = step.x;
 						        y = step.y;
 					        }
@@ -1323,9 +1322,9 @@ namespace Models.WorldGen
 			        }
 		        }
 
-		        World_display_update_zoomed(World, WORLD_WIDTH/2, WORLD_HEIGHT/2);
-		        World.rivers.push_back(river);
+		        World.rivers.Add(river);
 	        }
         }
     }
+    
 }
