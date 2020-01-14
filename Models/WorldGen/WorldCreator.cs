@@ -562,8 +562,8 @@ namespace Models.WorldGen
 
     public struct RiverStep
         {
-            int x;
-            int y;
+            public int x;
+            public int y;
 
             public RiverStep(int x, int y)
             {
