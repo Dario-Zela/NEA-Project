@@ -1308,8 +1308,10 @@ namespace Models.WorldGen
 				        }
                         //Left Here
 				        if (!done) {
-                            step.x = candidates[candidates.Keys.ToList()[0]].Item1;
-					        step.y = candidates[candidates.Keys.ToList()[0]].Item1;
+                            int[] temp = new int[candidates.Count];
+                            candidates.Keys.CopyTo(temp,0);
+                            step.x = candidates[temp[0]].Item1;
+					        step.y = candidates[temp[0]].Item1;
 					        if (World.landBlocks[World.idx(x,y)].type == (int)blockType.WATER || x == 0 || x == Constants.WORLD_WIDTH || y ==0 || y==Constants.WORLD_HEIGHT) {
 						        done = true;
 					        } else {
