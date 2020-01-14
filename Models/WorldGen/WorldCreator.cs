@@ -618,7 +618,7 @@ namespace Models.WorldGen
         private const float Persistance = 0.5f;
         private const float Lacunarity = 2f;
         private const int Octaves = 5;
-        public GetBiome biomeMap;
+        //public GetBiome biomeMap;
 
         public WorldCreator(int Height, int Width, int seedHeight, int seedTemp, int seedHumid)
         {
