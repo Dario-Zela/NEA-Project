@@ -1267,7 +1267,7 @@ namespace Models.WorldGen
 	        int nRivers = Constants.WORLD_WIDTH/2;
 	        HashSet<int> usedStarts = new HashSet<int>();
 
-	        for (int i=0; i<n_rivers; ++i) {
+	        for (int i=0; i<nRivers; ++i) {
 		        River river = new River();
 
 		        bool startOk = false;
@@ -1276,7 +1276,7 @@ namespace Models.WorldGen
 			        river.startX = rng.Next(1, Constants.WORLD_WIDTH)-1;
 			        river.startY = rng.Next(1, Constants.WORLD_HEIGHT)-1;
 			        int pidx = World.idx(river.startX, river.startY);
-			        if ((World.landBlocks[pidx].type == (int)blockType.MOUNTAINS || World.landBlocks[pidx].type == (int)blockType.HILLS) && !usedStarts.Contains(pidx)) start_ok = true;
+			        if ((World.landBlocks[pidx].type == (int)blockType.MOUNTAINS || World.landBlocks[pidx].type == (int)blockType.HILLS) && !usedStarts.Contains(pidx)) startOk = true;
 		        }
 		        usedStarts.Add(World.idx(river.startX, river.startY));
 
@@ -1290,8 +1290,8 @@ namespace Models.WorldGen
 			        if (x < Constants.WORLD_WIDTH-1 && !usedSteps.Contains(World.idx(x+1, y))) candidates.Add(World.landBlocks[World.idx(x+1, y)].height, (x+1, y));
 			        if (y > 0 && !usedSteps.Contains(World.idx(x, y-1))) candidates.Add(World.landBlocks[World.idx(x, y-1)].height, (x, y-1));
 			        if (y < Constants.WORLD_HEIGHT-1 && !usedSteps.Contains(World.idx(x, y+1))) candidates.Add(World.landBlocks[World.idx(x, y+1)].height, (x, y+1));
-			        riverStep step = new riverStep();
-			        if (candidates.empty()) {
+			        RiverStep step = new RiverStep();
+			        if (candidates.Count == 0) {
 				        done = true;
 			        } 
                     else
@@ -1300,9 +1300,9 @@ namespace Models.WorldGen
                         {
 					        if (!done) 
                             {
-						        foreach(riverStep step in test.steps)
+						        foreach(RiverStep step2 in test.route)
                                 {
-							        if (x==step.x && y==step.y) { done=true; break; }
+							        if (x==step2.x && y==step2.y) { done=true; break; }
 						        }
 					        }
 				        }
@@ -1313,8 +1313,8 @@ namespace Models.WorldGen
 					        if (World.landBlocks[World.idx(x,y)].type == (int)blockType.WATER || x == 0 || x == Constants.WORLD_WIDTH || y ==0 || y==Constants.WORLD_HEIGHT) {
 						        done = true;
 					        } else {
-						        river.steps.Add(step);
-						        usedSteps.insert(World.idx(step.x, step.y));
+						        river.route.Add(step);
+						        usedSteps.Add(World.idx(step.x, step.y));
 						        x = step.x;
 						        y = step.y;
 					        }

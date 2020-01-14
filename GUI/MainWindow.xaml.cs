@@ -15,13 +15,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Models.WorldGen;
+//using Models.WorldGen;
 
 namespace GUI
 {
     public partial class MainWindow : Window
     {
-        private WorldCreator creator;
+        //private WorldCreator creator;
 
         public MainWindow()
         {
@@ -64,9 +64,9 @@ namespace GUI
 
         public void Set(int seed1 = 9182, int seed2 = 2198, int seed3 = 2982)
         {
-            int mapWidth = 700;
-            int mapDepth = 700;
-
+            //int mapWidth = 700;
+            //int mapDepth = 700;
+            /*
             creator = new WorldCreator(mapDepth, mapWidth, seed1, seed2, seed3);
             byte[] world = new byte[mapDepth * mapWidth * 4];
             for (int i = 0; i < mapWidth; i++)
@@ -81,6 +81,7 @@ namespace GUI
                 }
             }
             CreateImage(world, mapDepth, mapWidth);
+            */
         }
 
         private void SliderValue(object sender, RoutedEventArgs e)
@@ -90,6 +91,7 @@ namespace GUI
 
         private void Image_Click(object sender, RoutedEventArgs e)
         {
+            /*
             var pos = Mouse.GetPosition(Image);
             char[] temp = creator.biomeMap[(int)pos.X, (int)pos.Y].Id;
             string Id = "";
@@ -119,6 +121,7 @@ namespace GUI
                 default: Biome = null; break;
             }
             Console.WriteLine(Biome);
+            */
         }
     }
 }
