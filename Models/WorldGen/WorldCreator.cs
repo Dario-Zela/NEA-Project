@@ -483,19 +483,81 @@ namespace Models.WorldGen
 
     #region Header
 
+    public enum Gender
+    {
+        Male,
+        Female,
+        Unknown
+    }
+
+    public enum Sexuality
+    {
+        Heterosexual,
+        Homosexual,
+        Bisexual,
+        Asexual
+    }
+
+    public enum HairStyle
+    {
+        Bald,
+        Short,
+        Long,
+        Pigtails,
+        Mohawk,
+        Balding
+    }
+
+    public class Specie
+    {
+        public string tag = "";
+        public int index = 0;
+        public Gender gender = new Gender();
+        public Sexuality sexuality = new Sexuality();
+        public HairStyle hairStyle = new HairStyle();
+        public (string, Colour) skinColour = ("", new Colour(0, 0, 0));
+        public (string, Colour) hair_color = ("", new Colour(0, 0, 0));
+        public float height = 0;
+        public float weight = 0;
+        public bool bearded = false;
+        public int baseMaleGlyph = 0;
+        public int baseFemaleGlyph = 0;
+
+        public string proNoun
+        {
+            get
+            {
+                switch (gender)
+                {
+                    case Gender.Male: return "He";
+                    case Gender.Female: return "She";
+                    case Gender.Unknown: return "Xi";
+                    default: throw new Exception();
+                }
+            }
+        }
+        public string Ethnicity
+        {
+            get
+            {
+                return skinColour.Item1;
+            }
+        }
+    }
+
     public enum Diet
     {
-        Omnivore, 
-        Herbivore, 
-        Carnivore 
+        Omnivore,
+        Herbivore,
+        Carnivore
     };
 
     public enum Alignment
-    { 
-        Good, 
-        Neutral, 
-        Evil, 
-        Devour 
+    {
+        Good,
+        Neutral,
+        Evil,
+        Devour
     };
 
     public class Colour
@@ -510,10 +572,10 @@ namespace Models.WorldGen
         public byte g;
         public byte b;
 
-        public static bool operator ==(Colour A ,Colour B)
+        public static bool operator ==(Colour A, Colour B)
         {
-			return A.r == B.r && A.g == B.g && A.b == B.b;
-		}
+            return A.r == B.r && A.g == B.g && A.b == B.b;
+        }
 
         public static bool operator !=(Colour A, Colour B)
         {
@@ -548,9 +610,6 @@ namespace Models.WorldGen
         public bool spreadsBlight = false;
         public int maxAge = 90, infantAge = 5, childAge = 12;
         public char glyph = '@', glyphAscii = '@', worldgenGlyph = '@';
-        public bool renderComposite = false;
-        public int baseMaleGlyph = 352, baseFemaleGlyph = 353;
-        public int voxelModel = 0;
         public List<(string, Colour)> skinColors = new List<(string, Colour)>(), hairColors = new List<(string, Colour)>();
     };
 

@@ -1,0 +1,41 @@
+[
+  {
+    "tag": "TestS",
+    "name": "Test399",
+    "maleName": "Male",
+    "femaleName": "Fem",
+    "collectiveName": "Xi",
+    "description": "I don't know",
+    "statMods": { "none": 0 },
+    "bodyParts": [ "Item1", :, "body", "Item2", :, 5, "Item3", :, 3 ],
+    "diet": 0,
+    "alignment": 1,
+    "spreadsBlight": false,
+    "maxAge": 90,
+    "infantAge": 5,
+    "childAge": 12,
+    "glyph": "@",
+    "glyphAscii": "@",
+    "worldgenGlyph": "@",
+    "skinColors": [
+      {
+        "Item1": "brown",
+        "Item2": {
+          "R": 255,
+          "G": 60,
+          "B": 10
+        }
+      }
+    ],
+    "hairColors": [
+      {
+        "Item1": "brown",
+        "Item2": {
+          "R": 255,
+          "G": 60,
+          "B": 10
+        }
+      }
+    ]
+  }
+]

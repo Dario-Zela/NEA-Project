@@ -415,7 +415,7 @@ namespace Models.WorldGen
 
         private void generateTypes()
         {
-            StreamReader reader = new StreamReader(@"C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Models\WorldGen\WorldGenAssets\BiomeTypes.json");
+            StreamReader reader = new StreamReader(@"WorldGenAssets\BiomeTypes.json");
             BiomeTypes = JsonConvert.DeserializeObject<List<biomeType>>(reader.ReadToEnd());
         }
 
@@ -892,6 +892,7 @@ namespace Models.WorldGen
     
     class HistoryMaker
     {
+        #region startup
         int N_CIVS = Constants.WORLD_WIDTH;
         int FIRST_NAMES_MALE = 1;
         int FIRST_NAMES_FEMALE = 2;
@@ -899,12 +900,43 @@ namespace Models.WorldGen
 
         public HistoryMaker()
         {
+            loader();
+        }
 
+        private void loader()
+        {
+            loadCivs();
+            loadSpecies();
+            loadNames(FIRST_NAMES_MALE, @"WorldGenAssets\firstNamesMale.txt");
+            loadNames(FIRST_NAMES_FEMALE, @"WorldGenAssets\firstNamesFemale.txt");
+            loadNames(LAST_NAMES, @"WorldGenAssets\lastNames.txt");
+        }
+
+        Dictionary<string, Civilization> civDef = new Dictionary<string, Civilization>();
+
+        private void loadCivs()
+        {
+            List<Civilization> temp = JsonConvert.DeserializeObject<List<Civilization>>(@"WorldGenAssets\CivTypes.json");
+            foreach (Civilization species in temp)
+            {
+                civDef.Add(species.tag, species);
+            }
+        }
+
+        Dictionary<string, rawSpecies> speciesDef = new Dictionary<string, rawSpecies>();
+
+        private void loadSpecies()
+        {
+            List<rawSpecies> temp = JsonConvert.DeserializeObject<List<rawSpecies>>(@"WorldGenAssets\Scentients.json");
+            foreach (rawSpecies species in temp)
+            {
+                speciesDef.Add(species.tag, species);
+            }
         }
 
         Dictionary<int, stringTable> stringTables = new Dictionary<int, stringTable>();
 
-        public void loadNames(int index, string filename)
+        private void loadNames(int index, string filename)
         {
             stringTable target = new stringTable();
             StreamReader reader = new StreamReader(filename);
@@ -918,9 +950,47 @@ namespace Models.WorldGen
             stringTables.Add(index, target);
         }
 
+        #endregion
 
+        public rawSpecies getSpeciesDef(string tag)
+        {
+            rawSpecies ret;
+            speciesDef.TryGetValue(tag, out ret);
+            return ret;
+        }
 
-        /*
+        public Civilization getCivilizationDef(string tag)
+        {
+            Civilization ret;
+            civDef.TryGetValue(tag, out ret);
+            return ret;
+        }
+
+        public void onEachCiv(Func<Civilization,Civilization> func)
+        {
+            foreach (string Key in civDef.Keys)
+            {
+                civDef[Key] = func.Invoke(civDef[Key]);
+            }
+        }
+
+        public void findCiv(Action<Civilization> func)
+        {
+            foreach (string Key in civDef.Keys)
+            {
+                func.Invoke(civDef[Key]);
+            }
+        }
+
+        public Civilization getRandomSpecies(Random rng, int techLevel = 0)
+        {
+            List<Civilization> elegible = new List<Civilization>();
+            findCiv(civ =>
+            {
+                if (civ.techLevel == techLevel) elegible.Add(civ);
+            });
+            return elegible[rng.Next(0, elegible.Count)];
+        }
         public void buildInitialCivs(ref Map World, Random rng)
         {
             for (int i = 1; i < N_CIVS; ++i)
@@ -1009,7 +1079,7 @@ namespace Models.WorldGen
             planet_display_update_zoomed(planet, WORLD_WIDTH/2, WORLD_HEIGHT/2);
         }
         }
-    */
+
     }
 
 }

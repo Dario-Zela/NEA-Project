@@ -1,0 +1,56 @@
+[
+  {
+    "techLevel": 0,
+    "tag": "test",
+    "speciesTag": "TestCreatures",
+    "ai": "none",
+    "nameGenerator": "normal",
+    "units": {
+      "TestUnit": {
+        "tag": "test2",
+        "bpPerTurn": 2,
+        "speed": 3,
+        "name": "TestUnit",
+        "sentients": [
+          {
+            "count": 0,
+            "baseLevel": 0,
+            "tag": "Test",
+            "name": "TestUnitSentient",
+            "baseArmorClass": 10,
+            "hp": 100,
+            "hpDice": 10,
+            "hpMod": 0,
+            "gender": "male",
+            "natural_attacks": [
+              {
+                "type": "punch",
+                "hitBonus": 0,
+                "Dice": 0,
+                "dieType": 6,
+                "dieMod": 0,
+                "range": 1
+              }
+            ],
+            "equipment": [
+              {
+                "startingClothes": {
+                  "Item1": 0,
+                  "Item2": "new",
+                  "Item3": "cloth"
+                },
+                "melee": "none",
+                "ranged": "none",
+                "ammo": "mount",
+                "mount": "none"
+              }
+            ]
+          }
+        ],
+        "worldgenStrength": 10
+      }
+    },
+    "evolvesInto": [ "" ],
+    "canBuild": [ "" ]
+  }
+]
