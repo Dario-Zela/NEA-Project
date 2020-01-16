@@ -1006,7 +1006,7 @@ namespace Models.WorldGen
 
                 string loc_name = World.biomes[World.landBlocks[pidx].biomeIdx].name;
 
-                civ.speciesTag = get_random_species(rng, 0);
+                civ.speciesTag = getRandomSpecies(rng, 0);
                 civ.techLevel = 0;
                 civ.extinct = false;
                 civ.r = (byte)rng.Next(1, 255);
@@ -1016,9 +1016,9 @@ namespace Models.WorldGen
                 civ.startY = wy;
 
                 // Name generation
-                 civ_finder = get_civ_def(civ.species_tag);
-                const auto civ_name_func = "civ_name_gen_" + civ_finder->name_generator;
-                const auto civ_leader_func = "leader_name_gen_" + civ_finder->name_generator;
+                string civFinder = getCivilizationDef(civ.speciesTag);
+                string civNameFunc = "civNameGen" + civFinder.nameGenerator;
+                string civLeaderFunc = "leaderNameGen" + civFinder.nameGenerator;
                 civ.name = lua_str_func(civ_name_func, rng.roll_dice(1,1000)) + std::string (" of the ") + loc_name;
             if (str_contains(civ.name, "{LASTNAME}")) {
                 civ.name = str_replace(civ.name, "{LASTNAME}", string_table(LAST_NAMES)->random_entry(rng));
