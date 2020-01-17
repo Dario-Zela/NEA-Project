@@ -6,8 +6,14 @@
     "femaleName": "Fem",
     "collectiveName": "Xi",
     "description": "I don't know",
-    "statMods": { "none": 0 },
-    "bodyParts": [ "Item1", :, "body", "Item2", :, 5, "Item3", :, 3 ],
+    "statMods": { "none" : 0 },
+    "bodyParts": [
+      {
+        "Item1": "body",
+        "Item2": 5,
+        "Item3": 3
+      }
+    ],
     "diet": 0,
     "alignment": 1,
     "spreadsBlight": false,

@@ -5,391 +5,6 @@ using Newtonsoft.Json;
 
 namespace Models.WorldGen
 {
-    /*
-    #region OLD
-    public class GetBiome
-    {
-        private Random random = new Random();
-        private int mapWidth;
-        private int mapHeight;
-        private float[,] heightMap;
-        private float[,] humidityMap;
-        private float[,] temperatureMap;
-        private Biome[,] IdMap;
-        public bool valid = false;
-
-        public GetBiome(float[,] heightMap, float[,] humidityMap, float[,] temperatureMap, int mapWidth, int mapHeight)
-        {
-            this.heightMap = heightMap;
-            this.humidityMap = humidityMap;
-            this.temperatureMap = temperatureMap;
-            this.mapWidth = mapWidth;
-            this.mapHeight = mapHeight;
-            IdMap = ReturnBioms();
-        }
-
-        private void CheckHeight(ref int[,] IdMap)
-        {
-            for (int i = 0; i < mapWidth; i++)
-            {
-                for (int j = 0; j < mapHeight; j++)
-                {
-                    if (heightMap[i, j] < 0.1f)
-                    {
-                        IdMap[i, j] = 1;
-                    }
-                    else if (heightMap[i, j] < 0.15f)
-                    {
-                        IdMap[i, j] = 2;
-                    }
-                    else if (heightMap[i, j] < 0.6f)
-                    {
-                        IdMap[i, j] = 3;
-                    }
-                    else if (heightMap[i, j] < 0.7f)
-                    {
-                        IdMap[i, j] = 4;
-                    }
-                    else if (heightMap[i, j] < 0.8f)
-                    {
-                        IdMap[i, j] = 5;
-                    }
-                    else if (heightMap[i, j] < 1.1f)
-                    {
-                        IdMap[i, j] = 6;
-                    }
-                    else
-                    {
-                        throw new Exception();
-                    }
-                }
-            }
-        }
-
-        private Biome[,] AssignBioms(int[,] idMap)
-        {
-            Biome[,] biomes = new Biome[mapHeight, mapWidth];
-
-            for (int i = 0; i < mapWidth; i++)
-            {
-                for (int j = 0; j < mapHeight; j++)
-                {
-                    if (idMap[i, j] == 1)
-                    {
-                        if (temperatureMap[i, j] < 0.4f)
-                        {
-                            biomes[i, j] = new Biome(11, heightMap[i, j]);
-                        }
-                        else
-                        {
-                            biomes[i, j] = new Biome(10, heightMap[i, j]);
-                        }
-                    }
-                    if (idMap[i, j] == 2)
-                    {
-                        if (temperatureMap[i, j] < 0.4f)
-                        {
-                            biomes[i, j] = new Biome(21, heightMap[i, j]);
-                        }
-                        else
-                        {
-                            biomes[i, j] = new Biome(20, heightMap[i, j]);
-                        }
-                    }
-                    else if (idMap[i, j] == 3)
-                    {
-                        if (temperatureMap[i, j] < 0.4f)
-                        {
-                            if (humidityMap[i, j] < 0.4f)
-                            {
-                                biomes[i, j] = new Biome(31, heightMap[i, j]);
-                            }
-                            else
-                            {
-                                biomes[i, j] = new Biome(32, heightMap[i, j]);
-                            }
-                        }
-                        else
-                        {
-                            if (humidityMap[i, j] < 0.4f)
-                            {
-                                biomes[i, j] = new Biome(30, heightMap[i, j]);
-                            }
-                            else
-                            {
-                                biomes[i, j] = new Biome(33, heightMap[i, j]);
-                            }
-                        }
-                    }
-                    else if (idMap[i, j] == 4)
-                    {
-                        if (temperatureMap[i, j] < 0.4f)
-                        {
-                            if (humidityMap[i, j] < 0.4f)
-                            {
-                                biomes[i, j] = new Biome(41, heightMap[i, j]);
-                            }
-                            else
-                            {
-                                biomes[i, j] = new Biome(42, heightMap[i, j]);
-                            }
-                        }
-                        else
-                        {
-                            if (humidityMap[i, j] < 0.4f)
-                            {
-                                biomes[i, j] = new Biome(43, heightMap[i, j]);
-                            }
-                            else
-                            {
-                                biomes[i, j] = new Biome(40, heightMap[i, j]);
-                            }
-                        }
-                    }
-                    else if (idMap[i, j] == 5)
-                    {
-                        if (temperatureMap[i, j] < 0.4f)
-                        {
-                            if (humidityMap[i, j] < 0.4f)
-                            {
-                                biomes[i, j] = new Biome(50, heightMap[i, j]);
-                            }
-                            else
-                            {
-                                biomes[i, j] = new Biome(51, heightMap[i, j]);
-                            }
-                        }
-                        else
-                        {
-                            biomes[i, j] = new Biome(50, heightMap[i, j]);
-                        }
-                    }
-                    else if (idMap[i, j] == 6)
-                    {
-                        if (temperatureMap[i, j] < 0.4f)
-                        {
-                            if (humidityMap[i, j] < 0.4f)
-                            {
-                                biomes[i, j] = new Biome(60, heightMap[i, j]);
-                            }
-                            else
-                            {
-                                biomes[i, j] = new Biome(61, heightMap[i, j]);
-                            }
-                        }
-                        else
-                        {
-                            biomes[i, j] = new Biome(60, heightMap[i, j]);
-                        }
-                    }
-                    SpecialAssignment(ref biomes[i, j]);
-                }
-            }
-
-            return biomes;
-        }
-        private void SpecialAssignment(ref Biome biome)
-        {
-            if (random.Next(0,1000) <= biome.probTree)
-            {
-                biome.red = (byte)0;
-                biome.green = (byte)255;
-                biome.blue = (byte)0;
-                biome.isTree = true;
-            } 
-            else if (random.Next(0, 1000) <= biome.probBush)
-            {
-                biome.isBush = true;
-                biome.red = (byte)255;
-                biome.green = (byte)0;
-                biome.blue = (byte)0;
-            }
-        }
-
-        private Biome[,] ReturnBioms()
-        {
-            int[,] IdMapTemp = new int[mapHeight, mapWidth];
-            Biome[,] biomes;
-            CheckHeight(ref IdMapTemp);
-            biomes = AssignBioms(IdMapTemp);
-            return biomes;
-        }
-
-        public Biome this[int index, int index2]
-        {
-            get
-            {
-                return IdMap[index, index2];
-            }
-        }
-    }
-
-    public struct Biome
-    {
-        public char[] Id;
-        public int probTree;
-        public int probBush;
-        public bool doesSnow;
-        public byte red;
-        public byte green;
-        public byte blue;
-        public byte alpha;
-        public float height;
-        public bool isTree;
-        public bool isBush;
-
-        public Biome(int Id, float height)
-        {
-            this.Id = Id.ToString().ToCharArray();
-            probBush = 0;
-            probTree = 0;
-            doesSnow = false;
-            red = (byte)255;
-            green = (byte)255;
-            blue = (byte)255;
-            alpha = (byte)255;
-            isBush = false;
-            isTree = false;
-            this.height = height;
-            AssignProprieties();
-        }
-
-        private void AssignProprieties()
-        {
-            switch (Id[0])
-            {
-                case '1':
-                    switch (Id[1])
-                    {
-                        case '1':
-                            red = (byte)158;
-                            green = (byte)216;
-                            blue = (byte)240;
-                            break;
-                        default:
-                            red = (byte)0;
-                            green = (byte)0;
-                            blue = (byte)255;
-                            break;
-                    }
-                    break;
-                case '2':
-                    switch (Id[1])
-                    {
-                        case '1':
-                            red = (byte)233;
-                            green = (byte)225;
-                            blue = (byte)210;
-                            break;
-                        default:
-                            red = (byte)239;
-                            green = (byte)221;
-                            blue = (byte)111;
-                            break;
-                    }
-                    break;
-                case '3':
-                    switch (Id[1])
-                    {
-                        case '1':
-                            red = (byte)208;
-                            green = (byte)236;
-                            blue = (byte)152;
-                            probBush = 1;
-                            break;
-                        case '2':
-                            red = (byte)224;
-                            green = (byte)216;
-                            blue = (byte)176;
-                            probBush = 50;
-                            probTree = 100;
-                            break;
-                        case '3':
-                            red = (byte)0;
-                            green = (byte)140;
-                            blue = (byte)0;
-                            probBush = 200;
-                            probTree = 300;
-                            break;
-                        default:
-                            red = (byte)166;
-                            green = (byte)255;
-                            blue = (byte)0;
-                            probBush = 50;
-                            probTree = 5;
-                            break;
-                    }
-                    break;
-                case '4':
-                    switch (Id[1])
-                    {
-                        case '1':
-                            red = (byte)180;
-                            green = (byte)200;
-                            blue = (byte)120;
-                            probBush = 5;
-                            break;
-                        case '2':
-                            red = (byte)200;
-                            green = (byte)195;
-                            blue = (byte)155;
-                            probBush = 50;
-                            probTree = 100;
-                            break;
-                        case '3':
-                            red = (byte)220;
-                            green = (byte)200;
-                            blue = (byte)0;
-                            probBush = 200;
-                            probTree = 300;
-                            break;
-                        default:
-                            red = (byte)140;
-                            green = (byte)235;
-                            blue = (byte)0;
-                            probBush = 50;
-                            probTree = 5;
-                            break;
-                    }
-                    break;
-                case '5':
-                    switch (Id[1])
-                    {
-                        case '1':
-                            red = (byte)50;
-                            green = (byte)126;
-                            blue = (byte)26;
-                            probBush = 100;
-                            probTree = 200;
-                            break;
-                        default:
-                            red = (byte)143;
-                            green = (byte)111;
-                            blue = (byte)60;
-                            break;
-                    }
-                    break;
-                case '6':
-                    switch (Id[1])
-                    {
-                        case '1':
-                            red = (byte)255;
-                            green = (byte)255;
-                            blue = (byte)255;
-                            doesSnow = true;
-                            break;
-                        default:
-                            red = (byte)143;
-                            green = (byte)111;
-                            blue = (byte)60;
-                            break;
-                    }
-                    break;
-            }
-        }
-    }
-    #endregion
-    */
     class BiomeMap
     {
 
@@ -415,7 +30,7 @@ namespace Models.WorldGen
 
         private void generateTypes()
         {
-            StreamReader reader = new StreamReader(@"WorldGenAssets\BiomeTypes.json");
+            StreamReader reader = new StreamReader(@"..\..\..\Models\WorldGen\WorldGenAssets\BiomeTypes.json");
             BiomeTypes = JsonConvert.DeserializeObject<List<biomeType>>(reader.ReadToEnd());
         }
 
@@ -581,7 +196,7 @@ namespace Models.WorldGen
             }
         }
 
-        public List<(double, int)> findPossibleBiomes(ref Dictionary<int, double> percents, ref List<Biome> biomes, int index)
+        private List<(double, int)> findPossibleBiomes(ref Dictionary<int, double> percents, ref List<Biome> biomes, int index)
         {
             List<(double, int)> result = new List<(double, int)>();
 
@@ -824,7 +439,7 @@ namespace Models.WorldGen
 
     class RiverBuilder
     {
-        public void World_rivers(ref Map World, Random rng) {
+        public void buildRivers(ref Map World, ref Random rng) {
 	        int nRivers = Constants.WORLD_WIDTH/2;
 	        HashSet<int> usedStarts = new HashSet<int>();
 
@@ -916,7 +531,8 @@ namespace Models.WorldGen
 
         private void loadCivs()
         {
-            List<Civilization> temp = JsonConvert.DeserializeObject<List<Civilization>>(@"WorldGenAssets\CivTypes.json");
+            StreamReader reader = new StreamReader(@"..\..\..\Models\WorldGen\WorldGenAssets\CivTypes.json");
+            List<Civilization> temp = JsonConvert.DeserializeObject<List<Civilization>>(reader.ReadToEnd());
             foreach (Civilization species in temp)
             {
                 civDef.Add(species.tag, species);
@@ -927,7 +543,8 @@ namespace Models.WorldGen
 
         private void loadSpecies()
         {
-            List<rawSpecies> temp = JsonConvert.DeserializeObject<List<rawSpecies>>(@"WorldGenAssets\Scentients.json");
+            StreamReader reader = new StreamReader(@"..\..\..\Models\WorldGen\WorldGenAssets\CivTypes.json");
+            List<rawSpecies> temp = JsonConvert.DeserializeObject<List<rawSpecies>>(reader.ReadToEnd());
             foreach (rawSpecies species in temp)
             {
                 speciesDef.Add(species.tag, species);
@@ -939,7 +556,7 @@ namespace Models.WorldGen
         private void loadNames(int index, string filename)
         {
             stringTable target = new stringTable();
-            StreamReader reader = new StreamReader(filename);
+            StreamReader reader = new StreamReader(@"..\..\..\Models\WorldGen\" + filename);
             string line;
             while (!reader.EndOfStream)
             {
@@ -952,29 +569,21 @@ namespace Models.WorldGen
 
         #endregion
 
-        public rawSpecies getSpeciesDef(string tag)
+        private rawSpecies getSpeciesDef(string tag)
         {
             rawSpecies ret;
             speciesDef.TryGetValue(tag, out ret);
             return ret;
         }
 
-        public Civilization getCivilizationDef(string tag)
+        private Civilization getCivilizationDef(string tag)
         {
             Civilization ret;
             civDef.TryGetValue(tag, out ret);
             return ret;
         }
 
-        public void onEachCiv(Func<Civilization,Civilization> func)
-        {
-            foreach (string Key in civDef.Keys)
-            {
-                civDef[Key] = func.Invoke(civDef[Key]);
-            }
-        }
-
-        public void findCiv(Action<Civilization> func)
+        private void findCiv(Action<Civilization> func)
         {
             foreach (string Key in civDef.Keys)
             {
@@ -982,17 +591,17 @@ namespace Models.WorldGen
             }
         }
 
-        public Civilization getRandomSpecies(Random rng, int techLevel = 0)
+        private string getRandomSpecies(ref Random rng, int techLevel = 0)
         {
             List<Civilization> elegible = new List<Civilization>();
             findCiv(civ =>
             {
                 if (civ.techLevel == techLevel) elegible.Add(civ);
             });
-            return elegible[rng.Next(0, elegible.Count)];
+            return elegible[rng.Next(0, elegible.Count)].tag;
         }
 
-        public void buildInitialCivs(ref Map World, Random rng)
+        public void buildInitialCivs(ref Map World, ref Random rng)
         {
             for (int i = 1; i < N_CIVS; ++i)
             {
@@ -1005,9 +614,9 @@ namespace Models.WorldGen
                 if (World.landBlocks[pidx].type == (int)blockType.WATER) goto start_over;
                 if (World.civs.regionInfo[pidx].ownerCiv > 0) goto start_over;
 
-                string loc_name = World.biomes[World.landBlocks[pidx].biomeIdx].name;
+                string locName = World.biomes[World.landBlocks[pidx].biomeIdx].name;
 
-                civ.speciesTag = getRandomSpecies(rng, 0);
+                civ.speciesTag = getRandomSpecies(ref rng, 0);
                 civ.techLevel = 0;
                 civ.extinct = false;
                 civ.r = (byte)rng.Next(1, 255);
@@ -1019,33 +628,9 @@ namespace Models.WorldGen
                 // Name generation
                 Civilization civFinder = getCivilizationDef(civ.speciesTag);
                 civ.name = "Test of the " + locName;
-                civ.leader_name = "Test Leader" + rng.Next(0,1000)
+                civ.leaderName = "Test Leader" + rng.Next(0,1000);;
                 civ.origin = locName;
                 civ.glyph = getSpeciesDef(civFinder.speciesTag).worldgenGlyph;
-
-                // Appearance
-                if (getSpeciesDef(civFinder.speciesTag).renderComposite) {
-                    civ.skinColor = getSpeciesDef(civFinder.speciesTag).skinColor[rng.Next(1, getSpeciesDef(civFinder.speciesTag).skinColor.Count - 1];
-                    civ.hairColor = getSpeciesDef(civFinder.speciesTag).hairColor[rng.Next(1, getSpeciesDef(civFinder.speciesTag).hairColor.Count - 1];
-
-                    civ.hairStyle = BALD;
-                    int styleRoll = rng.Next(1, 4);
-                    switch (styleRoll)
-                    {
-                        case 1:
-                            civ.hairStyle = SHORT_HAIR;
-                            break;
-                        case 2:
-                            civ.hairStyle = LONG_HAIR;
-                            break;
-                        case 3:
-                            civ.hairStyle = PIGTAILS;
-                            break;
-                        case 4:
-                            civ.hairStyle = TRIANGLE;
-                            break;
-                    }
-                }
 
                 World.civs.civs.Add(civ);
 
@@ -1055,7 +640,7 @@ namespace Models.WorldGen
                 World.civs.regionInfo[pidx].settlementSize = 1;
 
                 // Create an initial garrison type unit
-                unit starter;
+                Unit starter= new Unit();
                 starter.ownerCiv = i;
                 starter.unitType = "garrison";
                 starter.worldX = wx;
@@ -1064,17 +649,27 @@ namespace Models.WorldGen
             }
         }
 
-        
-        public void BuildCivYear(int year, ref Map World, ref Random rng, ref Civ civ, int id) {
+        private string randomUnitType(ref Civilization civ, ref Random rng) {
+            List<string> available = new List<string>();
+	        foreach (var it in civ.units) 
+            {
+                if (it.Value.tag != "garrison") available.Add(it.Key);
+            }
 
-            var civF = getCivDef(civ.speciesTag);
+            int roll = rng.Next(1, available.Count) - 1;
+            return available[roll];
+        }
+
+        private Civ BuildCivYear(ref Map World, ref Random rng, Civ civ, int id) {
+
+            var civF = getCivilizationDef(civ.speciesTag);
             var speciesF = getSpeciesDef(civF.speciesTag);
 
             // Total build points, find settlements
-	        auto bp = 0;
+	        int bp = 0;
             HashSet<int> towns = new HashSet<int>();
             int i=0;
-	        var unitCount = 0;
+	        int unitCount = 0;
             foreach (var settlement in World.civs.regionInfo) {
                 if (settlement.ownerCiv == id) {
                     bp += settlement.settlementSize*10;
@@ -1082,115 +677,117 @@ namespace Models.WorldGen
                 }
                 ++i;
             }
-            foreach (var unit in planet.civs.units) {
-                if (unit.owner_civ == id) {
-                    const auto unit_finder = civ_f.units.find(unit.unit_type);
-                    if (unit_finder == civ_f.units.end()) {
-                        //throw std::runtime_error(std::string("Unable to find: ") + civ.species_tag + std::string("/") + unit.unit_type);
-                    } else {
-                        if (unit_finder.second.bp_per_turn > 0) bp += unit_finder.second.bp_per_turn;
-                        ++unit_count;
+            foreach (Unit unit in World.civs.units) {
+                if (unit.ownerCiv == id) {
+                    if (civF.units.ContainsKey(unit.unitType))
+                    {
+                        if (civF.units[unit.unitType].bpPerTurn > 0) bp *= 2;
+                        unitCount++;
                     }
                 }
             }
-            //std::cout << "We have " << bp << " build points available\n";
 
             // If blight-spreader, then spread some blight
-            if (species_f.spreads_blight) {
-                for (auto &pidx : towns) {
-                    if (planet.civs.region_info[pidx].blight_level < 100 && bp > 10) {
-                        planet.civs.region_info[pidx].blight_level = 100;
+            if (speciesF.spreadsBlight) {
+                foreach (int pidx in towns) 
+                {
+                    if (World.civs.regionInfo[pidx].blightLevel < 100 && bp > 10) {
+                        World.civs.regionInfo[pidx].blightLevel = 100;
                         bp -= 10;
-                        //std::cout << "Spread some blight for 10 bp\n";
                     }
                 }
-            } else {
-                for (auto &pidx : towns) {
-                    if (planet.civs.region_info[pidx].blight_level > 0 && bp > 10) {
-                        planet.civs.region_info[pidx].blight_level = 0;
+            } 
+            else
+            {
+                foreach (int pidx in towns) 
+                {
+                    if (World.civs.regionInfo[pidx].blightLevel > 0 && bp > 10) {
+                        World.civs.regionInfo[pidx].blightLevel = 0;
                         bp -= 10;
-                        //std::cout << "Clear some blight for 10 bp\n";
                     }
                 }
             }
 
             // Build improvements
-            if (bp > 9 && !civ_f.can_build.empty()) {
-                for (auto &pidx : towns) {
-                    if (bp > 9) {
-                        for (auto &build : civ_f.can_build) {
-					        auto has_one = false;
-                            for (const auto &i : planet.civs.region_info[pidx].improvements) {
-                                if (i == build) has_one = true;
+            if (bp > 9 && civF.canBuild.Count > 0)
+            {
+                foreach (int pidx in towns) 
+                {
+                    if (bp > 9)
+                    {
+                        foreach (string build in civF.canBuild)
+                        {
+					        bool hasOne = false;
+                            foreach (string imp in World.civs.regionInfo[pidx].improvements)
+                            {
+                                if (imp == build) hasOne = true;
                             }
-                            if (!has_one) {
+                            if (!hasOne) {
                                 bp -= 10;
-                                planet.civs.region_info[pidx].improvements.push_back(build);
-                                //std::cout << "Built a " << build << " for 10 bp.\n";
+                                World.civs.regionInfo[pidx].improvements.Add(build);
                             }
                         }
                     }
 
                     // Consider bigger towns
-                    if (bp > civ.tech_level*20 && planet.civs.region_info[pidx].settlement_size < civ.tech_level) {
-                        bp -= civ.tech_level * 20;
-                        ++planet.civs.region_info[pidx].settlement_size;
-                        //std::cout << "Expanded settlement to size " << planet.civs.region_info[pidx].settlement_size << "\n";
+                    if (bp > civ.techLevel*20 && World.civs.regionInfo[pidx].settlementSize < civ.techLevel) {
+                        bp -= civ.techLevel * 20;
+                        World.civs.regionInfo[pidx].settlementSize++;
                     }
                 }
             }
 
             // Tech-level improvement
-            if (!civ_f.evolves_into.empty() && bp > civ.tech_level*15 && rng.roll_dice(1,25)==1) {
+            if (civF.evolvesInto.Count > 0 && bp > civ.techLevel*15 && rng.Next(1,25)==1) {
                 // Evolve!
                 bp = 0;
-                ++civ.tech_level;
-                const auto roll = rng.roll_dice(1, static_cast<int>(civ_f.evolves_into.size()))-1;
-                civ.species_tag = civ_f.evolves_into[roll];
-                const auto civ2_f = get_civ_def(civ.species_tag);
-                const auto civ_name_func = "civ_name_gen_" + civ2_f.name_generator;
-                //std::cout << civ.name << " evolves to tech level " << +civ.tech_level << " and takes the name: " << civ.name << "\n";
-                civ.name = lua_str_func( civ_name_func, rng.roll_dice(1, 1000) ) + std::string(" of the ") + civ.origin;
-                civ_f = civ2_f;
-                species_f = get_species_def(civ_f.species_tag);
-                civ.glyph = species_f.worldgen_glyph;
+                civ.techLevel++;
+                int roll = rng.Next(1, civF.evolvesInto.Count)-1;
+                civ.speciesTag = civF.evolvesInto[roll];
+                Civilization civ2F = getCivilizationDef(civ.speciesTag);
+                civF = civ2F;
+                speciesF = getSpeciesDef(civF.speciesTag);
+                civ.glyph = speciesF.worldgenGlyph;
             }
 
             // Consider new units
-            const auto unit_cap = static_cast<int>(towns.size()) + civ.tech_level + 1;
+            int unitCap = towns.Count + civ.techLevel + 1;
             //std::cout << "Unit count: " << unit_count << ", cap " << unit_cap << "\n";
-            while (bp > 5 && unit_count < unit_cap) {
-                unit_t unit;
-                unit.owner_civ = id;
-                //std::cout << "(Civ " << id << "), " << planet.civs.civs[id].species_tag << "\n";
-                unit.unit_type = random_unit_type(*civ_f, rng);
-                unit.world_x = civ.startx;
-                unit.world_y = civ.starty;
-                planet.civs.units.push_back(unit);
+            while (bp > 5 && unitCount < unitCap) 
+            {
+                Unit unit = new Unit();
+                unit.ownerCiv = id;
+                //std::cout << "(Civ " << id << "), " << World.civs.civs[id].species_tag << "\n";
+                unit.unitType = randomUnitType(ref civF, ref rng);
+                unit.worldX = civ.startX;
+                unit.worldY = civ.startY;
+                World.civs.units.Add(unit);
                 //std::cout << "Built a new " << unit.unit_type << ", for 5 bp\n";
                 bp -= 5;
-                ++unit_count;
+                unitCount++;
             }
 
             // Movement goes here
-            for (auto &unit : planet.civs.units) {
-                if (unit.owner_civ == id) {
-                    int moves = civ_f.units[unit.unit_type].speed;
+            foreach (Unit unit in World.civs.units) 
+            {
+                if (unit.ownerCiv == id) {
+                    int moves = civF.units[unit.unitType].speed;
                     while (moves > 0) {
-                        std::set<std::size_t> candidates;
-                        if (unit.world_x > 1 && planet.landblocks[planet.idx(unit.world_x - 1, unit.world_y)].type != block_type::WATER) candidates.insert(planet.idx(unit.world_x - 1, unit.world_y));
-                        if (unit.world_x < WORLD_WIDTH-2 && planet.landblocks[planet.idx(unit.world_x + 1, unit.world_y)].type != block_type::WATER) candidates.insert(planet.idx(unit.world_x + 1, unit.world_y));
-                        if (unit.world_y > 1 && planet.landblocks[planet.idx(unit.world_x, unit.world_y-1)].type != block_type::WATER) candidates.insert(planet.idx(unit.world_x, unit.world_y - 1));
-                        if (unit.world_y < WORLD_HEIGHT-2 && planet.landblocks[planet.idx(unit.world_x, unit.world_y+1)].type != block_type::WATER) candidates.insert(planet.idx(unit.world_x, unit.world_y + 1));
+                        HashSet<int> candidates = new HashSet<int>();
+                        if (unit.worldX > 1 && World.landBlocks[World.idx(unit.worldX - 1, unit.worldY)].type != (int)blockType.WATER) candidates.Add(World.idx(unit.worldX - 1, unit.worldY));
+                        if (unit.worldX < Constants.WORLD_WIDTH -2 && World.landBlocks[World.idx(unit.worldX + 1, unit.worldY)].type != (int)blockType.WATER) candidates.Add(World.idx(unit.worldX + 1, unit.worldY));
+                        if (unit.worldY > 1 && World.landBlocks[World.idx(unit.worldX, unit.worldY-1)].type != (int)blockType.WATER) candidates.Add(World.idx(unit.worldX, unit.worldY - 1));
+                        if (unit.worldY < Constants.WORLD_HEIGHT -2 && World.landBlocks[World.idx(unit.worldX, unit.worldY+1)].type != (int)blockType.WATER) candidates.Add(World.idx(unit.worldX, unit.worldY + 1));
 
-                        if (!candidates.empty()) {
-                            const int roll = rng.roll_dice(1, static_cast<int>(candidates.size()))-1;
-                            int i=0;
-                            for (auto it = candidates.begin(); it!=candidates.end(); ++it) {
+                        if (candidates.Count > 0) {
+                            int roll = rng.Next(1, candidates.Count)-1;
+                            i=0;
+                            foreach (int it in candidates) 
+                            {
                                 if (i == roll) {
-                                    const size_t pidx = *it;
-                                    unit.world_x = pidx % WORLD_WIDTH;
-                                    unit.world_y = pidx / WORLD_WIDTH;
+                                    int pidx = it;
+                                    unit.worldX = pidx % Constants.WORLD_WIDTH;
+                                    unit.worldY = pidx / Constants.WORLD_WIDTH;
                                 }
                                 ++i;
                             }
@@ -1200,129 +797,125 @@ namespace Models.WorldGen
                     }
                 }
             }
+            return civ;
         }
 
-        static void planet_build_run_year(const int year, planet_t &planet, bengine::random_number_generator &rng) noexcept {
+        private void RunYear(ref Map World, ref Random rng) {
             // All civs get a turn
-            std::size_t i=0;
-            for (auto &civ : planet.civs.civs) {
+            int i=0;
+            foreach (var civ in World.civs.civs) {
                 if (!civ.extinct) {
-                    planet_build_civ_year(year, planet, rng, civ, i);
+                    World.civs.civs[i] = BuildCivYear(ref World, ref rng, civ, i);
                 }
                 ++i;
             }
 
             // Unit combat - units in the same region but of different civs kill one another
-            //std::cout << "Considering combat\n";
 
-	        auto killed = 0;
-            for (auto y=0; y<WORLD_HEIGHT-1; ++y) {
-                for (auto x=0; x<WORLD_WIDTH-1; ++x) {
-                    const auto pidx = planet.idx(x,y);
-                    std::map<std::size_t, std::vector<std::size_t>> occupants;
-
-                    std::size_t i=0;
-                    for (auto &unit : planet.civs.units) {
-                        if (unit.world_x == x && unit.world_y == y) {
-                            occupants[unit.owner_civ].push_back(i);
+	        int killed = 0;
+            for (int y=0; y< Constants.WORLD_HEIGHT; y++) 
+            {
+                for (int x=0; x< Constants.WORLD_WIDTH; x++) 
+                {
+                    int pidx = World.idx(x,y);
+                    Dictionary<int, List<int>> occupants = new Dictionary<int, List<int>>();
+                    i=0;
+                    foreach (Unit unit in World.civs.units) {
+                        if (unit.worldX == x && unit.worldY == y) {
+                            occupants[unit.ownerCiv].Add(i);
                         }
                     }
 
-                    if (occupants.size()>1) {
+                    if (occupants.Count>1) 
+                    {
                         // Fight!
-                        std::map<std::size_t, int> strengths;
-				        for (auto &cit : occupants) {
-					        auto str = 0;
+                        Dictionary<int, int> strengths = new Dictionary<int, int>();
+				        foreach (var cit in occupants) 
+                        {
+					        int str = 0;
                             // Defense bonus
-                            if (planet.civs.region_info[pidx].owner_civ == cit.first) {
+                            if (World.civs.regionInfo[pidx].ownerCiv == cit.Key) {
                                 str += 1; // Minimal bonus for home ground
-                                for (auto &imp : planet.civs.region_info[pidx].improvements) {
-                                    if (imp == "ant_mound") str += 2;
-                                    if (imp == "ant_tunnel") str += 1;
+                                foreach (string imp in World.civs.regionInfo[pidx].improvements) {
+                                    if (imp == "antMound") str += 2;
+                                    if (imp == "antTunnel") str += 1;
                                     if (imp == "earthworks") str += 3;
                                     if (imp == "wood-pallisade") str += 5;
                                 }
                             }
 
-                            for (auto &uid : cit.second) {
-						        if (planet.civs.civs.size() < cit.first) {
-							        const std::string ut = planet.civs.units[uid].unit_type;
-							        const std::string st = planet.civs.civs[cit.first].species_tag;
-							        //std::cout << st << ":" << ut << "\n";
-							        auto civ_f = get_civ_def(st);
-							        if (civ_f != nullptr) {
-								        auto u_f = civ_f.units.find(ut);
-								        if (u_f != civ_f.units.end()) {
-									        str += u_f.second.worldgen_strength;
+                            foreach (int uid in cit.Value) 
+                            {
+						        if (World.civs.civs.Count < cit.Key) 
+                                {
+							        string ut = World.civs.units[uid].unitType;
+							        string st = World.civs.civs[cit.Key].speciesTag;
+							        Civilization civF = getCivilizationDef(st);
+							        if (civF != null) 
+                                    {
+								        if (civF.units.ContainsKey(ut)) {
+									        str += civF.units[ut].worldgenStrength;
 								        }
 							        }
 						        }
                             }
-                            strengths[cit.first] = str + rng.roll_dice(2, 6);
+                            strengths[cit.Key] = str + rng.Next(2, 6);
                         }
 
-				        auto max = 0; std::size_t winner = 0;
-				        for (auto &it : strengths) {
-                            if (it.second > max) {
-                                max = it.second;
-                                winner = it.first;
+				        int max = 0, winner = 0;
+				        foreach (var it in strengths) {
+                            if (it.Value > max) {
+                                max = it.Value;
+                                winner = it.Key;
                             }
                         }
-                        //std::cout << "Fight!\n";
 
-				        for (auto &it : occupants) {
-                            if (it.first != winner) {
-                                for (auto &uid : it.second) {
-                                    planet.civs.units[uid].dead = true;
+				        foreach (var it in occupants) {
+                            if (it.Key != winner) {
+                                foreach (var uid in it.Value) {
+                                    World.civs.units[uid].dead = true;
                                     ++killed;
                                 }
                             }
                         }
 
-                        planet.civs.region_info[pidx].owner_civ = winner;
-                    } else if (!occupants.empty()) {
-                        planet.civs.region_info[pidx].owner_civ = occupants.begin().first;
-                        if (planet.civs.region_info[pidx].settlement_size == 0) planet.civs.region_info[pidx].settlement_size = 1;
+                        World.civs.regionInfo[pidx].ownerCiv = winner;
+                    } 
+                    else if (occupants.Count > 0) 
+                    {
+                        int[] temp = new int[occupants.Count];
+                        occupants.Keys.CopyTo(temp, 0);
+                        World.civs.regionInfo[pidx].ownerCiv = temp[0];
+                        if (World.civs.regionInfo[pidx].settlementSize == 0) World.civs.regionInfo[pidx].settlementSize = 1;
                     }
                 }
             }
             //std::cout << "War has killed " << killed << " units this turn.\n";
-            planet.civs.units.erase(
-                    std::remove_if(
-                            planet.civs.units.begin(),
-                            planet.civs.units.end(),
-                            [] (unit_t &u) { return u.dead; }
-                    ), planet.civs.units.end()
-            );
+            World.civs.units.RemoveAll( u => u.dead);
 
             // Units in an unclaimed region build there and claim it
-            //std::cout << "Considering expansion\n";
-            //std::vector<unit_t> new_units;
-            for (const auto &unit : planet.civs.units) {
-                const int pidx = planet.idx(unit.world_x, unit.world_y);
-                if (planet.civs.region_info[pidx].owner_civ == 0) {
-                    planet.civs.region_info[pidx].owner_civ = unit.owner_civ;
-                    planet.civs.region_info[pidx].settlement_size = 1;
+            foreach (Unit unit in World.civs.units)
+            {
+                int pidx = World.idx(unit.worldX, unit.worldY);
+                if (World.civs.regionInfo[pidx].ownerCiv == 0) {
+                    World.civs.regionInfo[pidx].ownerCiv = unit.ownerCiv;
+                    World.civs.regionInfo[pidx].settlementSize = 1;
                 }
             }
-            /*for (const auto unit : new_units) {
-                planet.civs.units.push_back(unit);
-            }*/
 
             // Remove all extinct civilizations
-            //std::cout << "Extinctions\n";
-            std::size_t I=0;
-            for (auto &civ : planet.civs.civs) {
+            int I=0;
+            foreach (Civ civ in World.civs.civs) {
                 if (!civ.extinct) {
                     bool found = false;
-                    for (const auto &u : planet.civs.units) {
-                        if (u.owner_civ == I) found = true;
+                    foreach (Unit u in World.civs.units) {
+                        if (u.ownerCiv == I) found = true;
                     }
-                    if (!found) {
-                        //std::cout << "Removing extinct civ\n";
+                    if (!found) 
+                    {
                         civ.extinct = true;
-                        for (auto &t : planet.civs.region_info) {
-                            if (t.owner_civ == I) t.owner_civ = 0;
+                        foreach (var t in World.civs.regionInfo) {
+                            if (t.ownerCiv == I) t.ownerCiv = 0;
                         }
                     }
                 }
@@ -1330,14 +923,14 @@ namespace Models.WorldGen
             }
         }
 
-        void planet_build_initial_history(planet_t &planet, bengine::random_number_generator &rng) noexcept {
-            constexpr int STARTING_YEAR = 2425;
-            for (int year=STARTING_YEAR; year<2525; ++year) {
-                set_worldgen_status(std::string("Running year ") + std::to_string(year));
-                planet_display_update_zoomed(planet, WORLD_WIDTH/2, WORLD_HEIGHT/2);
-                planet_build_run_year(year, planet, rng);
-                planet_display_update_zoomed(planet, WORLD_WIDTH/2, WORLD_HEIGHT/2);
+        public void buildInitialHistory(ref Map World, ref Random rng)
+        {
+            int STARTING_YEAR = 2425;
+            for (int year = STARTING_YEAR; year < 2525; ++year)
+            {
+                RunYear(ref World, ref rng);
             }
+        }
     }
 
 }

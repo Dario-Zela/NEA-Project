@@ -15,13 +15,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-//using Models.WorldGen;
+using Models.WorldGen;
 
 namespace GUI
 {
     public partial class MainWindow : Window
     {
-        //private WorldCreator creator;
+        private WorldCreator creator;
 
         public MainWindow()
         {
@@ -29,99 +29,105 @@ namespace GUI
             Set();
         }
 
-        unsafe private void CreateImage(byte[] imageData, int Height, int Width)
+        private void CreateImage(byte[] imageData, int Height, int Width)
         {
-            fixed (byte* ptr = imageData)
-            {
-                Bitmap image = new Bitmap(Width, Height, Width * 4, System.Drawing.Imaging.PixelFormat.Format32bppArgb, new IntPtr(ptr));
-                var hBitmap = image.GetHbitmap();
-                BitmapSource bitSrc = null;
-                bitSrc = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(hBitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                Image.Source = bitSrc;
-                image.Dispose();
-            }
-        }
-
-        private void CreateImage2(byte[] imageData, int Height, int Width)
-        {
-            WriteableBitmap bitmap = new WriteableBitmap(Width, Height, 96.8, 96.8, PixelFormats.Rgb48, null);
+            WriteableBitmap bitmap = new WriteableBitmap(Width, Height, 96.8, 96.8, PixelFormats.Bgra32, null);
             bitmap.WritePixels(new Int32Rect(0, 0, Width / 2, Height / 2), imageData, 4 * Width, 0);
             Image.Source = bitmap;
         }
 
-        static byte[] PlotPixel(int x, int y, byte[] _imageBuffer, float[,] initial, int Width)
+        static byte[] PlotPixel(int x, int y, byte[] _imageBuffer, Map World, int Width)
         {
             int offset = ((Width * 4) * y) + (x * 4);
+            byte B = 0;
+            byte G = 0;
+            byte R = 0;
 
-            _imageBuffer[offset] = initial[x, y] < 0.1 ? (byte)255 : initial[x, y] < 0.3 ? (byte)0 : initial[x, y] < 0.65 ? (byte)0 : initial[x, y] < 0.8 ? (byte)15 : (byte)255;
-            _imageBuffer[offset + 1] = initial[x, y] < 0.1 ? (byte)0 : initial[x, y] < 0.3 ? (byte)255 : initial[x, y] < 0.65 ? (byte)(255 - (int)((initial[x, y] * 100) / 0.35)) : initial[x, y] < 0.8 ? (byte)74 : (byte)255; ;
-            _imageBuffer[offset + 2] = initial[x, y] < 0.1 ? (byte)0 : initial[x, y] < 0.3 ? (byte)255 : initial[x, y] < 0.65 ? (byte)0 : initial[x, y] < 0.8 ? (byte)140 : (byte)255; ;
+            switch (World.landBlocks[World.idx(x, y)].type)
+            {
+                case 1: R = 0;
+                    G = 0;
+                    B = 255;
+                    break;
+                case 2: R = 0;
+                    G = 255;
+                    B = 0;
+                    break;
+                case 3: R = 100;
+                    G = 255;
+                    B = 0;
+                    break;
+                case 4: R = 255;
+                    G = 255;
+                    B = 0;
+                    break;
+                case 5: R = 0;
+                    G = 255;
+                    B = 255;
+                    break;
+                case 6: R = 100;
+                    G = 255;
+                    B = 100;
+                    break;
+                case 7: R = 100;
+                    G = 100;
+                    B = 0;
+                    break;
+                case 8: R = 255;
+                    G = 255;
+                    B = 255;
+                    break;
+                case 9: R = 0;
+                    G = 0;
+                    B = 0;
+                    break;
+            }
+
+            _imageBuffer[offset] = B;
+            _imageBuffer[offset + 1] = G;
+            _imageBuffer[offset + 2] = R;
             // Fixed alpha value (No transparency)
             _imageBuffer[offset + 3] = 255;
 
             return _imageBuffer;
         }
 
-        public void Set(int seed1 = 9182, int seed2 = 2198, int seed3 = 2982)
+        public void Set(int seed1 = 9182)
         {
-            //int mapWidth = 700;
-            //int mapDepth = 700;
-            /*
-            creator = new WorldCreator(mapDepth, mapWidth, seed1, seed2, seed3);
+            int mapWidth = 700;
+            int mapDepth = 700;
+            creator = new WorldCreator(seed1);
             byte[] world = new byte[mapDepth * mapWidth * 4];
             for (int i = 0; i < mapWidth; i++)
             {
                 for (int j = 0; j < mapDepth; j++)
                 {
-                    int offset = ((mapWidth * 4) * j) + (i * 4);
-                    world[offset] = creator.biomeMap[i, j].blue;
-                    world[offset + 1] = creator.biomeMap[i, j].green;
-                    world[offset + 2] = creator.biomeMap[i, j].red;
-                    world[offset + 3] = creator.biomeMap[i, j].alpha;
+                    PlotPixel(i, j, world, creator.World, 120);
                 }
             }
-            CreateImage(world, mapDepth, mapWidth);
-            */
-        }
-
-        private void SliderValue(object sender, RoutedEventArgs e)
-        {
-            Set(new Random().Next(int.MinValue, int.MaxValue), new Random().Next(int.MinValue, int.MaxValue), new Random().Next(int.MinValue, int.MaxValue));
+            CreateImage(world, 120, 120);
+            Image.Stretch = Stretch.Uniform;
         }
 
         private void Image_Click(object sender, RoutedEventArgs e)
         {
-            /*
             var pos = Mouse.GetPosition(Image);
-            char[] temp = creator.biomeMap[(int)pos.X, (int)pos.Y].Id;
-            string Id = "";
-            foreach (var item in temp)
-            {
-                Id += item;
-            }
+            int temp = creator.World.landBlocks[creator.World.idx((int)pos.X / (700/120), (int)pos.Y / (700 / 120))].type;
             string Biome;
-            switch (Id)
+            switch (temp)
             {
-                case "10": Biome = "Sea"; break;
-                case "11": Biome = "Frozen Sea"; break;
-                case "20": Biome = "Beach"; break;
-                case "21": Biome = "Frozen Beach"; break;
-                case "30": Biome = "Plains"; break;
-                case "31": Biome = "Taiga"; break;
-                case "32": Biome = "Tundra"; break;
-                case "33": Biome = "Forest"; break;
-                case "40": Biome = "Hills"; break;
-                case "41": Biome = "Frozen Hills"; break;
-                case "42": Biome = "Tundra Hills"; break;
-                case "43": Biome = "Forest Hills"; break;
-                case "50": Biome = "Mountain"; break;
-                case "51": Biome = "Forest Mountain"; break;
-                case "60": Biome = "Peak"; break;
-                case "61": Biome = "Snowy Peak"; break;
+                case 1: Biome = "WATER"; break;
+                case 2: Biome = "PLAINS"; break;
+                case 3: Biome = "HILLS"; break;
+                case 4: Biome = "MOUNTAINS"; break;
+                case 5: Biome = "MARSH"; break;
+                case 6: Biome = "PLATEAU"; break;
+                case 7: Biome = "HIGHLANDS"; break;
+                case 8: Biome = "COASTAL"; break;
+                case 9: Biome = "SALT_MARSH"; break;
                 default: Biome = null; break;
             }
             Console.WriteLine(Biome);
-            */
         }
     }
 }

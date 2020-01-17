@@ -32,19 +32,20 @@
                 "range": 1
               }
             ],
-            "equipment": [
+            "equipment": 
               {
-                "startingClothes": {
-                  "Item1": 0,
-                  "Item2": "new",
-                  "Item3": "cloth"
-                },
+                "startingClothes": [
+                  {
+                    "Item1": 0,
+                    "Item2": "new",
+                    "Item3": "cloth"
+                  }
+                ],
                 "melee": "none",
                 "ranged": "none",
-                "ammo": "mount",
+                "ammo": "none",
                 "mount": "none"
               }
-            ]
           }
         ],
         "worldgenStrength": 10

@@ -277,18 +277,20 @@ namespace Models.WorldGen
 
         public void startMap(ref Map World)
         {
-            World.landBlocks.Capacity = Constants.WORLD_TILES_COUNT;
-            World.landBlocks.ForEach(block => block = new Block());
+            for (int i = 0; i < Constants.WORLD_TILES_COUNT; i++)
+            {
+                World.landBlocks.Add(new Block());
+            }
             World.migrantCounter = 0;
             World.remainingSettlers = 200;
             World.civs.regionInfo.Capacity = Constants.WORLD_TILES_COUNT;
             World.civs.regionInfo.ForEach(info => info = null);
         }
 
-        public PerlinNoise noiseMap(ref Map World, int seed, int octaves, float persistence, int lucanarity)
+        public PerlinNoise noiseMap(ref Map World, int seed, int octaves, float persistence, float lacunarity)
         {
             const int REGION_FRACTION_TO_CONSIDER = 64;
-            PerlinNoise noise = new PerlinNoise(octaves, persistence, lucanarity, seed);
+            PerlinNoise noise = new PerlinNoise(octaves, persistence, lacunarity, seed);
             const float maxTemperature = 56.7f;
             const float minTemperature = -55.2f;
             const float temperatureRange = maxTemperature - minTemperature;
@@ -739,7 +741,7 @@ namespace Models.WorldGen
 
     public class regionInfo
     {
-        public int ownerCiv = 0, blightLevel = 0, settelmentSize = 0;
+        public int ownerCiv = 0, blightLevel = 0, settlementSize = 0;
         public List<string> improvements = new List<string>();
     }
 
@@ -811,15 +813,31 @@ namespace Models.WorldGen
 
     public class WorldCreator
     {
-        private const float scale = 80f;
         private const float Persistance = 0.5f;
         private const float Lacunarity = 2f;
         private const int Octaves = 5;
         //public GetBiome biomeMap;
+        public Map World;
 
-        public WorldCreator(int Height, int Width, int seedHeight, int seedTemp, int seedHumid)
+        public WorldCreator(int seed)
         {
             MapGen gen = new MapGen();
+            BiomeMap biomes = new BiomeMap();
+            RiverBuilder rivers = new RiverBuilder();
+            HistoryMaker history = new HistoryMaker();
+            World = new Map();
+            Random rng = new Random(seed);
+
+            gen.startMap(ref World);
+            gen.noiseMap(ref World, seed, Octaves, Persistance, Lacunarity);
+            gen.baseTypeAllocation(ref World);
+            gen.markCoastlines(ref World);
+            gen.createRainfall(ref World);
+
+            biomes.buildBiomes(ref World, ref rng);
+            //rivers.buildRivers(ref World, ref rng);
+            //history.buildInitialCivs(ref World, ref rng);
+            //history.buildInitialHistory(ref World, ref rng);
             /*
             float[,] heightMap = gen.GenerateNoiseMap(Height, Width, scale, seedHeight, Octaves, Persistance, Lacunarity);
             float[,] tempMap = gen.GenerateNoiseMap(Height, Width, scale, seedTemp, Octaves, Persistance, Lacunarity - 1);
