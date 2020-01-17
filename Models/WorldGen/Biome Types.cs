@@ -1016,68 +1016,51 @@ namespace Models.WorldGen
                 civ.startY = wy;
 
                 // Name generation
-                string civFinder = getCivilizationDef(civ.speciesTag);
-                string civNameFunc = "civNameGen" + civFinder.nameGenerator;
-                string civLeaderFunc = "leaderNameGen" + civFinder.nameGenerator;
-                civ.name = lua_str_func(civ_name_func, rng.roll_dice(1,1000)) + std::string (" of the ") + loc_name;
-            if (str_contains(civ.name, "{LASTNAME}")) {
-                civ.name = str_replace(civ.name, "{LASTNAME}", string_table(LAST_NAMES)->random_entry(rng));
-        }
-        civ.leader_name = lua_str_func(civ_leader_func, rng.roll_dice(1,1000));
-            if (str_contains(civ.leader_name, "{LASTNAME}")) {
-                civ.leader_name = str_replace(civ.leader_name, "{LASTNAME}", to_proper_noun_case(string_table(LAST_NAMES)->random_entry(rng)));
-            }
-            if (str_contains(civ.leader_name, "{FIRSTNAME_M}")) {
-                civ.leader_name = str_replace(civ.leader_name, "{FIRSTNAME_M}", to_proper_noun_case(string_table(FIRST_NAMES_MALE)->random_entry(rng)));
-            }
-            if (str_contains(civ.leader_name, "{FIRSTNAME_F}")) {
-                civ.leader_name = str_replace(civ.leader_name, "{FIRSTNAME_F}", to_proper_noun_case(string_table(FIRST_NAMES_FEMALE)->random_entry(rng)));
-            }
-            civ.origin = loc_name;
-		    glog(log_target::GAME, log_severity::info, "Welcome: {0}, lead by {1}", civ.name, civ.leader_name);
-    civ.glyph = get_species_def(civ_finder->species_tag)->worldgen_glyph;
+                Civilization civFinder = getCivilizationDef(civ.speciesTag);
+                civ.name = "Test of the " + locName;
+                civ.leader_name = "Test Leader" + rng.Next(0,1000)
+                civ.origin = locName;
+                civ.glyph = getSpeciesDef(civFinder.speciesTag).worldgenGlyph;
 
-            // Appearance
-            if (get_species_def(civ_finder->species_tag)->render_composite) {
-                civ.skin_color = get_species_def(civ_finder->species_tag)->skin_colors[rng.roll_dice(1, static_cast<int>(get_species_def(civ_finder->species_tag)->skin_colors.size())) - 1];
-                civ.hair_color = get_species_def(civ_finder->species_tag)->hair_colors[rng.roll_dice(1, static_cast<int>(get_species_def(civ_finder->species_tag)->hair_colors.size())) - 1];
+                // Appearance
+                if (getSpeciesDef(civFinder.speciesTag).renderComposite) {
+                    civ.skinColor = getSpeciesDef(civFinder.speciesTag).skinColor[rng.Next(1, getSpeciesDef(civFinder.speciesTag).skinColor.Count - 1];
+                    civ.hairColor = getSpeciesDef(civFinder.speciesTag).hairColor[rng.Next(1, getSpeciesDef(civFinder.speciesTag).hairColor.Count - 1];
 
-                civ.hair_style = BALD;
-                const int style_roll = rng.roll_dice(1, 4);
-                switch (style_roll)
-                {
-                    case 1:
-                        civ.hair_style = SHORT_HAIR;
-                        break;
-                    case 2:
-                        civ.hair_style = LONG_HAIR;
-                        break;
-                    case 3:
-                        civ.hair_style = PIGTAILS;
-                        break;
-                    case 4:
-                        civ.hair_style = TRIANGLE;
-                        break;
+                    civ.hairStyle = BALD;
+                    int styleRoll = rng.Next(1, 4);
+                    switch (styleRoll)
+                    {
+                        case 1:
+                            civ.hairStyle = SHORT_HAIR;
+                            break;
+                        case 2:
+                            civ.hairStyle = LONG_HAIR;
+                            break;
+                        case 3:
+                            civ.hairStyle = PIGTAILS;
+                            break;
+                        case 4:
+                            civ.hairStyle = TRIANGLE;
+                            break;
+                    }
                 }
+
+                World.civs.civs.Add(civ);
+
+                // Place the civilization start
+                World.civs.regionInfo[pidx].ownerCiv = i;
+                World.civs.regionInfo[pidx].blightLevel = 0;
+                World.civs.regionInfo[pidx].settlementSize = 1;
+
+                // Create an initial garrison type unit
+                unit starter;
+                starter.ownerCiv = i;
+                starter.unitType = "garrison";
+                starter.worldX = wx;
+                starter.worldY = wy;
+                World.civs.units.Add(starter);
             }
-
-            planet.civs.civs.push_back(civ);
-
-            // Place the civilization start
-            planet.civs.region_info[pidx].owner_civ = i;
-            planet.civs.region_info[pidx].blight_level = 0;
-            planet.civs.region_info[pidx].settlement_size = 1;
-
-            // Create an initial garrison type unit
-            unit_t starter;
-    starter.owner_civ = i;
-            starter.unit_type = "garrison";
-            starter.world_x = wx;
-            starter.world_y = wy;
-            planet.civs.units.push_back(starter);
-
-            planet_display_update_zoomed(planet, WORLD_WIDTH/2, WORLD_HEIGHT/2);
-        }
         }
 
     }
