@@ -6,7 +6,7 @@
     "ai": "none",
     "nameGenerator": "normal",
     "units": {
-      "TestUnit": {
+      "garrison": {
         "tag": "test2",
         "bpPerTurn": 2,
         "speed": 3,
@@ -51,7 +51,7 @@
         "worldgenStrength": 10
       }
     },
-    "evolvesInto": [ "" ],
-    "canBuild": [ "" ]
+    "evolvesInto": [  ],
+    "canBuild": [  ]
   }
 ]

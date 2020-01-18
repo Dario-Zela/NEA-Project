@@ -178,7 +178,7 @@ namespace Models.WorldGen
             x2 = Lerp(u, Grad(abb, x, y - 1, z - 1), Grad(bbb, x - 1, y - 1, z - 1));
             y2 = Lerp(v, x1, x2);
 
-            return (Lerp(w, y1, y2) + 1) / 2;
+            return (Lerp(w, y1, y2) + 1) / 2f;
         }
 
         /// <summary>
@@ -214,7 +214,6 @@ namespace Models.WorldGen
 
                 MaxValue += amplitude;
                 amplitude *= persistence;
-
                 frequency *= lacunarity;
             }
             return total / MaxValue;
@@ -231,30 +230,53 @@ namespace Models.WorldGen
     {
         public MapGen() { }
 
-        /*
+        
         #region Old
-        public float[,] GenerateNoiseMap(int mapDepth, int mapWidth, float Scale, int seed, int Octaves, float Persistance, float Lacunarity)
+        public (float[,], float[,], float[,]) GenerateNoiseMap(int mapDepth, int mapWidth, int seed, int Octaves, float Persistance, float Lacunarity, int REGION_FRACTION_TO_CONSIDER)
         {
             float[,] NoiseMap = new float[mapDepth, mapWidth];
-            PerlinNoise perlin = new PerlinNoise(seed);
+            PerlinNoise perlin = new PerlinNoise(Octaves, Persistance, Lacunarity, seed);
+            float[,] maximas = new float[mapDepth, mapWidth];
+            float[,] minimas = new float[mapDepth, mapWidth];
             float maxNoise = float.MinValue;
             float minNoise = float.MaxValue;
             for (int zIndex = 0; zIndex < mapDepth; zIndex++)
             {
                 for (int xIndex = 0; xIndex < mapWidth; xIndex++)
                 {
-                    float SampleIndexX = xIndex / Scale;
-                    float SampleIndexZ = zIndex  / Scale;
-                    float noise = perlin.OctaveNoiseGen(SampleIndexX, SampleIndexZ, Octaves, Persistance, Lacunarity);
-                    if (noise > maxNoise)
+                    float tempMax = float.MinValue;
+                    float tempMin = float.MaxValue;
+                    float noise = 0;
+                    int nTiles = 0;
+                    for (int i = 0; i < Constants.REGION_HEIGHT / REGION_FRACTION_TO_CONSIDER; i++)
                     {
-                        maxNoise = noise;
-                    }
-                    else if (noise < minNoise)
-                    {
-                        minNoise = noise;
+                        for (int j = 0; j < Constants.REGION_WIDTH / REGION_FRACTION_TO_CONSIDER; j++)
+                        {
+                            float SampleIndexX = noiseX(xIndex, i * REGION_FRACTION_TO_CONSIDER);
+                            float SampleIndexZ = noiseY(zIndex, j * REGION_FRACTION_TO_CONSIDER);
+                            nTiles++;
+                            noise += perlin.OctaveNoiseGen(SampleIndexX, SampleIndexZ);
+                            if (noise > maxNoise)
+                            {
+                                maxNoise = noise;
+                            }
+                            else if (noise < minNoise)
+                            {
+                                minNoise = noise;
+                            }
+                            if(tempMax < noise)
+                            {
+                                tempMax = noise;
+                            }
+                            else if(tempMin > noise)
+                            {
+                                tempMin = noise;
+                            }
+                        }
                     }
                     NoiseMap[xIndex, zIndex] = noise;
+                    maximas[xIndex, zIndex] = tempMax;
+                    minimas[xIndex, zIndex] = tempMin;
                 }
             }
             for (int i = 0; i < mapDepth; i++)
@@ -262,10 +284,12 @@ namespace Models.WorldGen
                 for (int j = 0; j < mapWidth; j++)
                 {
                     NoiseMap[j, i] = InverseLerp(minNoise, maxNoise, NoiseMap[j, i]);
+                    maximas[j, i] = InverseLerp(minNoise, maxNoise, maximas[j, i]);
+                    minimas[j, i] = InverseLerp(minNoise, maxNoise, minimas[j, i]);
                 }
             }
 
-            return NoiseMap;
+            return (NoiseMap, maximas, minimas);
         }
 
         private float InverseLerp(float min, float max, float value)
@@ -273,7 +297,7 @@ namespace Models.WorldGen
             return (value - min) / (max - min);
         }
         #endregion
-        */
+
 
         public void startMap(ref Map World)
         {
@@ -283,14 +307,19 @@ namespace Models.WorldGen
             }
             World.migrantCounter = 0;
             World.remainingSettlers = 200;
-            World.civs.regionInfo.Capacity = Constants.WORLD_TILES_COUNT;
-            World.civs.regionInfo.ForEach(info => info = null);
+            for (int i = 0; i < Constants.WORLD_TILES_COUNT; i++)
+            {
+                World.civs.regionInfo.Add(new regionInfo());
+            }
         }
 
-        public PerlinNoise noiseMap(ref Map World, int seed, int octaves, float persistence, float lacunarity)
+        public void noiseMap(ref Map World, int seed, int octaves, float persistence, float lacunarity)
         {
             const int REGION_FRACTION_TO_CONSIDER = 64;
-            PerlinNoise noise = new PerlinNoise(octaves, persistence, lacunarity, seed);
+            (float[,], float[,], float[,]) temp = GenerateNoiseMap(Constants.WORLD_HEIGHT, Constants.WORLD_WIDTH, seed, octaves, persistence, lacunarity, REGION_FRACTION_TO_CONSIDER);
+            float[,] noiseMap = temp.Item1;
+            float[,] maximas = temp.Item2;
+            float[,] minimas = temp.Item3;
             const float maxTemperature = 56.7f;
             const float minTemperature = -55.2f;
             const float temperatureRange = maxTemperature - minTemperature;
@@ -303,33 +332,15 @@ namespace Models.WorldGen
                 float baseTempByLatitulde = (tempRangePct * temperatureRange) + minTemperature;
                 for (int x = 0; x < Constants.WORLD_WIDTH; x++)
                 {
-                    float totalHeight = 0;
-
-                    int max = 0;
-                    int min = int.MaxValue;
-                    int nTiles = 0;
-                    for (int i = 0; i < Constants.REGION_HEIGHT / REGION_FRACTION_TO_CONSIDER; i++)
-                    {
-                        for (int j = 0; j < Constants.REGION_WIDTH / REGION_FRACTION_TO_CONSIDER; j++)
-                        {
-                            float noiseHeight = noise.OctaveNoiseGen(noiseX(x, i * REGION_FRACTION_TO_CONSIDER), noiseY(y, j * REGION_FRACTION_TO_CONSIDER));
-                            int Height = noiseToHeight(noiseHeight);
-                            if (Height < min) min = Height;
-                            if (Height > max) max = Height;
-                            totalHeight += noiseHeight;
-                            nTiles++;
-                        }
-                    }
-                    World.landBlocks[World.idx(x, y)].height = (int)(totalHeight / nTiles);
+                    World.landBlocks[World.idx(x, y)].height = noiseToHeight(noiseMap[x,y]);
                     World.landBlocks[World.idx(x, y)].type = 0;
-                    World.landBlocks[World.idx(x, y)].variance = max - min;
-                    float altitudeDeduction = (int)(World.landBlocks[World.idx(x, y)].height - World.waterHeight) / 10f;
-                    World.landBlocks[World.idx(x, y)].temperature = (int)(baseTempByLatitulde - altitudeDeduction);
+                    World.landBlocks[World.idx(x, y)].variance = noiseToHeight(maximas[x,y]) - noiseToHeight(minimas[x,y]);
+                    float altitudeDeduction = (World.landBlocks[World.idx(x, y)].height - World.waterHeight) / 10f;
+                    World.landBlocks[World.idx(x, y)].temperature = (byte)(baseTempByLatitulde - altitudeDeduction);
                     if (World.landBlocks[World.idx(x, y)].temperature < -55) World.landBlocks[World.idx(x, y)].temperature = -55;
                     if (World.landBlocks[World.idx(x, y)].temperature > 55) World.landBlocks[World.idx(x, y)].temperature = 55;
                 }
             }
-            return noise;
         }
 
         const float NOISE_SIZE = 384.0f;
@@ -337,13 +348,13 @@ namespace Models.WorldGen
         private float noiseX(int worldX, int regionX)
         {
             float bigX = (worldX * Constants.WORLD_WIDTH) + regionX;
-            return bigX / Constants.WORLD_WIDTH * Constants.REGION_WIDTH * NOISE_SIZE;
+            return bigX / (Constants.WORLD_WIDTH * Constants.REGION_WIDTH) * NOISE_SIZE;
         }
 
         private float noiseY(int worldY, int regionY)
         {
             float bigY = (worldY * Constants.WORLD_HEIGHT) + regionY;
-            return bigY / Constants.WORLD_HEIGHT * Constants.REGION_HEIGHT * NOISE_SIZE;
+            return bigY / (Constants.WORLD_HEIGHT * Constants.REGION_HEIGHT) * NOISE_SIZE;
         }
 
         private int noiseToHeight(float noiseHeight)
@@ -715,7 +726,7 @@ namespace Models.WorldGen
     {
         public readonly int year;
         public readonly string type;
-        lifeEvent(int year, string type)
+        public lifeEvent(int year, string type)
         {
             this.year = year;
             this.type = type;
@@ -797,7 +808,7 @@ namespace Models.WorldGen
         public string name = "Test World";
 
         public int rngSeed, perlinSeed, remainingSettlers, migrantCounter;
-        public int waterDivisor = 3, plainsDivisor = 3, startingSettlers = 10;
+        public int waterDivisor = 4, plainsDivisor = 3, startingSettlers = 10;
 
         public int waterHeight, plainsHeight, hillsHeight;
 
@@ -835,9 +846,9 @@ namespace Models.WorldGen
             gen.createRainfall(ref World);
 
             biomes.buildBiomes(ref World, ref rng);
-            //rivers.buildRivers(ref World, ref rng);
-            //history.buildInitialCivs(ref World, ref rng);
-            //history.buildInitialHistory(ref World, ref rng);
+            rivers.buildRivers(ref World, ref rng);
+            history.buildInitialCivs(ref World, ref rng);
+            history.buildInitialHistory(ref World, ref rng);
             /*
             float[,] heightMap = gen.GenerateNoiseMap(Height, Width, scale, seedHeight, Octaves, Persistance, Lacunarity);
             float[,] tempMap = gen.GenerateNoiseMap(Height, Width, scale, seedTemp, Octaves, Persistance, Lacunarity - 1);

@@ -22,6 +22,7 @@ namespace GUI
     public partial class MainWindow : Window
     {
         private WorldCreator creator;
+        int[] num = new int[9];
 
         public MainWindow()
         {
@@ -36,7 +37,7 @@ namespace GUI
             Image.Source = bitmap;
         }
 
-        static byte[] PlotPixel(int x, int y, byte[] _imageBuffer, Map World, int Width)
+        private byte[] PlotPixel(int x, int y, byte[] _imageBuffer, Map World, int Width)
         {
             int offset = ((Width * 4) * y) + (x * 4);
             byte B = 0;
@@ -48,38 +49,47 @@ namespace GUI
                 case 1: R = 0;
                     G = 0;
                     B = 255;
+                    num[0]++;
                     break;
                 case 2: R = 0;
                     G = 255;
                     B = 0;
+                    num[1]++;
                     break;
-                case 3: R = 100;
-                    G = 255;
+                case 3: R = 255;
+                    G = 0;
                     B = 0;
+                    num[2]++;
                     break;
                 case 4: R = 255;
                     G = 255;
                     B = 0;
+                    num[3]++;
                     break;
                 case 5: R = 0;
                     G = 255;
                     B = 255;
+                    num[4]++;
                     break;
-                case 6: R = 100;
+                case 6: R = 255;
+                    G = 0;
+                    B = 255;
+                    num[5]++;
+                    break;
+                case 7: R = 255;
                     G = 255;
-                    B = 100;
-                    break;
-                case 7: R = 100;
-                    G = 100;
-                    B = 0;
+                    B = 255;
+                    num[6]++;
                     break;
                 case 8: R = 255;
                     G = 255;
                     B = 255;
+                    num[7]++;
                     break;
                 case 9: R = 0;
                     G = 0;
                     B = 0;
+                    num[8]++;
                     break;
             }
 
@@ -98,21 +108,23 @@ namespace GUI
             int mapDepth = 700;
             creator = new WorldCreator(seed1);
             byte[] world = new byte[mapDepth * mapWidth * 4];
-            for (int i = 0; i < mapWidth; i++)
+            for (int i = 0; i < 128; i++)
             {
-                for (int j = 0; j < mapDepth; j++)
+                for (int j = 0; j < 128; j++)
                 {
-                    PlotPixel(i, j, world, creator.World, 120);
+                    PlotPixel(i, j, world, creator.World, 128);
                 }
             }
-            CreateImage(world, 120, 120);
+            CreateImage(world, 128, 128);
             Image.Stretch = Stretch.Uniform;
+            Image.Height = mapDepth;
+            Image.Width = mapWidth;
         }
 
         private void Image_Click(object sender, RoutedEventArgs e)
         {
             var pos = Mouse.GetPosition(Image);
-            int temp = creator.World.landBlocks[creator.World.idx((int)pos.X / (700/120), (int)pos.Y / (700 / 120))].type;
+            int temp = creator.World.landBlocks[creator.World.idx((int)(pos.X / (float)700) * 120, (int)(pos.Y / (float)700) * 120)].type;
             string Biome;
             switch (temp)
             {

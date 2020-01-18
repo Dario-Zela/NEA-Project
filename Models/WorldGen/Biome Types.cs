@@ -7,7 +7,6 @@ namespace Models.WorldGen
 {
     class BiomeMap
     {
-
         List<biomeType> BiomeTypes = new List<biomeType>();
 
         public BiomeMap()
@@ -186,7 +185,7 @@ namespace Models.WorldGen
                             }
                         }
                         if (biome.type == -1) biome.type = possibleTypes[possibleTypes.Count - 1].Item2;
-                        biome.name = nameBiome(ref World, ref rng, biome);
+                        biome.name = nameBiome(ref rng, biome);
                     }
                     else
                     {
@@ -228,7 +227,7 @@ namespace Models.WorldGen
             idx++;
         }
 
-        private string nameBiome(ref Map World, ref Random rng, Biome biome)
+        private string nameBiome(ref Random rng, Biome biome)
         {
 	        string name;
 
@@ -463,9 +462,9 @@ namespace Models.WorldGen
 		        while (!done) {
 			        Dictionary<int,(int, int)> candidates = new Dictionary<int,(int, int)>();
 			        if (x > 0 && !usedSteps.Contains(World.idx(x-1, y))) candidates.Add(World.landBlocks[World.idx(x-1, y)].height, (x-1, y));
-			        if (x < Constants.WORLD_WIDTH-1 && !usedSteps.Contains(World.idx(x+1, y))) candidates.Add(World.landBlocks[World.idx(x+1, y)].height, (x+1, y));
-			        if (y > 0 && !usedSteps.Contains(World.idx(x, y-1))) candidates.Add(World.landBlocks[World.idx(x, y-1)].height, (x, y-1));
-			        if (y < Constants.WORLD_HEIGHT-1 && !usedSteps.Contains(World.idx(x, y+1))) candidates.Add(World.landBlocks[World.idx(x, y+1)].height, (x, y+1));
+                    else if (x < Constants.WORLD_WIDTH-1 && !usedSteps.Contains(World.idx(x+1, y))) candidates.Add(World.landBlocks[World.idx(x+1, y)].height, (x+1, y));
+                    else if (y > 0 && !usedSteps.Contains(World.idx(x, y-1))) candidates.Add(World.landBlocks[World.idx(x, y-1)].height, (x, y-1));
+                    else if (y < Constants.WORLD_HEIGHT-1 && !usedSteps.Contains(World.idx(x, y+1))) candidates.Add(World.landBlocks[World.idx(x, y+1)].height, (x, y+1));
 			        RiverStep step = new RiverStep();
 			        if (candidates.Count == 0) {
 				        done = true;
@@ -543,7 +542,7 @@ namespace Models.WorldGen
 
         private void loadSpecies()
         {
-            StreamReader reader = new StreamReader(@"..\..\..\Models\WorldGen\WorldGenAssets\CivTypes.json");
+            StreamReader reader = new StreamReader(@"..\..\..\Models\WorldGen\WorldGenAssets\Scentients.json");
             List<rawSpecies> temp = JsonConvert.DeserializeObject<List<rawSpecies>>(reader.ReadToEnd());
             foreach (rawSpecies species in temp)
             {
@@ -803,8 +802,11 @@ namespace Models.WorldGen
         private void RunYear(ref Map World, ref Random rng) {
             // All civs get a turn
             int i=0;
-            foreach (var civ in World.civs.civs) {
-                if (!civ.extinct) {
+            for (int j = 0; j < World.civs.civs.Count; j++)
+            {
+                var civ = World.civs.civs[i];
+                if (!civ.extinct)
+                {
                     World.civs.civs[i] = BuildCivYear(ref World, ref rng, civ, i);
                 }
                 ++i;
@@ -822,7 +824,15 @@ namespace Models.WorldGen
                     i=0;
                     foreach (Unit unit in World.civs.units) {
                         if (unit.worldX == x && unit.worldY == y) {
-                            occupants[unit.ownerCiv].Add(i);
+                            if (occupants.ContainsKey(unit.ownerCiv))
+                            {
+                                occupants[unit.ownerCiv].Add(i);
+                            }
+                            else
+                            {
+                                occupants.Add(unit.ownerCiv, new List<int>());
+                                occupants[unit.ownerCiv].Add(i);
+                            }
                         }
                     }
 
@@ -926,7 +936,7 @@ namespace Models.WorldGen
         public void buildInitialHistory(ref Map World, ref Random rng)
         {
             int STARTING_YEAR = 2425;
-            for (int year = STARTING_YEAR; year < 2525; ++year)
+            for (int year = STARTING_YEAR; year < 2450; ++year)
             {
                 RunYear(ref World, ref rng);
             }

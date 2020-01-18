@@ -1,12 +1,12 @@
 [
   {
-    "tag": "TestS",
+    "tag": "TestCreatures",
     "name": "Test399",
     "maleName": "Male",
     "femaleName": "Fem",
     "collectiveName": "Xi",
     "description": "I don't know",
-    "statMods": { "none" : 0 },
+    "statMods": { "none": 0 },
     "bodyParts": [
       {
         "Item1": "body",
