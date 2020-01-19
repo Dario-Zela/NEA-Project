@@ -529,7 +529,7 @@ namespace Models.WorldGen
         public Sexuality sexuality = new Sexuality();
         public HairStyle hairStyle = new HairStyle();
         public (string, Colour) skinColour = ("", new Colour(0, 0, 0));
-        public (string, Colour) hair_color = ("", new Colour(0, 0, 0));
+        public (string, Colour) hairColor = ("", new Colour(0, 0, 0));
         public float height = 0;
         public float weight = 0;
         public bool bearded = false;
@@ -656,7 +656,7 @@ namespace Models.WorldGen
         public int hpDice = 10;
         public int hpMod = 0;
         public string gender = "male";
-        public List<civUnitNaturalAttack> natural_attacks = new List<civUnitNaturalAttack>();
+        public List<civUnitNaturalAttack> naturalAttacks = new List<civUnitNaturalAttack>();
         public civEquipment equipment = new civEquipment();
     };
 
@@ -846,9 +846,9 @@ namespace Models.WorldGen
             gen.createRainfall(ref World);
 
             biomes.buildBiomes(ref World, ref rng);
-            rivers.buildRivers(ref World, ref rng);
-            history.buildInitialCivs(ref World, ref rng);
-            history.buildInitialHistory(ref World, ref rng);
+            //rivers.buildRivers(ref World, ref rng);
+            //history.buildInitialCivs(ref World, ref rng);
+            //history.buildInitialHistory(ref World, ref rng);
             /*
             float[,] heightMap = gen.GenerateNoiseMap(Height, Width, scale, seedHeight, Octaves, Persistance, Lacunarity);
             float[,] tempMap = gen.GenerateNoiseMap(Height, Width, scale, seedTemp, Octaves, Persistance, Lacunarity - 1);

@@ -18,3 +18,4 @@ C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\GUI\obj\Debug\GUI.csproj.Gen
 C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\GUI\obj\Debug\GUI.csproj.CopyComplete
 C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\GUI\bin\Debug\Newtonsoft.Json.dll
 C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\GUI\bin\Debug\Newtonsoft.Json.xml
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\GUI\obj\Debug\Terminal.g.cs

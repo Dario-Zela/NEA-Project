@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace Models.WorldGen
 {
@@ -813,7 +814,6 @@ namespace Models.WorldGen
             }
 
             // Unit combat - units in the same region but of different civs kill one another
-
 	        int killed = 0;
             for (int y=0; y< Constants.WORLD_HEIGHT; y++) 
             {
