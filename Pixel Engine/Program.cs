@@ -5,7 +5,9 @@ using System.IO;
 using Microsoft.Win32.SafeHandles;
 using System.Collections.Generic;
 using System.Threading;
-using Microsoft.Win32;
+using System.Windows.Forms;
+using System.Drawing;
+using OpenTK.Graphics.OpenGL4;
 
 namespace Pixel_Engine
 {
@@ -73,8 +75,8 @@ namespace Pixel_Engine
         MAGENTA = new Pixel(255, 0, 255),
         DARK_MAGENTA = new Pixel(128, 0, 128),
         VERY_DARK_MAGENTA = new Pixel(64, 0, 64),
-		BLACK = new Pixel(0, 0, 0),
-		BLANK = new Pixel(0, 0, 0, 0);
+        BLACK = new Pixel(0, 0, 0),
+        BLANK = new Pixel(0, 0, 0, 0);
         #endregion
     }
 
@@ -119,28 +121,174 @@ namespace Pixel_Engine
 
     class Sprite
     {
-        public extern Sprite();
-        public extern Sprite(string sImageFile);
-        public extern Sprite(string sImageFile, ref ResourcePack pack);
-        public extern Sprite(int Width, int Height);
+        public Sprite()
+        {
+            ColData = null;
+            Width = 0;
+            Height = 0;
+        }
+        public Sprite(string sImageFile)
+        {
+            LoadFromFile(sImageFile);
+        }
+        public Sprite(string sImageFile, ref ResourcePack pack)
+        {
+            LoadFromFile(sImageFile, ref pack);
+        }
+        public Sprite(int Width, int Height)
+        {
+            if (ColData != null) ColData = null;
+            this.Width = Width;
+            this.Height = Height;
+            for (int i = 0; i < Width * Height; i++)
+                ColData[i] = new Pixel();
+        }
 
-        public extern rCode LoadFromFile(string sImageFile, ref ResourcePack pack);
-        public extern rCode LoadFromPGESprFile(string sImageFile, ref ResourcePack pack);
-        public extern rCode SaveToPGESprFile(string sImageFile);
+        public rCode LoadFromFile(string sImageFile)
+        {
+            Bitmap bitmap = new Bitmap(sImageFile);
+            if (bitmap == null) return rCode.NO_FILE;
+            Width = bitmap.Width;
+            Height = bitmap.Height;
+            ColData = new Pixel[Width * Height];
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    Color c = bitmap.GetPixel(x, y);
+                    SetPixel(x, y, new Pixel(c.R, c.G, c.B, c.A));
+                }
+            }
+            return rCode.OK;
+        }
+
+        /*
+        public rCode LoadFromPGESprFile(string sImageFile, ref ResourcePack pack)
+        {
+            if (ColData != null) ColData = null;
+            if (pack == new ResourcePack())
+            {
+                try
+                {
+                    BinaryReader reader = new BinaryReader(new FileStream(sImageFile, FileMode.Open));
+                    Width = reader.ReadInt32();
+                    Height = reader.ReadInt32();
+                    ColData = new Pixel[Width * Height];
+                    for (int i = 0; i < Width * Height; i++)
+                    {
+                        ColData[i] = new Pixel(reader.ReadInt32());
+                    }
+                    return rCode.OK;
+                }
+                catch { return rCode.FAIL; }
+            }
+            else
+            {
+                try
+                {
+                    var streamBuffer = pack.GetStreamBuffer(sImageFile);
+                    StreamReader reader = new StreamReader(streamBuffer.buffer);
+                    char[] buffer = new char[sizeof(int)];
+                    reader.Read(buffer, 0, sizeof(int));
+                    Width = int.Parse(new string(buffer));
+                    reader.Read(buffer, 0, sizeof(int));
+                    Height = int.Parse(new string(buffer));
+                    ColData = new Pixel[Width * Height];
+                    buffer = new char[Width * Height * sizeof(int)];
+                    reader.Read(buffer, 0, buffer.Length);
+                    for (int i = 0; i < Width * Height; i++)
+                    {
+                        string value = "";
+                        value += buffer[i * 4];
+                        value += buffer[i * 4 + 1];
+                        value += buffer[i * 4 + 1];
+                        value += buffer[i * 4 + 1];
+                        ColData[i] = new Pixel(int.Parse(value));
+                    }
+                    return rCode.OK;
+                }
+                catch { return rCode.FAIL; }
+            }
+        }
+        public rCode SaveToPGESprFile(string sImageFile)
+        {
+            if (ColData == null) return rCode.FAIL;
+            try
+            {
+                BinaryWriter writer = new BinaryWriter(new FileStream(sImageFile, FileMode.OpenOrCreate));
+                writer.Write(Width);
+                writer.Write(Height);
+                for (int i = 0; i < ColData.Length; i++)
+                {
+                    writer.Write(ColData[i].IntValue);
+                }
+                return rCode.OK;
+            }
+            catch { return rCode.FAIL; }
+        }
+        */
 
         public int Width;
         public int Height;
-        public enum Mode { NORMAL, PERIODIC}
+        public enum Mode { NORMAL, PERIODIC }
 
-        public extern void SetSampleMode(Sprite.Mode mode = Sprite.Mode.NORMAL);
-        public extern Pixel GetPixel(int x, int y);
-        public extern bool SetPixel(int x, int y, Pixel p);
+        public void SetSampleMode(Mode mode = Mode.NORMAL)
+        {
+            modeSample = mode;
+        }
+        public Pixel GetPixel(int x, int y)
+        {
+            if (modeSample == Mode.NORMAL)
+            {
+                if (x >= 0 && x < Width && y <= 0 && y < Height) return ColData[y * Width + x];
+                else return Pixel.BLACK;
+            }
+            else return ColData[Math.Abs(y % Height) * Width + Math.Abs(x % Width)];
+        }
+        public bool SetPixel(int x, int y, Pixel p)
+        {
+            if (x >= 0 && x < Width && y >= 0 && y < Height)
+            {
+                ColData[y * Width + x] = p;
+                return true;
+            }
+            else
+                return false;
+        }
 
-        public extern Pixel Sample(float x, float y);
-        public extern Pixel SampleBL(float u, float v);
-        public extern Pixel GetData();
+        public Pixel Sample(float x, float y)
+        {
+            int sx = (int)Math.Min(x * Width, Width - 1);
+            int sy = (int)Math.Min(y * (float)Height, Height - 1);
+            return GetPixel(sx, sy);
+        }
+        public Pixel SampleBL(float u, float v)
+        {
+            u = u * Width - 0.5f;
+            v = v * Height - 0.5f;
+            int x = (int)Math.Floor(u);
+            int y = (int)Math.Floor(v); 
+            float uRatio = u - x;
+            float vRatio = v - y;
+            float uOpposite = 1 - uRatio;
+            float vOpposite = 1 - vRatio;
 
-        private Pixel ColData = Pixel.BLANK;
+            Pixel p1 = GetPixel(Math.Max(x, 0), Math.Max(y, 0));
+            Pixel p2 = GetPixel(Math.Min(x + 1, Width - 1), Math.Max(y, 0));
+            Pixel p3 = GetPixel(Math.Max(x, 0), Math.Min(y + 1, Height - 1));
+            Pixel p4 = GetPixel(Math.Min(x + 1, Width - 1), Math.Min(y + 1, Height - 1));
+
+            return new Pixel(
+                (byte)((p1.R * uOpposite + p2.R * uRatio) * vOpposite + (p3.R * uOpposite + p4.R * uRatio) * vRatio),
+                (byte)((p1.G * uOpposite + p2.G * uRatio) * vOpposite + (p3.G * uOpposite + p4.G * uRatio) * vRatio),
+                (byte)((p1.B * uOpposite + p2.B * uRatio) * vOpposite + (p3.B * uOpposite + p4.B * uRatio) * vRatio));
+        }
+        public Pixel[] GetData()
+        {
+            return ColData;
+        }
+
+        private Pixel[] ColData = null;
         private Mode modeSample = Mode.NORMAL;
     }
 
@@ -235,14 +383,14 @@ namespace Pixel_Engine
         Sprite fontSprite = null;
         Func<int, int, Pixel, Pixel, Pixel> funcPixelMode;
 
-		static Dictionary<int, byte> mapKeys;
+        static Dictionary<int, byte> mapKeys;
         bool[] pKeyNewState = new bool[256];
         bool[] pKeyOldState = new bool[256];
         HWButton[] pKeyboardState = new HWButton[256];
 
         bool[] pMouseNewState = new bool[5];
-		bool[] pMouseOldState = new bool[5];
-		HWButton[] pMouseState = new HWButton[5];
+        bool[] pMouseOldState = new bool[5];
+        HWButton[] pMouseState = new HWButton[5];
 
         bool bAtomActivate;
 
@@ -254,13 +402,48 @@ namespace Pixel_Engine
         void ConstructFontSheet();
 
 
+        IntPtr glDeviceContext = new IntPtr();
+        IntPtr glRenderContext = new IntPtr();
+
+        UInt32 glBuffer;
+
+        bool bActive;
+
+        void UpdateMouse(int x, int y);
+        void UpdateMouseWheel(int delta);
+        void UpdateWindowSize(int x, int y);
+        void UpdateViewport();
+        bool OpenGLCreate();
+        void ConstructFontSheet();
+
         private void EngineThread();
-        IntPtr hWnd = IntPtr.Zero;
+        IntPtr hWnd = new IntPtr()
         IntPtr WindowCreate();
         string AppName;
 
-        protected override void WndProc(ref Mess);
+        protected override void WndProc(ref Message message);
 
-        
+        internal class PGEX
+        {
+            static Engine pge;
+        }
+    }
+}
+
+
+namespace Pixel_Engine
+{
+    static class Program
+    {
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Form1());
+        }
     }
 }

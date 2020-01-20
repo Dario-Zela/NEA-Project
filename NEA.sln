@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Models", "Models\Models.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleUI", "ConsoleUI\ConsoleUI.csproj", "{6ED6A19D-C5E2-4D4B-8C7A-4833E32832E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel Engine", "Pixel Engine\Pixel Engine.csproj", "{4F465A6B-310B-4B55-804B-355DB513FDF0}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PixelEngineC++", "PixelEngineC++\PixelEngineC++.vcxproj", "{74A4BABE-ED75-4813-99D1-97DAF3B32001}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel Engine", "Pixel Engine\Pixel Engine.csproj", "{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,18 +45,6 @@ Global
 		{6ED6A19D-C5E2-4D4B-8C7A-4833E32832E2}.Release|x64.Build.0 = Release|Any CPU
 		{6ED6A19D-C5E2-4D4B-8C7A-4833E32832E2}.Release|x86.ActiveCfg = Release|Any CPU
 		{6ED6A19D-C5E2-4D4B-8C7A-4833E32832E2}.Release|x86.Build.0 = Release|Any CPU
-		{4F465A6B-310B-4B55-804B-355DB513FDF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4F465A6B-310B-4B55-804B-355DB513FDF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4F465A6B-310B-4B55-804B-355DB513FDF0}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{4F465A6B-310B-4B55-804B-355DB513FDF0}.Debug|x64.Build.0 = Debug|Any CPU
-		{4F465A6B-310B-4B55-804B-355DB513FDF0}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{4F465A6B-310B-4B55-804B-355DB513FDF0}.Debug|x86.Build.0 = Debug|Any CPU
-		{4F465A6B-310B-4B55-804B-355DB513FDF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4F465A6B-310B-4B55-804B-355DB513FDF0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4F465A6B-310B-4B55-804B-355DB513FDF0}.Release|x64.ActiveCfg = Release|Any CPU
-		{4F465A6B-310B-4B55-804B-355DB513FDF0}.Release|x64.Build.0 = Release|Any CPU
-		{4F465A6B-310B-4B55-804B-355DB513FDF0}.Release|x86.ActiveCfg = Release|Any CPU
-		{4F465A6B-310B-4B55-804B-355DB513FDF0}.Release|x86.Build.0 = Release|Any CPU
 		{74A4BABE-ED75-4813-99D1-97DAF3B32001}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{74A4BABE-ED75-4813-99D1-97DAF3B32001}.Debug|x64.ActiveCfg = Debug|x64
 		{74A4BABE-ED75-4813-99D1-97DAF3B32001}.Debug|x64.Build.0 = Debug|x64
@@ -67,6 +55,18 @@ Global
 		{74A4BABE-ED75-4813-99D1-97DAF3B32001}.Release|x64.Build.0 = Release|x64
 		{74A4BABE-ED75-4813-99D1-97DAF3B32001}.Release|x86.ActiveCfg = Release|Win32
 		{74A4BABE-ED75-4813-99D1-97DAF3B32001}.Release|x86.Build.0 = Release|Win32
+		{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}.Debug|x64.Build.0 = Debug|Any CPU
+		{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}.Debug|x86.Build.0 = Debug|Any CPU
+		{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}.Release|x64.ActiveCfg = Release|Any CPU
+		{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}.Release|x64.Build.0 = Release|Any CPU
+		{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}.Release|x86.ActiveCfg = Release|Any CPU
+		{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
