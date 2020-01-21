@@ -423,10 +423,25 @@ namespace Pixel_Engine
 
             AppName = sAppName;
             ConstructFontSheet();
-
-
+            pDefaultDrawTarget = new Sprite(nScreenWidth, nScreenHeight);
+            SetDrawTarget(ref pDefaultDrawTarget);
+            return rCode.OK;
         }
-        public extern rCode Start();
+        public rCode Start()
+        {
+            try
+            {
+                WindowCreate();
+                bAtomActivate = true;
+                Thread thread = new Thread(EngineThread);
+                Message message = new Message();
+                while (Message.Create())
+                {
+                    
+                }
+            }
+            catch { return rCode.FAIL; }
+        }
 
         public virtual bool OnUserCreate();
         public virtual bool OnUserDestroy();
@@ -464,7 +479,18 @@ namespace Pixel_Engine
         public void DrawPartialSprite(int x, int y, ref Sprite sprite, int ox, int oy, int w, int h, uint scale = 1);
         public void DrawString(int x, int y, string sText, Pixel col, uint scale = 1);
         public void Clear(Pixel p);
-        public void SetScreenSize(int w, int h);
+        public void SetScreenSize(int w, int h)
+        {
+            pDefaultDrawTarget = null;
+            nScreenWidth = w;
+            nScreenHeight = h;
+            pDefaultDrawTarget = new Sprite(nScreenWidth, nScreenHeight);
+            SetDrawTarget(ref pDefaultDrawTarget);
+            glClear(GL_COLOR_BUFFER_BIT);
+            SwapBuffers(glDeviceContext);
+            glClear(GL_COLOR_BUFFER_BIT);
+            UpdateViewport();
+        }
 
         public string sAppName;
 
@@ -525,21 +551,10 @@ namespace Pixel_Engine
 
         UInt32 glBuffer;
 
-        bool bActive;
-
-        void UpdateMouse(int x, int y);
-        void UpdateMouseWheel(int delta);
-        void UpdateWindowSize(int x, int y);
-        void UpdateViewport();
-        bool OpenGLCreate();
-        void ConstructFontSheet();
-
         private void EngineThread();
-        IntPtr hWnd = new IntPtr();
+        IntPtr HWnd = new IntPtr();
         IntPtr WindowCreate();
         string AppName;
-
-        protected override void WndProc(ref Message message);
 
         internal class PGEX
         {
