@@ -1,14 +1,31 @@
 ﻿using System;
 using System.Linq;
 using Models.WorldGen;
-using Console = Colorful.Console;
-using Color = System.Drawing.Color;
-using Colorful;
+using Pixel_Engine;
 
 namespace UI
 {
-    class Program
+    class Program : Engine
     {
+        public Program()
+        {
+            sAppName = "Example";
+        }
+
+        public override bool onUserUpdate(float fElapsedTime)
+        {
+            Random random = new Random();
+            for (int i = 0; i < ScreenWidth(); i++)
+            {
+                for (int j = 0; j < ScreenHeght(); j++)
+                {
+                    Draw(i, j, new Pixel(random.Next(0, int.MaxValue)));
+                }
+            }
+            return true;
+        }
+
+        /*
         static void Main()
         {
             Console.Title = "UI";
@@ -59,6 +76,19 @@ namespace UI
             }
             Console.Write(output);
             Console.Read();
+        }
+        */
+    }
+
+    class Test
+    {
+        static void Main()
+        {
+            Program demo = new Program();
+            if((int)demo.Construct(256, 240, 4,4) == 1)
+            {
+                demo.Start();
+            }
         }
     }
 }

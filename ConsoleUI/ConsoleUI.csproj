@@ -33,9 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Colorful.Console, Version=1.2.10.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Colorful.Console.1.2.10\lib\net461\Colorful.Console.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -61,6 +58,10 @@
     <ProjectReference Include="..\Models\Models.csproj">
       <Project>{1a0eea7a-2c42-4c2c-bd9d-bc96a8c8e935}</Project>
       <Name>Models</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Pixel Engine\Pixel Engine.csproj">
+      <Project>{e32d3e7d-535d-447c-8cb5-d9858d3c34d9}</Project>
+      <Name>Pixel Engine</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
