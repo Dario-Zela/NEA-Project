@@ -99,24 +99,115 @@ namespace Pixel_Engine
         public ResourcePack() { }
         public class sEntry
         {
-            public int nID = 0, nFileOffset = 0;
-            public IntPtr data = new IntPtr();
+            public int nID = 0, nFileOffset = 0, nFileSize = 0;
+            public byte[] data = null;
             public BufferedStream buffer;
 
 
             public void config()
             {
-                buffer = new BufferedStream(new FileStream(new SafeFileHandle(data, true), FileAccess.Read));
+                buffer = new BufferedStream(new MemoryStream(data, nFileOffset, nFileSize));
             }
         }
 
-        public extern rCode AddToPack(string sFile);
-        public extern rCode SavePack(string sFile);
-        public extern rCode LoadPack(string sFile);
-        public extern rCode ClearPack(string sFile);
-        public extern sEntry GetStreamBuffer(string sFile);
+        public rCode AddToPack(string sFile)
+        {
+            try
+            {
+                BinaryReader reader = new BinaryReader(new FileStream(sFile, FileMode.Open));
+                sEntry entry = new sEntry();
+                int size = (int)reader.BaseStream.Length;
+                entry.nFileSize = size;
+                entry.data = new byte[entry.nFileSize];
+                reader.Read(entry.data, 0, size);
+                mapFiles.Add(sFile, entry);
+                reader.Close();
+                return rCode.OK;
+            }
+            catch { return rCode.FAIL; }
+        }
+        public rCode SavePack(string sFile)
+        {
+            try
+            {
+                BinaryWriter writer = new BinaryWriter(new FileStream(sFile, FileMode.OpenOrCreate));
+                int MapSize = mapFiles.Count;
+                writer.Write(MapSize);
+                foreach (var entry in mapFiles)
+                {
+                    int PathSize = entry.Key.Length;
+                    writer.Write(PathSize);
+                    writer.Write(entry.Key);
+                    writer.Write(entry.Value.nID);
+                    writer.Write(entry.Value.nFileSize);
+                    writer.Write(entry.Value.nFileOffset);
+                }
+                int offset = (int)writer.BaseStream.Position;
+                foreach (var entry in mapFiles)
+                {
+                    entry.Value.nFileOffset = offset;
+                    writer.Write(entry.Value.data);
+                    offset += entry.Value.nFileSize;
+                }
+                writer.BaseStream.Position = 0;
+                foreach (var entry in mapFiles)
+                {
+                    int PathSize = entry.Key.Length;
+                    writer.Write(PathSize);
+                    writer.Write(entry.Key);
+                    writer.Write(entry.Value.nID);
+                    writer.Write(entry.Value.nFileSize);
+                    writer.Write(entry.Value.nFileOffset);
+                }
+                writer.Close();
+                return rCode.OK;
+            }
+            catch { return rCode.FAIL; }
+        }
+        public rCode LoadPack(string sFile)
+        {
+            try
+            {
+                BinaryReader reader = new BinaryReader(new FileStream(sFile, FileMode.Open));
+                int MapEntries = reader.ReadInt32();
+                for (int i = 0; i < MapEntries; i++)
+                {
+                    int PathSize = reader.ReadInt32();
+                    string FileName = "";
+                    for (int j = 0; j < PathSize; j++)
+                    {
+                        FileName += reader.ReadChar();
+                    }
+                    sEntry entry = new sEntry();
+                    entry.nID = reader.ReadInt32();
+                    entry.nFileSize = reader.ReadInt32();
+                    entry.nFileOffset = reader.ReadInt32();
+                    mapFiles.Add(FileName, entry);
+                }
 
-        private Dictionary<string, sEntry> mapFiles;
+                foreach (var entry in mapFiles)
+                {
+                    entry.Value.data = new byte[entry.Value.nFileSize];
+                    reader.BaseStream.Position = entry.Value.nFileOffset;
+                    reader.Read(entry.Value.data, 0, entry.Value.nFileSize);
+                }
+
+                reader.Close();
+                return rCode.OK;
+            }
+            catch { return rCode.FAIL; }
+        }
+        public rCode ClearPack()
+        {
+            mapFiles.Clear();
+            return rCode.OK;
+        }
+        public sEntry GetStreamBuffer(string sFile)
+        {
+            return mapFiles[sFile];
+        }
+
+        private Dictionary<string, sEntry> mapFiles = new Dictionary<string,sEntry>();
     }
 
     class Sprite
@@ -133,7 +224,7 @@ namespace Pixel_Engine
         }
         public Sprite(string sImageFile, ref ResourcePack pack)
         {
-            LoadFromFile(sImageFile, ref pack);
+            LoadFromFile(sImageFile);
         }
         public Sprite(int Width, int Height)
         {
@@ -159,6 +250,7 @@ namespace Pixel_Engine
                     SetPixel(x, y, new Pixel(c.R, c.G, c.B, c.A));
                 }
             }
+            bitmap.Dispose();
             return rCode.OK;
         }
 
@@ -178,6 +270,7 @@ namespace Pixel_Engine
                     {
                         ColData[i] = new Pixel(reader.ReadInt32());
                     }
+                    reader.Close()
                     return rCode.OK;
                 }
                 catch { return rCode.FAIL; }
@@ -205,6 +298,7 @@ namespace Pixel_Engine
                         value += buffer[i * 4 + 1];
                         ColData[i] = new Pixel(int.Parse(value));
                     }
+                    reader.Close()
                     return rCode.OK;
                 }
                 catch { return rCode.FAIL; }
@@ -222,6 +316,7 @@ namespace Pixel_Engine
                 {
                     writer.Write(ColData[i].IntValue);
                 }
+                reader.Close()
                 return rCode.OK;
             }
             catch { return rCode.FAIL; }
@@ -307,7 +402,30 @@ namespace Pixel_Engine
 
     public virtual class Engine
     {
-        public extern rCode Construct(int screen_w, int screen_h, int pixel_w, int pixel_h, bool full_screen = false, bool vsync = false);
+        public Engine()
+        {
+            sAppName = "Undefined";
+            PGEX.pge = this;
+        }
+
+        public rCode Construct(int screenW, int screenH, int pixelW, int pixelH, bool fullScreen = false, bool vSync = false)
+        {
+            nScreenWidth = screenW;
+            nScreenHeight = screenH;
+            nPixelWidth = pixelW;
+            nPixelHeight = pixelH;
+            bFullScreen = fullScreen;
+            bEnableVSYNC = vSync;
+
+            fPixelX = 2.0f / (float)nScreenWidth;
+            fPixelY = 2.0f / (float)nScreenHeight;
+            if (nPixelWidth == 0 || nPixelHeight == 0 || nScreenWidth == 0 || nScreenHeight == 0) return rCode.FAIL;
+
+            AppName = sAppName;
+            ConstructFontSheet();
+
+
+        }
         public extern rCode Start();
 
         public virtual bool OnUserCreate();
@@ -317,7 +435,7 @@ namespace Pixel_Engine
         public bool IsFocused();
         public HWButton GetKey(Key k);
         public HWButton GetMouse(int b);
-        public public int GetMouseX();
+        public int GetMouseX();
         public int GetMouseY();
         public int GetMouseWheel();
 
@@ -354,10 +472,10 @@ namespace Pixel_Engine
         Sprite pDrawTarget = null;
         Pixel.Mode nPixelMode = Pixel.Mode.NORMAL;
         float fBlendFactor = 1.0f;
-        uint nScreenWidth = 256;
-        uint nScreenHeight = 240;
-        uint nPixelWidth = 4;
-        uint nPixelHeight = 4;
+        int nScreenWidth = 256;
+        int nScreenHeight = 240;
+        int nPixelWidth = 4;
+        int nPixelHeight = 4;
         int nMousePosX = 0;
         int nMousePosY = 0;
         int nMouseWheelDelta = 0;
@@ -417,7 +535,7 @@ namespace Pixel_Engine
         void ConstructFontSheet();
 
         private void EngineThread();
-        IntPtr hWnd = new IntPtr()
+        IntPtr hWnd = new IntPtr();
         IntPtr WindowCreate();
         string AppName;
 
@@ -425,7 +543,7 @@ namespace Pixel_Engine
 
         internal class PGEX
         {
-            static Engine pge;
+            public static Engine pge;
         }
     }
 }
