@@ -1,4 +1,6 @@
-﻿namespace Pixel_Engine
+﻿using OpenTK;
+
+namespace Pixel_Engine
 {
     partial class Form1
     {
@@ -28,12 +30,22 @@
         /// </summary>
         private void InitializeComponent()
         {
+            Control.Name = "GLControl";
+            Control.Visible = true;
+            Control.MakeCurrent();
+            this.Controls.Add(Control);
             this.components = new System.ComponentModel.Container();
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Text = "Form1";
         }
 
+        public GLControl GetGLControl()
+        {
+            return Control;
+        }
+
+        GLControl Control = new GLControl();
         #endregion
     }
 }

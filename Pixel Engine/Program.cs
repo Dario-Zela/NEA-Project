@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Numerics;
 using System.IO;
 using System.Collections.Generic;
-using System.Threading;
+using System.ComponentModel;
 using System.Windows.Forms;
 using System.Drawing;
 using OpenTK.Graphics.OpenGL;
+using System.Diagnostics;
 
 namespace Pixel_Engine
 {
@@ -76,6 +76,23 @@ namespace Pixel_Engine
         VERY_DARK_MAGENTA = new Pixel(64, 0, 64),
         BLACK = new Pixel(0, 0, 0),
         BLANK = new Pixel(0, 0, 0, 0);
+
+        public override bool Equals(object obj)
+        {
+            return obj is Pixel pixel &&
+                   IntValue == pixel.IntValue;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 166155883;
+            hashCode = hashCode * -1521134295 + R.GetHashCode();
+            hashCode = hashCode * -1521134295 + G.GetHashCode();
+            hashCode = hashCode * -1521134295 + B.GetHashCode();
+            hashCode = hashCode * -1521134295 + A.GetHashCode();
+            hashCode = hashCode * -1521134295 + IntValue.GetHashCode();
+            return hashCode;
+        }
         #endregion
     }
 
@@ -382,6 +399,18 @@ namespace Pixel_Engine
         {
             return ColData;
         }
+        public byte[] GetByteData()
+        {
+            byte[] ret = new byte[ColData.Length * 4];
+            for (int i = 0; i < ColData.Length; i++)
+            {
+                ret[i * 4] = ColData[i].A;
+                ret[i * 4 + 1] = ColData[i].R;
+                ret[i * 4 + 2] = ColData[i].G;
+                ret[i * 4 + 3] = ColData[i].B;
+            }
+            return ret;
+        }
         public void SetData(Pixel[] data)
         {
             ColData = data;
@@ -404,7 +433,7 @@ namespace Pixel_Engine
         NP_MUL, NP_DIV, NP_ADD, NP_SUB, NP_DECIMAL,
     };
 
-    public class Engine
+    public class Engine : OpenTK.GameWindow
     {
         public Engine()
         {
@@ -425,6 +454,17 @@ namespace Pixel_Engine
             fPixelY = 2.0f / (float)nScreenHeight;
             if (nPixelWidth == 0 || nPixelHeight == 0 || nScreenWidth == 0 || nScreenHeight == 0) return rCode.FAIL;
 
+            Action<Array> Init = new Action<Array>((arr) => 
+            {
+                for (int i = 0; i < arr.Length; i++)
+                {
+                    arr.SetValue(new HWButton(), i);
+                }
+            });
+
+            Init(pKeyboardState);
+            Init(pMouseState);
+
             AppName = sAppName;
             ConstructFontSheet();
             pDefaultDrawTarget = new Sprite(nScreenWidth, nScreenHeight);
@@ -435,11 +475,10 @@ namespace Pixel_Engine
         {
             try
             {
-                WindowCreate();
+                Action<BackgroundWorker> action = new Action<BackgroundWorker>(EngineThread);
                 bAtomActive = true;
-                Thread thread = new Thread(new ThreadStart(EngineThread));
-                thread.Start();
-                thread.Join();
+                WindowCreate(action);
+                ((Form1)Control.FromHandle(HWnd)).Start();
                 return rCode.OK;
             }
             catch { return rCode.FAIL; }
@@ -1008,11 +1047,13 @@ namespace Pixel_Engine
             pDefaultDrawTarget = new Sprite(nScreenWidth, nScreenHeight);
             SetDrawTarget(ref pDefaultDrawTarget);
             GL.Clear(ClearBufferMask.ColorBufferBit);
-            //SwapBuffer(glDeviceContext);
+            Form1 Window = (Form1)Control.FromHandle(HWnd);
+            Window.GetGLControl().SwapBuffers();
             GL.Clear(ClearBufferMask.ColorBufferBit);
             UpdateViewport();
         }
 
+        #region Declerations
         public string sAppName;
 
         Sprite pDefaultDrawTarget = null;
@@ -1043,7 +1084,7 @@ namespace Pixel_Engine
         bool bHasInputFocus = false;
         bool bHasMouseFocus = false;
         bool bEnableVSYNC = false;
-        float fFrameTimer = 1.0f;
+        long lFrameTimer = 1000;
         int nFrameCount = 0;
         Sprite fontSprite = null;
         Func<int, int, Pixel, Pixel, Pixel> funcPixelMode;
@@ -1058,7 +1099,7 @@ namespace Pixel_Engine
         HWButton[] pMouseState = new HWButton[5];
 
         bool bAtomActive;
-
+        #endregion
         void UpdateMouse(int x, int y)
         {
             x -= nViewX;
@@ -1105,12 +1146,7 @@ namespace Pixel_Engine
             nViewX = (nWindowWidth - nViewW) / 2;
             nViewY = (nWindowHeight - nViewH) / 2;
         }
-        bool OpenGLCreate()
-        {
-            glDeviceContext = Graphics.FromHwnd(HWnd).GetHdc();
-            GL.Viewport(nViewX, nViewY, nViewW, nViewH);
-            return true;
-        }
+
         void ConstructFontSheet()
         {
             string data = "";
@@ -1154,31 +1190,36 @@ namespace Pixel_Engine
 
         uint glBuffer = 0;
 
-        private void EngineThread()
+        private void EngineThread(BackgroundWorker worker)
         {
-            OpenGLCreate();
+            Form1 window = (Form1)Control.FromHandle(HWnd);
 
-            GL.Enable(EnableCap.Texture2D);
-            GL.GenTextures(1, out glBuffer);
-            GL.BindTexture(TextureTarget.Texture2D, glBuffer);
-            int param = 0x2600;
-            GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, ref param);
-            GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, ref param);
-            param = 0x2101;
-            GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, param);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, nScreenWidth, nScreenHeight, 0, PixelFormat.Rgba, PixelType.UnsignedByte, pDefaultDrawTarget.GetData());
+            Bitmap result = new Bitmap(nScreenWidth, nScreenHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            System.Drawing.Imaging.BitmapData Data = result.LockBits(new Rectangle(0, 0, nScreenWidth, nScreenHeight), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            byte[] data = pDefaultDrawTarget.GetByteData();
+            Marshal.Copy(data, 0, Data.Scan0, data.Length);
+            result.UnlockBits(Data);
+            if (window.InvokeRequired)
+            {
+                window.Invoke(new Action(() => window.image = result));
+            }
+            else
+            {
+                window.image = result;
+            }
+            
 
             if (!OnUserCreate()) bAtomActive = false;
 
-            DateTime tp1 = DateTime.Now, tp2 = DateTime.Now;
+            Stopwatch tp1 = Stopwatch.StartNew();
 
             while (bAtomActive)
             {
                 while (bAtomActive)
                 {
-                    tp2 = DateTime.Now;
-                    float elapsedTime = (float)(tp1 - tp2).TotalMilliseconds;
-                    tp1 = tp2;
+                    long elapsedTime = tp1.ElapsedMilliseconds;
+                    tp1.Reset();
+                    tp1.Start();
                     for (int i = 0; i < 256; i++)
                     {
                         pKeyboardState[i].bPressed = false;
@@ -1232,27 +1273,47 @@ namespace Pixel_Engine
                     if (!onUserUpdate(elapsedTime))
                         bAtomActive = false;
 
-                    GL.Viewport(nViewX, nViewY, nViewW, nViewH);
-                    GL.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, nScreenWidth, nScreenHeight, PixelFormat.Rgba, PixelType.UnsignedByte, pDefaultDrawTarget.GetData());
-                    GL.Begin(PrimitiveType.Quads);
-                    GL.TexCoord2(0.0, 1.0); GL.Vertex3(-1.0f + fSubPixelOffsetX, -1.0f + fSubPixelOffsetY, 0.0f);
-                    GL.TexCoord2(0.0, 0.0); GL.Vertex3(-1.0f + fSubPixelOffsetX, 1.0f + fSubPixelOffsetY, 0.0f);
-                    GL.TexCoord2(1.0, 0.0); GL.Vertex3(1.0f + fSubPixelOffsetX, 1.0f + fSubPixelOffsetY, 0.0f);
-                    GL.TexCoord2(1.0, 1.0); GL.Vertex3(1.0f + fSubPixelOffsetX, -1.0f + fSubPixelOffsetY, 0.0f);
-                    GL.End();
+                    result = new Bitmap(nScreenWidth, nScreenHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
-                    //SwapBuffer(glDeviceContext);
-
-                    fFrameTimer += elapsedTime;
-                    nFrameCount++;
-                    if(fFrameTimer >= 1.0f)
+                    Data = result.LockBits(new Rectangle(0, 0, nScreenWidth, nScreenHeight), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                    data = pDrawTarget.GetByteData();
+                    Marshal.Copy(data, 0, Data.Scan0, data.Length);
+                    result.UnlockBits(Data);
+                    if (window.InvokeRequired)
                     {
-                        fFrameTimer -= 1.0f;
+                        window.Invoke(new Action(() => window.image = result));
+                    }
+                    else
+                    {
+                        window.image = result;
+                    }
+
+                    if (window.InvokeRequired)
+                    {
+                        window.Invoke(new Action(() => window.pictureBox.Refresh()));
+                    }
+                    else
+                    {
+                        window.pictureBox.Refresh();
+                    }
+
+                    lFrameTimer += elapsedTime;
+                    nFrameCount++;
+                    if(lFrameTimer > 1000)
+                    {
+                        lFrameTimer -= 1000;
                         string sTitle = AppName + " - FPS: " + nFrameCount.ToString();
-                        Form1 window = (Form1)Control.FromHandle(HWnd);
-                        window.Text = sTitle;
+                        if (window.InvokeRequired)
+                        {
+                            window.Invoke(new Action(() => window.Text = sTitle));
+                    }
+                        else
+                        {
+                            window.Text = sTitle;
+                        }
                         nFrameCount = 0;
-                    } 
+                    }
+                    worker.ReportProgress(0);
                 }
                 if (OnUserDestroy())
                 {
@@ -1263,16 +1324,17 @@ namespace Pixel_Engine
                     bAtomActive = true;
                 }
             }
-            //DeleateContext glRender
-            //postMessage
         }
 
         IntPtr HWnd = new IntPtr();
-        IntPtr WindowCreate()
+        IntPtr WindowCreate(Action<BackgroundWorker> action)
         {
-            Form1 Window = new Form1();
+            Form1 Window = new Form1(action);
             Window.Height = nScreenHeight * nPixelWidth;
             Window.Width = nScreenWidth * nPixelHeight;
+
+            nWindowHeight = Window.Height;
+            nWindowWidth = Window.Width;
 
             nViewW = nWindowWidth;
             nViewH = nWindowHeight;
@@ -1384,20 +1446,13 @@ namespace Pixel_Engine
     }
 }
 
-
-namespace Pixel_Engine
+namespace Test
 {
-    static class Program
+    class Ret
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+
         }
     }
 }

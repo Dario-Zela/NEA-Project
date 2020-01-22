@@ -19,12 +19,16 @@ namespace UI
             {
                 for (int j = 0; j < ScreenHeght(); j++)
                 {
-                    Draw(i, j, new Pixel(random.Next(0, int.MaxValue)));
+                    Draw(i, j, new Pixel((byte)random.Next(0, 255), (byte)random.Next(0, 255), (byte)random.Next(0, 255)));
                 }
             }
             return true;
         }
 
+        public override bool OnUserCreate()
+        {
+            return true;
+        }
         /*
         static void Main()
         {
