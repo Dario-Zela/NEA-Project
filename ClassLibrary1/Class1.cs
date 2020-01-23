@@ -78,6 +78,11 @@ namespace Pixel_Engine
         BLACK = new Pixel(0, 0, 0),
         BLANK = new Pixel(0, 0, 0, 0);
 
+        public override bool Equals(object obj)
+        {
+            return obj is Pixel pixel && pixel.IntValue == IntValue;
+        }
+
         public override int GetHashCode()
         {
             var hashCode = 166155883;
@@ -439,18 +444,126 @@ namespace Pixel_Engine
 
     public class Engine
     {
+        #region MONITORINFO from MSND
+        // size of a device name string
+        private const int CCHDEVICENAME = 32;
 
+        /// <summary>
+        /// The MONITORINFOEX structure contains information about a display monitor.
+        /// The GetMonitorInfo function stores information into a MONITORINFOEX structure or a MONITORINFO structure.
+        /// The MONITORINFOEX structure is a superset of the MONITORINFO structure. The MONITORINFOEX structure adds a string member to contain a name
+        /// for the display monitor.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        internal struct MonitorInfoEx
+        {
+            /// <summary>
+            /// The size, in bytes, of the structure. Set this member to sizeof(MONITORINFOEX) (72) before calling the GetMonitorInfo function.
+            /// Doing so lets the function determine the type of structure you are passing to it.
+            /// </summary>
+            public int Size;
+
+            /// <summary>
+            /// A RECT structure that specifies the display monitor rectangle, expressed in virtual-screen coordinates.
+            /// Note that if the monitor is not the primary display monitor, some of the rectangle's coordinates may be negative values.
+            /// </summary>
+            public RectStruct Monitor;
+
+            /// <summary>
+            /// A RECT structure that specifies the work area rectangle of the display monitor that can be used by applications,
+            /// expressed in virtual-screen coordinates. Windows uses this rectangle to maximize an application on the monitor.
+            /// The rest of the area in rcMonitor contains system windows such as the task bar and side bars.
+            /// Note that if the monitor is not the primary display monitor, some of the rectangle's coordinates may be negative values.
+            /// </summary>
+            public RectStruct WorkArea;
+
+            /// <summary>
+            /// The attributes of the display monitor.
+            ///
+            /// This member can be the following value:
+            ///   1 : MONITORINFOF_PRIMARY
+            /// </summary>
+            public uint Flags;
+
+            /// <summary>
+            /// A string that specifies the device name of the monitor being used. Most applications have no use for a display monitor name,
+            /// and so can save some bytes by using a MONITORINFO structure.
+            /// </summary>
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = CCHDEVICENAME)]
+            public string DeviceName;
+
+            public void Init()
+            {
+                this.Size = 40 + 2 * CCHDEVICENAME;
+                this.DeviceName = string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// The RECT structure defines the coordinates of the upper-left and lower-right corners of a rectangle.
+        /// </summary>
+        /// <see cref="http://msdn.microsoft.com/en-us/library/dd162897%28VS.85%29.aspx"/>
+        /// <remarks>
+        /// By convention, the right and bottom edges of the rectangle are normally considered exclusive.
+        /// In other words, the pixel whose coordinates are ( right, bottom ) lies immediately outside of the the rectangle.
+        /// For example, when RECT is passed to the FillRect function, the rectangle is filled up to, but not including,
+        /// the right column and bottom row of pixels. This structure is identical to the RECTL structure.
+        /// </remarks>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RectStruct
+        {
+            /// <summary>
+            /// The x-coordinate of the upper-left corner of the rectangle.
+            /// </summary>
+            public int Left;
+
+            /// <summary>
+            /// The y-coordinate of the upper-left corner of the rectangle.
+            /// </summary>
+            public int Top;
+
+            /// <summary>
+            /// The x-coordinate of the lower-right corner of the rectangle.
+            /// </summary>
+            public int Right;
+
+            /// <summary>
+            /// The y-coordinate of the lower-right corner of the rectangle.
+            /// </summary>
+            public int Bottom;
+        }
+        #endregion
+
+        #region DllImport
         [DllImport("user32.dll")]
         static extern int GetMessage(out MSG lpMsg, IntPtr hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
         [DllImport("user32.dll")]
         static extern bool TranslateMessage([In] ref MSG lpMsg);
         [DllImport("user32.dll")]
         static extern IntPtr DispatchMessage([In] ref MSG lpmsg);
+        [DllImport("user32.dll")]
+        static extern IntPtr LoadIcon(IntPtr hInstance, string lpIconName);
+        [DllImport("user32.dll")]
+        static extern IntPtr LoadCursor(IntPtr hInstance, int lpCursorName);
+        [DllImport("kernel32.dll")]
+        public static extern IntPtr GetModuleHandle(string lpModuleName);
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.U2)]
+        static extern short RegisterClassEx([In] ref Win32.WNDCLASSEX lpwcx);
+        [DllImport("user32.dll")]
+        static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
+        [DllImport("user32.dll")]
+        static extern bool GetMonitorInfo(IntPtr hMonitor, ref MonitorInfoEx lpmi);
+        [DllImport("user32.dll")]
+        static extern bool AdjustWindowRectEx(ref RectStruct lpRect, uint dwStyle, bool bMenu, uint dwExStyle);
+        [DllImport("user32.dll")]
+        static extern void PostQuitMessage(int nExitCode);
+        #endregion
 
         public Engine()
         {
-            sAppName = "Undefined";
             PGEX.pge = this;
+            sAppName = "Undefined";
         }
 
         public rCode Construct(int screenW, int screenH, int pixelW, int pixelH, bool fullScreen = false, bool vSync = false)
@@ -490,23 +603,8 @@ namespace Pixel_Engine
                 WindowCreate();
                 bAtomActive = true;
                 Thread thread = new Thread(new ThreadStart(EngineThread));
-                MSG msg;
-                int ret;
-                while ((ret = GetMessage(out msg, IntPtr.Zero, 0, 0)) > 0)
-                {
-                    if (ret == -1)
-                    {
-                        throw new Exception();
-                    }
-                    else
-                    {
-                        TranslateMessage(ref msg);
-                        DispatchMessage(ref msg);
-                    }
-                }
-
+                thread.Start();
                 thread.Join();
-
                 return rCode.OK;
             }
             catch { return rCode.FAIL; }
@@ -1381,15 +1479,52 @@ namespace Pixel_Engine
         IntPtr WindowCreate()
         {
             Win32.WNDCLASSEX wc = new Win32.WNDCLASSEX();
-            wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-            wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-            wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-            wc.hInstance = GetModuleHandle(nullptr);
-            wc.lpfnWndProc = olc_WindowEvent;
+            wc.cbSize = (uint)Marshal.SizeOf<Win32.WNDCLASSEX>();
+            wc.hIcon = LoadIcon(IntPtr.Zero, "#32512");
+            wc.hCursor = LoadCursor(IntPtr.Zero, 32512);
+            wc.style = (Win32.ClassStyles)(Win32.CS_HREDRAW | Win32.CS_VREDRAW | Win32.CS_OWNDC);
+            wc.hInstance = GetModuleHandle(null);
+            wc.lpfnWndProc = new Win32.WndProc(WindowEvent);
             wc.cbClsExtra = 0;
             wc.cbWndExtra = 0;
-            wc.lpszMenuName = nullptr;
-            wc.hbrBackground = nullptr;
+            wc.lpszMenuName = null;
+            wc.hbrBackground = IntPtr.Zero;
+            wc.lpszClassName = "PixelGameEngine";
+
+            RegisterClassEx(ref wc);
+
+            nWindowWidth = nScreenWidth * nPixelWidth;
+            nWindowHeight = nScreenHeight * nPixelHeight;
+
+            uint dwExStyle = (uint)(Win32.WindowStylesEx.WS_EX_APPWINDOW | Win32.WindowStylesEx.WS_EX_WINDOWEDGE);
+            uint dwStyle = (uint)(Win32.WindowStyles.WS_CAPTION | Win32.WindowStyles.WS_SYSMENU | Win32.WindowStyles.WS_VISIBLE) | 0x00040000;
+
+            int nCosmeticOffset = 30;
+            nViewW = nWindowWidth;
+            nViewH = nWindowHeight;
+
+            // Handle Fullscreen
+            if (bFullScreen)
+            {
+                dwExStyle = 0;
+                dwStyle = (uint)(Win32.WindowStyles.WS_VISIBLE | Win32.WindowStyles.WS_POPUP);
+                nCosmeticOffset = 0;
+                IntPtr hmon = MonitorFromWindow(HWnd, 2);
+                MonitorInfoEx mi = new MonitorInfoEx() { Size = 72 };
+                if (!GetMonitorInfo(hmon, ref mi)) return IntPtr.Zero;
+                nWindowWidth = mi.Monitor.Right;
+                nWindowHeight = mi.Monitor.Bottom;
+            }
+
+            UpdateViewport();
+
+            RectStruct rWndRect = new RectStruct() { Top = 0, Left = 0, Right = nWindowWidth, Bottom = nWindowHeight };
+            AdjustWindowRectEx(ref rWndRect, dwStyle, false, dwExStyle);
+            int width = rWndRect.Right - rWndRect.Left;
+            int height = rWndRect.Bottom - rWndRect.Top;
+
+            HWnd = Win32.CreateWindowEx((Win32.WindowStylesEx)dwExStyle, "PIXEL_GAME_ENGINE", "", (Win32.WindowStyles)dwStyle,
+            nCosmeticOffset, nCosmeticOffset, width, height, IntPtr.Zero, IntPtr.Zero, GetModuleHandle(null), IntPtr.Zero);
 
             for (int i = 0; i < 255; i++)
             {
@@ -1436,9 +1571,58 @@ namespace Pixel_Engine
         }
         string AppName;
 
+        IntPtr WindowEvent(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam)
+        {
+            switch (uMsg)
+            {
+                case Win32.WM_CREATE: PGEX.pge = (Engine)GCHandle.FromIntPtr(lParam).Target; return IntPtr.Zero;
+                case Win32.WM_MOUSEMOVE:
+                    {
+                        ushort x = (ushort)(lParam.ToInt32() & 0xFFFF);               // Thanks @ForAbby (Discord)
+                        ushort y = (ushort)((lParam.ToInt32() >> 16) & 0xFFFF);
+                        short ix = (short)x;
+                        short iy = (short)y;
+                        PGEX.pge.UpdateMouse(ix, iy);
+                        return IntPtr.Zero;
+                    }
+                case Win32.WM_SIZE:
+                    {
+                        PGEX.pge.UpdateWindowSize(lParam.ToInt32() & 0xFFFF, (lParam.ToInt32() >> 16) & 0xFFFF);
+                        return IntPtr.Zero;
+                    }
+                case Win32.WM_MOUSEWHEEL:
+                    {
+                        PGEX.pge.UpdateMouseWheel((int)wParam);
+                        return IntPtr.Zero;
+                    }
+                case Win32.WM_MOUSELEAVE: PGEX.pge.bHasMouseFocus = false; return IntPtr.Zero;
+                case Win32.WM_SETFOCUS: PGEX.pge.bHasInputFocus = true; return IntPtr.Zero;
+                case Win32.WM_KILLFOCUS: PGEX.pge.bHasInputFocus = false; return IntPtr.Zero;
+                case Win32.WM_KEYDOWN: PGEX.pge.pKeyNewState[mapKeys[wParam.ToInt32()]] = true; return IntPtr.Zero;
+                case Win32.WM_KEYUP: PGEX.pge.pKeyNewState[mapKeys[wParam.ToInt32()]] = false; return IntPtr.Zero;
+                case Win32.WM_LBUTTONDOWN: PGEX.pge.pMouseNewState[0] = true; return IntPtr.Zero;
+                case Win32.WM_LBUTTONUP: PGEX.pge.pMouseNewState[0] = false; return IntPtr.Zero;
+                case Win32.WM_RBUTTONDOWN: PGEX.pge.pMouseNewState[1] = true; return IntPtr.Zero;
+                case Win32.WM_RBUTTONUP: PGEX.pge.pMouseNewState[1] = false; return IntPtr.Zero;
+                case Win32.WM_MBUTTONDOWN: PGEX.pge.pMouseNewState[2] = true; return IntPtr.Zero;
+                case Win32.WM_MBUTTONUP: PGEX.pge.pMouseNewState[2] = false; return IntPtr.Zero;
+                case Win32.WM_CLOSE: bAtomActive = false; return IntPtr.Zero;
+                case Win32.WM_DESTROY: PostQuitMessage(0); return IntPtr.Zero;
+            }
+            return Win32.DefWindowProc(hWnd, uMsg, wParam, lParam);
+        }
+
         internal class PGEX
         {
             public static Engine pge;
         }
+    }
+}
+
+namespace Test
+{
+    class Test
+    {
+        static void Main() { }
     }
 }

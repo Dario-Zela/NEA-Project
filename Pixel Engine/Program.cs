@@ -77,6 +77,11 @@ namespace Pixel_Engine
         BLACK = new Pixel(0, 0, 0),
         BLANK = new Pixel(0, 0, 0, 0);
 
+        public override bool Equals(object obj)
+        {
+            return obj is Pixel pixel && pixel.IntValue == IntValue;
+        }
+
         public override int GetHashCode()
         {
             var hashCode = 166155883;
@@ -1235,14 +1240,13 @@ namespace Pixel_Engine
 
             GL.Viewport(nViewX, nViewY, nViewW, nViewH);
 
-            if (Win32.wglGetProcAddress("wglSwapIntervalEXT").ToInt32() != 0 && !bEnableVSYNC) GLControl.FrameRate = 0;
             return true;
         }
 
         IntPtr glDeviceContext;
         IntPtr glRenderContext;
 
-        uint glBuffer;
+        uint glBuffer = 0;
 
         private void EngineThread(BackgroundWorker worker)
         {
@@ -1259,16 +1263,6 @@ namespace Pixel_Engine
             GL.TexEnv(OpenGL.GL_TEXTURE_ENV, OpenGL.GL_TEXTURE_ENV_MODE, OpenGL.GL_DECAL);
 
             GL.TexImage2D(OpenGL.GL_TEXTURE_2D, 0, OpenGL.GL_RGBA, nScreenWidth, nScreenHeight, 0, OpenGL.GL_RGBA, OpenGL.GL_UNSIGNED_BYTE, pDefaultDrawTarget.GetByteData());
-
-            if (window.InvokeRequired)
-            {
-                window.Invoke(new Action(() => window.GetGLControl().Refresh()));
-            }
-            else
-            {
-                window.GetGLControl().Refresh();
-            }
-            
 
             if (!OnUserCreate()) bAtomActive = false;
 
@@ -1334,7 +1328,7 @@ namespace Pixel_Engine
                     if (!onUserUpdate(elapsedTime))
                         bAtomActive = false;
 
-                    GL.Viewport(nViewX, nViewY, nViewW, nViewH);
+                    //GL.Viewport(nViewX, nViewY, nViewW, nViewH);
 
                     GL.TexSubImage2D(OpenGL.GL_TEXTURE_2D, 0, 0, 0, nScreenWidth, nScreenHeight, OpenGL.GL_RGBA, OpenGL.GL_UNSIGNED_BYTE, pDefaultDrawTarget.GetIntData());
 
@@ -1345,16 +1339,9 @@ namespace Pixel_Engine
                     GL.TexCoord(1.0, 1.0); GL.Vertex(1.0f + (fSubPixelOffsetX), -1.0f + (fSubPixelOffsetY), 0.0f);
                     GL.End();
 
-                    SharpGL.Win32.SwapBuffers(glDeviceContext);
+                    GL.Viewport(nViewX, nViewY, nViewW, nViewH);
 
-                    if (window.InvokeRequired)
-                    {
-                        window.Invoke(new Action(() => window.GetGLControl().Refresh()));
-                    }
-                    else
-                    {
-                        window.GetGLControl().Refresh();
-                    }
+                    Win32.SwapBuffers(glDeviceContext);
 
                     lFrameTimer += elapsedTime;
                     nFrameCount++;
@@ -1365,7 +1352,7 @@ namespace Pixel_Engine
                         if (window.InvokeRequired)
                         {
                             window.Invoke(new Action(() => window.Text = sTitle));
-                    }
+                        }
                         else
                         {
                             window.Text = sTitle;

@@ -10,3 +10,16 @@ C:\Users\zelad005.319\Downloads\NEA-Project-master\Pixel Engine\bin\Debug\SharpG
 C:\Users\zelad005.319\Downloads\NEA-Project-master\Pixel Engine\bin\Debug\SharpGL.WinForms.xml
 C:\Users\zelad005.319\Downloads\NEA-Project-master\Pixel Engine\obj\Debug\Pixel Engine.exe
 C:\Users\zelad005.319\Downloads\NEA-Project-master\Pixel Engine\obj\Debug\Pixel Engine.pdb
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Pixel Engine\bin\Debug\Pixel Engine.exe.config
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Pixel Engine\bin\Debug\Pixel Engine.exe
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Pixel Engine\bin\Debug\Pixel Engine.pdb
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Pixel Engine\bin\Debug\SharpGL.dll
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Pixel Engine\bin\Debug\SharpGL.WinForms.dll
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Pixel Engine\bin\Debug\SharpGL.xml
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Pixel Engine\bin\Debug\SharpGL.WinForms.xml
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Pixel Engine\obj\Debug\Pixel Engine.csprojAssemblyReference.cache
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Pixel Engine\obj\Debug\Pixel_Engine.Properties.Resources.resources
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Pixel Engine\obj\Debug\Pixel Engine.csproj.GenerateResource.cache
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Pixel Engine\obj\Debug\Pixel Engine.csproj.CopyComplete
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Pixel Engine\obj\Debug\Pixel Engine.exe
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Pixel Engine\obj\Debug\Pixel Engine.pdb

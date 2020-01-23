@@ -1,4 +1,6 @@
 ﻿using SharpGL;
+using System;
+using System.Runtime.InteropServices;
 
 namespace Pixel_Engine
 {
@@ -30,6 +32,7 @@ namespace Pixel_Engine
         /// </summary>
         private void InitializeComponent()
         {
+            this.Controls.Clear();
             this.glControl = new OpenGLControl();
             ((System.ComponentModel.ISupportInitialize)(this.glControl)).BeginInit();
             this.SuspendLayout();

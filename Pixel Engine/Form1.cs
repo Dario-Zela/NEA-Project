@@ -25,8 +25,9 @@ namespace Pixel_Engine
         [MTAThread]
         public void Start()
         {
+            glControl.BringToFront();
             BackgroundWorker worker = new BackgroundWorker();
-            worker.DoWork += new DoWorkEventHandler((sender, e) => action(sender as BackgroundWorker));
+            worker.DoWork += new DoWorkEventHandler((sender, e) => action(worker));
             worker.ProgressChanged += new ProgressChangedEventHandler((sender, e) => Refresh());
             worker.WorkerReportsProgress = true;
             worker.RunWorkerAsync();

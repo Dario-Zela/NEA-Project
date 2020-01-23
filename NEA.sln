@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PixelEngineC++", "PixelEngi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel Engine", "Pixel Engine\Pixel Engine.csproj", "{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixelEngine", "ClassLibrary1\PixelEngine.csproj", "{AEF5BD6D-3EF4-4E33-A5B3-E0E118178754}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,18 @@ Global
 		{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}.Release|x64.Build.0 = Release|Any CPU
 		{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}.Release|x86.ActiveCfg = Release|Any CPU
 		{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}.Release|x86.Build.0 = Release|Any CPU
+		{AEF5BD6D-3EF4-4E33-A5B3-E0E118178754}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEF5BD6D-3EF4-4E33-A5B3-E0E118178754}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEF5BD6D-3EF4-4E33-A5B3-E0E118178754}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AEF5BD6D-3EF4-4E33-A5B3-E0E118178754}.Debug|x64.Build.0 = Debug|Any CPU
+		{AEF5BD6D-3EF4-4E33-A5B3-E0E118178754}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AEF5BD6D-3EF4-4E33-A5B3-E0E118178754}.Debug|x86.Build.0 = Debug|Any CPU
+		{AEF5BD6D-3EF4-4E33-A5B3-E0E118178754}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEF5BD6D-3EF4-4E33-A5B3-E0E118178754}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEF5BD6D-3EF4-4E33-A5B3-E0E118178754}.Release|x64.ActiveCfg = Release|Any CPU
+		{AEF5BD6D-3EF4-4E33-A5B3-E0E118178754}.Release|x64.Build.0 = Release|Any CPU
+		{AEF5BD6D-3EF4-4E33-A5B3-E0E118178754}.Release|x86.ActiveCfg = Release|Any CPU
+		{AEF5BD6D-3EF4-4E33-A5B3-E0E118178754}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
