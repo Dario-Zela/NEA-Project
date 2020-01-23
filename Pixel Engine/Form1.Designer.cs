@@ -1,4 +1,4 @@
-﻿using OpenTK;
+﻿using SharpGL;
 
 namespace Pixel_Engine
 {
@@ -30,22 +30,32 @@ namespace Pixel_Engine
         /// </summary>
         private void InitializeComponent()
         {
-            Control.Name = "GLControl";
-            Control.Visible = true;
-            Control.MakeCurrent();
-            this.Controls.Add(Control);
+            this.glControl = new OpenGLControl();
+            ((System.ComponentModel.ISupportInitialize)(this.glControl)).BeginInit();
+            this.SuspendLayout();
+
+            this.glControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.glControl.DrawFPS = true;
+            this.glControl.FrameRate = 20;
+            this.glControl.Location = new System.Drawing.Point(0, 0);
+            this.glControl.Name = "GLControl";
+            this.glControl.RenderContextType = RenderContextType.FBO;
+            this.glControl.Size = new System.Drawing.Size(this.Width, this.Height);
+            this.glControl.TabIndex = 0;
+
+            this.Controls.Add(glControl);
             this.components = new System.ComponentModel.Container();
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Text = "Form1";
         }
 
-        public GLControl GetGLControl()
+        public OpenGLControl GetGLControl()
         {
-            return Control;
+            return glControl;
         }
 
-        GLControl Control = new GLControl();
+        private OpenGLControl glControl;
         #endregion
     }
 }

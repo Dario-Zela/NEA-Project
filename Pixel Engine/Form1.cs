@@ -11,19 +11,15 @@ using System.Drawing.Drawing2D;
 
 namespace Pixel_Engine
 {
+
     public partial class Form1 : Form
     {
-        public PictureBox pictureBox = new PictureBox();
         public Form1(Action<BackgroundWorker> action)
         {
             InitializeComponent();
             this.action = action;
-            image = new Bitmap(Width, Height);
-            pictureBox.Image = image;
-            components.Add(pictureBox);
         }
 
-        public Image image;
         private Action<BackgroundWorker> action;
 
         [MTAThread]

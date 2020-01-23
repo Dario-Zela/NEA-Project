@@ -1,0 +1,12 @@
+C:\Users\zelad005.319\Downloads\NEA-Project-master\Pixel Engine\obj\Debug\Pixel Engine.csprojResolveAssemblyReference.cache
+C:\Users\zelad005.319\Downloads\NEA-Project-master\Pixel Engine\obj\Debug\Pixel_Engine.Properties.Resources.resources
+C:\Users\zelad005.319\Downloads\NEA-Project-master\Pixel Engine\obj\Debug\Pixel Engine.csproj.GenerateResource.Cache
+C:\Users\zelad005.319\Downloads\NEA-Project-master\Pixel Engine\bin\Debug\Pixel Engine.exe.config
+C:\Users\zelad005.319\Downloads\NEA-Project-master\Pixel Engine\bin\Debug\Pixel Engine.exe
+C:\Users\zelad005.319\Downloads\NEA-Project-master\Pixel Engine\bin\Debug\Pixel Engine.pdb
+C:\Users\zelad005.319\Downloads\NEA-Project-master\Pixel Engine\bin\Debug\SharpGL.dll
+C:\Users\zelad005.319\Downloads\NEA-Project-master\Pixel Engine\bin\Debug\SharpGL.WinForms.dll
+C:\Users\zelad005.319\Downloads\NEA-Project-master\Pixel Engine\bin\Debug\SharpGL.xml
+C:\Users\zelad005.319\Downloads\NEA-Project-master\Pixel Engine\bin\Debug\SharpGL.WinForms.xml
+C:\Users\zelad005.319\Downloads\NEA-Project-master\Pixel Engine\obj\Debug\Pixel Engine.exe
+C:\Users\zelad005.319\Downloads\NEA-Project-master\Pixel Engine\obj\Debug\Pixel Engine.pdb

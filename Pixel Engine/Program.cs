@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Drawing;
-using OpenTK.Graphics.OpenGL;
 using System.Diagnostics;
+using SharpGL;
 
 namespace Pixel_Engine
 {
@@ -76,12 +76,6 @@ namespace Pixel_Engine
         VERY_DARK_MAGENTA = new Pixel(64, 0, 64),
         BLACK = new Pixel(0, 0, 0),
         BLANK = new Pixel(0, 0, 0, 0);
-
-        public override bool Equals(object obj)
-        {
-            return obj is Pixel pixel &&
-                   IntValue == pixel.IntValue;
-        }
 
         public override int GetHashCode()
         {
@@ -411,6 +405,15 @@ namespace Pixel_Engine
             }
             return ret;
         }
+        public int[] GetIntData()
+        {
+            int[] ret = new int[ColData.Length];
+            for (int i = 0; i < ColData.Length; i++)
+			{
+                ret[i] = ColData[i].IntValue;
+			}
+            return ret;
+        }
         public void SetData(Pixel[] data)
         {
             ColData = data;
@@ -433,7 +436,7 @@ namespace Pixel_Engine
         NP_MUL, NP_DIV, NP_ADD, NP_SUB, NP_DECIMAL,
     };
 
-    public class Engine : OpenTK.GameWindow
+    public class Engine
     {
         public Engine()
         {
@@ -1046,10 +1049,10 @@ namespace Pixel_Engine
             nScreenHeight = h;
             pDefaultDrawTarget = new Sprite(nScreenWidth, nScreenHeight);
             SetDrawTarget(ref pDefaultDrawTarget);
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-            Form1 Window = (Form1)Control.FromHandle(HWnd);
-            Window.GetGLControl().SwapBuffers();
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            OpenGL GL = ((Form1)Control.FromHandle(HWnd)).GetGLControl().OpenGL;
+            GL.Clear(OpenGL.GL_COLOR_BUFFER_BIT);
+            SharpGL.Win32.SwapBuffers(glDeviceContext);
+            GL.Clear(OpenGL.GL_COLOR_BUFFER_BIT);
             UpdateViewport();
         }
 
@@ -1185,27 +1188,85 @@ namespace Pixel_Engine
                 }
             }
         }
+        bool OpenGLCreate()
+        {
+            OpenGLControl GLControl = ((Form1)Control.FromHandle(HWnd)).GetGLControl();
+            OpenGL GL = GLControl.OpenGL;
+
+            glDeviceContext = Graphics.FromHwnd(HWnd).GetHdc();
+
+            #region PIXELFORMATDESCRIPTOR Construct
+            SharpGL.Win32.PIXELFORMATDESCRIPTOR pfd = new Win32.PIXELFORMATDESCRIPTOR();
+            pfd.nSize = 40;
+            pfd.nVersion = 1;
+            pfd.dwFlags = Win32.PFD_DRAW_TO_WINDOW | Win32.PFD_SUPPORT_OPENGL | Win32.PFD_DOUBLEBUFFER;
+            pfd.iPixelType = Win32.PFD_TYPE_RGBA;
+            pfd.cColorBits = 32;
+            pfd.cRedBits        = 0;
+            pfd.cRedShift       = 0;
+            pfd.cGreenBits      = 0;
+            pfd.cGreenShift     = 0;
+            pfd.cBlueBits       = 0;
+            pfd.cBlueShift      = 0;
+            pfd.cAlphaBits      = 0;
+            pfd.cAlphaShift     = 0;
+            pfd.cAccumBits      = 0;
+            pfd.cAccumRedBits   = 0;
+            pfd.cAccumGreenBits = 0;
+            pfd.cAccumBlueBits  = 0;
+            pfd.cAccumAlphaBits = 0;
+            pfd.cDepthBits      = 0;
+            pfd.cStencilBits    = 0;
+            pfd.cAuxBuffers     = 0;
+            pfd.iLayerType      = Win32.PFD_MAIN_PLANE;
+            pfd.bReserved       = 0;
+            pfd.dwLayerMask     = 0;
+            pfd.dwVisibleMask   = 0;
+            pfd.dwDamageMask    = 0;
+            #endregion
+
+            int pf = Win32.ChoosePixelFormat(glDeviceContext, pfd);
+            if (pf == 0) return false;
+            Win32.SetPixelFormat(glDeviceContext, pf, pfd);
+
+            glRenderContext = Win32.wglCreateContext(glDeviceContext);
+            if (glRenderContext == IntPtr.Zero) return false;
+            Win32.wglMakeCurrent(glDeviceContext, glRenderContext);
+
+            GL.Viewport(nViewX, nViewY, nViewW, nViewH);
+
+            if (Win32.wglGetProcAddress("wglSwapIntervalEXT").ToInt32() != 0 && !bEnableVSYNC) GLControl.FrameRate = 0;
+            return true;
+        }
 
         IntPtr glDeviceContext;
+        IntPtr glRenderContext;
 
-        uint glBuffer = 0;
+        uint glBuffer;
 
         private void EngineThread(BackgroundWorker worker)
         {
-            Form1 window = (Form1)Control.FromHandle(HWnd);
+            OpenGLCreate();
 
-            Bitmap result = new Bitmap(nScreenWidth, nScreenHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            System.Drawing.Imaging.BitmapData Data = result.LockBits(new Rectangle(0, 0, nScreenWidth, nScreenHeight), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            byte[] data = pDefaultDrawTarget.GetByteData();
-            Marshal.Copy(data, 0, Data.Scan0, data.Length);
-            result.UnlockBits(Data);
+            Form1 window = (Form1)Control.FromHandle(HWnd);
+            OpenGL GL = window.GetGLControl().OpenGL;
+
+            GL.Enable(OpenGL.GL_TEXTURE_2D);
+            GL.GenTextures(1, new uint[]{ glBuffer});
+            GL.BindTexture(OpenGL.GL_TEXTURE_2D, glBuffer);
+            GL.TexParameterI(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MAG_FILTER, new uint[]{ OpenGL.GL_NEAREST});
+            GL.TexParameterI(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MIN_FILTER, new uint[] { OpenGL.GL_NEAREST });
+            GL.TexEnv(OpenGL.GL_TEXTURE_ENV, OpenGL.GL_TEXTURE_ENV_MODE, OpenGL.GL_DECAL);
+
+            GL.TexImage2D(OpenGL.GL_TEXTURE_2D, 0, OpenGL.GL_RGBA, nScreenWidth, nScreenHeight, 0, OpenGL.GL_RGBA, OpenGL.GL_UNSIGNED_BYTE, pDefaultDrawTarget.GetByteData());
+
             if (window.InvokeRequired)
             {
-                window.Invoke(new Action(() => window.image = result));
+                window.Invoke(new Action(() => window.GetGLControl().Refresh()));
             }
             else
             {
-                window.image = result;
+                window.GetGLControl().Refresh();
             }
             
 
@@ -1273,28 +1334,26 @@ namespace Pixel_Engine
                     if (!onUserUpdate(elapsedTime))
                         bAtomActive = false;
 
-                    result = new Bitmap(nScreenWidth, nScreenHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                    GL.Viewport(nViewX, nViewY, nViewW, nViewH);
 
-                    Data = result.LockBits(new Rectangle(0, 0, nScreenWidth, nScreenHeight), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                    data = pDrawTarget.GetByteData();
-                    Marshal.Copy(data, 0, Data.Scan0, data.Length);
-                    result.UnlockBits(Data);
-                    if (window.InvokeRequired)
-                    {
-                        window.Invoke(new Action(() => window.image = result));
-                    }
-                    else
-                    {
-                        window.image = result;
-                    }
+                    GL.TexSubImage2D(OpenGL.GL_TEXTURE_2D, 0, 0, 0, nScreenWidth, nScreenHeight, OpenGL.GL_RGBA, OpenGL.GL_UNSIGNED_BYTE, pDefaultDrawTarget.GetIntData());
+
+                    GL.Begin(OpenGL.GL_QUADS);
+                    GL.TexCoord(0.0, 1.0); GL.Vertex(-1.0f + (fSubPixelOffsetX), -1.0f + (fSubPixelOffsetY), 0.0f);
+                    GL.TexCoord(0.0, 0.0); GL.Vertex(-1.0f + (fSubPixelOffsetX), 1.0f + (fSubPixelOffsetY), 0.0f);
+                    GL.TexCoord(1.0, 0.0); GL.Vertex(1.0f + (fSubPixelOffsetX), 1.0f + (fSubPixelOffsetY), 0.0f);
+                    GL.TexCoord(1.0, 1.0); GL.Vertex(1.0f + (fSubPixelOffsetX), -1.0f + (fSubPixelOffsetY), 0.0f);
+                    GL.End();
+
+                    SharpGL.Win32.SwapBuffers(glDeviceContext);
 
                     if (window.InvokeRequired)
                     {
-                        window.Invoke(new Action(() => window.pictureBox.Refresh()));
+                        window.Invoke(new Action(() => window.GetGLControl().Refresh()));
                     }
                     else
                     {
-                        window.pictureBox.Refresh();
+                        window.GetGLControl().Refresh();
                     }
 
                     lFrameTimer += elapsedTime;
@@ -1324,6 +1383,7 @@ namespace Pixel_Engine
                     bAtomActive = true;
                 }
             }
+            Win32.wglDeleteContext(glRenderContext);
         }
 
         IntPtr HWnd = new IntPtr();
