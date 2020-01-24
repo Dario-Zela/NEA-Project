@@ -28,8 +28,9 @@ namespace Pixel_Engine
             glControl.BringToFront();
             BackgroundWorker worker = new BackgroundWorker();
             worker.DoWork += new DoWorkEventHandler((sender, e) => action(worker));
-            worker.ProgressChanged += new ProgressChangedEventHandler((sender, e) => Refresh());
+            worker.ProgressChanged += new ProgressChangedEventHandler((sender, e) => glControl.Refresh());
             worker.WorkerReportsProgress = true;
+
             worker.RunWorkerAsync();
             Application.Run(this);
         }

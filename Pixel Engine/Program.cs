@@ -77,11 +77,12 @@ namespace Pixel_Engine
         BLACK = new Pixel(0, 0, 0),
         BLANK = new Pixel(0, 0, 0, 0);
 
+        /*
         public override bool Equals(object obj)
         {
             return obj is Pixel pixel && pixel.IntValue == IntValue;
         }
-
+        */
         public override int GetHashCode()
         {
             var hashCode = 166155883;
@@ -500,7 +501,7 @@ namespace Pixel_Engine
         {
             return true;
         }
-        public virtual bool onUserUpdate(float fElapsedTime)
+        public virtual bool onUserUpdate(long fElapsedTime)
         {
             return false;
         }
@@ -1328,7 +1329,7 @@ namespace Pixel_Engine
                     if (!onUserUpdate(elapsedTime))
                         bAtomActive = false;
 
-                    //GL.Viewport(nViewX, nViewY, nViewW, nViewH);
+                    GL.Viewport(nViewX, nViewY, nViewW, nViewH);
 
                     GL.TexSubImage2D(OpenGL.GL_TEXTURE_2D, 0, 0, 0, nScreenWidth, nScreenHeight, OpenGL.GL_RGBA, OpenGL.GL_UNSIGNED_BYTE, pDefaultDrawTarget.GetIntData());
 
