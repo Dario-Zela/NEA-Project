@@ -38,12 +38,8 @@ namespace Pixel_Engine
             this.SuspendLayout();
 
             this.glControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.glControl.DrawFPS = true;
             this.glControl.FrameRate = 20;
-            this.glControl.Location = new System.Drawing.Point(0, 0);
             this.glControl.Name = "GLControl";
-            this.glControl.RenderContextType = RenderContextType.FBO;
-            this.glControl.Size = new System.Drawing.Size(this.Width, this.Height);
             this.glControl.TabIndex = 0;
 
             this.Controls.Add(glControl);
