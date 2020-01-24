@@ -23,3 +23,4 @@ C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Pixel Engine\obj\Debug\Pixel
 C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Pixel Engine\obj\Debug\Pixel Engine.csproj.CopyComplete
 C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Pixel Engine\obj\Debug\Pixel Engine.exe
 C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Pixel Engine\obj\Debug\Pixel Engine.pdb
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Pixel Engine\obj\Debug\Pixel_Engine.Form1.resources

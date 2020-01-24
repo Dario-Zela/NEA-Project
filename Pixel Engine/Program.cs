@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.Diagnostics;
 using SharpGL;
+using System.Threading.Tasks;
 
 namespace Pixel_Engine
 {
@@ -77,12 +78,12 @@ namespace Pixel_Engine
         BLACK = new Pixel(0, 0, 0),
         BLANK = new Pixel(0, 0, 0, 0);
 
-        /*
+        
         public override bool Equals(object obj)
         {
             return obj is Pixel pixel && pixel.IntValue == IntValue;
         }
-        */
+        
         public override int GetHashCode()
         {
             var hashCode = 166155883;
@@ -240,7 +241,7 @@ namespace Pixel_Engine
         }
         public Sprite(string sImageFile, ref ResourcePack pack)
         {
-            LoadFromFile(sImageFile);
+            LoadFromPGESprFile(sImageFile, ref pack);
         }
         public Sprite(int Width, int Height)
         {
@@ -271,7 +272,6 @@ namespace Pixel_Engine
             return rCode.OK;
         }
 
-        /*
         public rCode LoadFromPGESprFile(string sImageFile, ref ResourcePack pack)
         {
             if (ColData != null) ColData = null;
@@ -287,7 +287,7 @@ namespace Pixel_Engine
                     {
                         ColData[i] = new Pixel(reader.ReadInt32());
                     }
-                    reader.Close()
+                    reader.Close();
                     return rCode.OK;
                 }
                 catch { return rCode.FAIL; }
@@ -315,7 +315,7 @@ namespace Pixel_Engine
                         value += buffer[i * 4 + 1];
                         ColData[i] = new Pixel(int.Parse(value));
                     }
-                    reader.Close()
+                    reader.Close();
                     return rCode.OK;
                 }
                 catch { return rCode.FAIL; }
@@ -333,12 +333,11 @@ namespace Pixel_Engine
                 {
                     writer.Write(ColData[i].IntValue);
                 }
-                reader.Close()
+                writer.Close();
                 return rCode.OK;
             }
             catch { return rCode.FAIL; }
         }
-        */
 
         public int Width;
         public int Height;
@@ -402,22 +401,22 @@ namespace Pixel_Engine
         public byte[] GetByteData()
         {
             byte[] ret = new byte[ColData.Length * 4];
-            for (int i = 0; i < ColData.Length; i++)
+            Parallel.For(0, ColData.Length, (i) =>
             {
                 ret[i * 4] = ColData[i].A;
                 ret[i * 4 + 1] = ColData[i].R;
                 ret[i * 4 + 2] = ColData[i].G;
                 ret[i * 4 + 3] = ColData[i].B;
-            }
+            });
             return ret;
         }
         public int[] GetIntData()
         {
             int[] ret = new int[ColData.Length];
-            for (int i = 0; i < ColData.Length; i++)
+            Parallel.For(0,ColData.Length, (i) =>
 			{
                 ret[i] = ColData[i].IntValue;
-			}
+			});
             return ret;
         }
         public void SetData(Pixel[] data)
@@ -450,14 +449,14 @@ namespace Pixel_Engine
             PGEX.pge = this;
         }
 
-        public rCode Construct(int screenW, int screenH, int pixelW, int pixelH, bool fullScreen = false, bool vSync = false)
+        public rCode Construct(int screenW, int screenH, int pixelW, int pixelH, bool fullScreen = false, bool showFPS = false)
         {
             nScreenWidth = screenW;
             nScreenHeight = screenH;
             nPixelWidth = pixelW;
             nPixelHeight = pixelH;
             bFullScreen = fullScreen;
-            bEnableVSYNC = vSync;
+            bShowFPS = showFPS;
 
             fPixelX = 2.0f / (float)nScreenWidth;
             fPixelY = 2.0f / (float)nScreenHeight;
@@ -509,6 +508,10 @@ namespace Pixel_Engine
         public bool IsFocused()
         {
             return bHasInputFocus;
+        }
+        public bool HasMouseFocus()
+        {
+            return bHasMouseFocus;
         }
         public HWButton GetKey(Key k)
         {
@@ -1057,7 +1060,7 @@ namespace Pixel_Engine
             SetDrawTarget(ref pDefaultDrawTarget);
             OpenGL GL = ((Form1)Control.FromHandle(HWnd)).GetGLControl().OpenGL;
             GL.Clear(OpenGL.GL_COLOR_BUFFER_BIT);
-            SharpGL.Win32.SwapBuffers(glDeviceContext);
+            Win32.SwapBuffers(glDeviceContext);
             GL.Clear(OpenGL.GL_COLOR_BUFFER_BIT);
             UpdateViewport();
         }
@@ -1092,11 +1095,12 @@ namespace Pixel_Engine
         float fSubPixelOffsetY = 0.0f;
         bool bHasInputFocus = false;
         bool bHasMouseFocus = false;
-        bool bEnableVSYNC = false;
+        bool bShowFPS = false;
         long lFrameTimer = 1000;
         int nFrameCount = 0;
         Sprite fontSprite = null;
         Func<int, int, Pixel, Pixel, Pixel> funcPixelMode;
+        Sprite pPrevousDrawTarget = null;
 
         static Dictionary<int, byte> mapKeys = new Dictionary<int, byte>();
         bool[] pKeyNewState = new bool[256];
@@ -1276,7 +1280,7 @@ namespace Pixel_Engine
                     long elapsedTime = tp1.ElapsedMilliseconds;
                     tp1.Reset();
                     tp1.Start();
-                    for (int i = 0; i < 256; i++)
+                    Parallel.For(0, 256, (i) =>
                     {
                         pKeyboardState[i].bPressed = false;
                         pKeyboardState[i].bReleased = false;
@@ -1296,29 +1300,29 @@ namespace Pixel_Engine
                         }
 
                         pKeyOldState[i] = pKeyNewState[i];
-                    }
+                    });
 
-                    for (int i = 0; i < 5; i++)
-                    {
-                        pMouseState[i].bPressed = false;
-                        pMouseState[i].bReleased = false;
+                    Parallel.For(0, 5, (i) =>
+                      {
+                          pMouseState[i].bPressed = false;
+                          pMouseState[i].bReleased = false;
 
-                        if (pMouseNewState[i] != pMouseOldState[i])
-                        {
-                            if (pMouseNewState[i])
-                            {
-                                pMouseState[i].bPressed = !pMouseState[i].bHeld;
-                                pMouseState[i].bHeld = true;
-                            }
-                            else
-                            {
-                                pMouseState[i].bReleased = true;
-                                pMouseState[i].bHeld = false;
-                            }
-                        }
+                          if (pMouseNewState[i] != pMouseOldState[i])
+                          {
+                              if (pMouseNewState[i])
+                              {
+                                  pMouseState[i].bPressed = !pMouseState[i].bHeld;
+                                  pMouseState[i].bHeld = true;
+                              }
+                              else
+                              {
+                                  pMouseState[i].bReleased = true;
+                                  pMouseState[i].bHeld = false;
+                              }
+                          }
 
-                        pMouseOldState[i] = pMouseNewState[i];
-                    }
+                          pMouseOldState[i] = pMouseNewState[i];
+                      });
 
                     nMousePosX = nMousePosXcache;
                     nMousePosY = nMousePosYcache;
@@ -1342,9 +1346,11 @@ namespace Pixel_Engine
 
                     Win32.SwapBuffers(glDeviceContext);
 
+                    glDeviceContext = Graphics.FromHwnd(HWnd).GetHdc();
+
                     lFrameTimer += elapsedTime;
                     nFrameCount++;
-                    if(lFrameTimer > 1000)
+                    if(lFrameTimer > 1000 && bShowFPS)
                     {
                         lFrameTimer -= 1000;
                         string sTitle = AppName + " - FPS: " + nFrameCount.ToString();
@@ -1376,6 +1382,12 @@ namespace Pixel_Engine
         IntPtr WindowCreate(Action<BackgroundWorker> action)
         {
             Form1 Window = new Form1(action);
+
+            if (bFullScreen)
+            {
+                Window.WindowState = FormWindowState.Maximized;
+            }
+
             Window.Height = nScreenHeight * nPixelWidth;
             Window.Width = nScreenWidth * nPixelHeight;
 
@@ -1439,7 +1451,6 @@ namespace Pixel_Engine
             });
             Window.FormClosing += new FormClosingEventHandler((sender, e) => bAtomActive = false);
 
-
             for (int i = 0; i < 255; i++)
             {
                 mapKeys.Add(i, 255);
@@ -1458,7 +1469,7 @@ namespace Pixel_Engine
             mapKeys[0x79] = (byte)Key.F9; mapKeys[0x80] = (byte)Key.F10; mapKeys[0x81] = (byte)Key.F11; mapKeys[0x82] = (byte)Key.F12;
 
             mapKeys[0x28] = (byte)Key.DOWN; mapKeys[0x25] = (byte)Key.LEFT; mapKeys[0x27] = (byte)Key.RIGHT; mapKeys[0x26] = (byte)Key.UP;
-            mapKeys[0x0D] = (byte)Key.ENTER; //mapKeys[VK_RETURN] = (byte)Key.RETURN;
+            mapKeys[0x0D] = (byte)Key.ENTER;
 
             mapKeys[0x08] = (byte)Key.BACK; mapKeys[0x1B] = (byte)Key.ESCAPE; mapKeys[0x13] = (byte)Key.PAUSE;
             mapKeys[0x91] = (byte)Key.SCROLL; mapKeys[0x09] = (byte)Key.TAB; mapKeys[0x2E] = (byte)Key.DEL; mapKeys[0x24] = (byte)Key.HOME;

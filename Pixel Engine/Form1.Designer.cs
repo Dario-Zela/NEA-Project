@@ -1,6 +1,4 @@
 ﻿using SharpGL;
-using System;
-using System.Runtime.InteropServices;
 
 namespace Pixel_Engine
 {
@@ -36,11 +34,13 @@ namespace Pixel_Engine
             this.glControl = new OpenGLControl();
             ((System.ComponentModel.ISupportInitialize)(this.glControl)).BeginInit();
             this.SuspendLayout();
+            this.ForeColor = System.Drawing.Color.Transparent;
 
             this.glControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.glControl.FrameRate = 20;
             this.glControl.Name = "GLControl";
             this.glControl.TabIndex = 0;
+            this.glControl.Size = new System.Drawing.Size(0, 0);
 
             this.Controls.Add(glControl);
             this.components = new System.ComponentModel.Container();

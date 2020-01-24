@@ -26,6 +26,7 @@ namespace Pixel_Engine
         public void Start()
         {
             glControl.BringToFront();
+            glControl.Location = new Point(0, 0);
             BackgroundWorker worker = new BackgroundWorker();
             worker.DoWork += new DoWorkEventHandler((sender, e) => action(worker));
             worker.ProgressChanged += new ProgressChangedEventHandler((sender, e) => glControl.Refresh());

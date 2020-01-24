@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 //using Models.WorldGen;
 using Pixel_Engine;
 
@@ -14,6 +13,7 @@ namespace UI
 
         public override bool onUserUpdate(long fElapsedTime)
         {
+            /*
             Random random = new Random();
             for (int i = 0; i < ScreenWidth(); i++)
             {
@@ -22,6 +22,8 @@ namespace UI
                     Draw(i, j, new Pixel((byte)random.Next(0, 255), (byte)random.Next(0, 255), (byte)random.Next(0, 255)));
                 }
             }
+            DrawLine(0, 0, 200, 200, new Pixel(255, 0, 0));
+            */
             return true;
         }
 
@@ -89,7 +91,7 @@ namespace UI
         static void Main()
         {
             Program demo = new Program();
-            if((int)demo.Construct(256, 240, 4,4) == 1)
+            if((int)demo.Construct(264, 140, 4, 4, false, true) == 1)
             {
                 demo.Start();
             }
