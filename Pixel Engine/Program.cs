@@ -1340,8 +1340,6 @@ namespace Pixel_Engine
                     GL.TexCoord(1.0, 1.0); GL.Vertex(1.0f + (fSubPixelOffsetX), -1.0f + (fSubPixelOffsetY), 0.0f);
                     GL.End();
 
-                    GL.Viewport(nViewX, nViewY, nViewW, nViewH);
-
                     Win32.SwapBuffers(glDeviceContext);
 
                     lFrameTimer += elapsedTime;
