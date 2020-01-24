@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Models.WorldGen;
+//using Models.WorldGen;
 using Pixel_Engine;
 
 namespace UI
@@ -12,7 +12,7 @@ namespace UI
             sAppName = "Example";
         }
 
-        public override bool onUserUpdate(float fElapsedTime)
+        public override bool onUserUpdate(long fElapsedTime)
         {
             Random random = new Random();
             for (int i = 0; i < ScreenWidth(); i++)
