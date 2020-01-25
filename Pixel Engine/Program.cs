@@ -95,6 +95,15 @@ namespace Pixel_Engine
             return hashCode;
         }
         #endregion
+
+        public static implicit operator Pixel(Color c)
+        {
+            return new Pixel(c.R, c.G, c.B, c.A);
+        }
+        public static implicit operator Color(Pixel p)
+        {
+            return Color.FromArgb(p.A, p.R, p.G, p.B);
+        }
     }
 
     public enum rCode
@@ -252,10 +261,13 @@ namespace Pixel_Engine
             for (int i = 0; i < Width * Height; i++)
                 ColData[i] = new Pixel();
         }
-
-        public rCode LoadFromFile(string sImageFile)
+        public Sprite(Bitmap bitmap)
         {
-            Bitmap bitmap = new Bitmap(sImageFile);
+            LoadFromBitmap(bitmap);
+        }
+
+        public rCode LoadFromBitmap(Bitmap bitmap)
+        {
             if (bitmap == null) return rCode.NO_FILE;
             Width = bitmap.Width;
             Height = bitmap.Height;
@@ -264,8 +276,25 @@ namespace Pixel_Engine
             {
                 for (int y = 0; y < Height; y++)
                 {
-                    Color c = bitmap.GetPixel(x, y);
-                    SetPixel(x, y, new Pixel(c.R, c.G, c.B, c.A));
+                    SetPixel(x, y, bitmap.GetPixel(x, y));
+                }
+            }
+            return rCode.OK;
+        }
+
+        public rCode LoadFromFile(string sImageFile)
+        {
+            StreamReader reader = new StreamReader(sImageFile);
+            Bitmap bitmap = (Bitmap)Image.FromFile(sImageFile);
+            if (bitmap == null) return rCode.NO_FILE;
+            Width = bitmap.Width;
+            Height = bitmap.Height;
+            ColData = new Pixel[Width * Height];
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    SetPixel(x, y, bitmap.GetPixel(x, y));
                 }
             }
             bitmap.Dispose();
@@ -351,7 +380,7 @@ namespace Pixel_Engine
         {
             if (modeSample == Mode.NORMAL)
             {
-                if (x >= 0 && x < Width && y <= 0 && y < Height) return ColData[y * Width + x];
+                if (x >= 0 && x < Width && y >= 0 && y < Height) return ColData[y * Width + x];
                 else return Pixel.BLACK;
             }
             else return ColData[Math.Abs(y % Height) * Width + Math.Abs(x % Width)];
@@ -443,6 +472,7 @@ namespace Pixel_Engine
 
     public class Engine
     {
+
         public Engine()
         {
             sAppName = "Undefined";
@@ -474,9 +504,9 @@ namespace Pixel_Engine
             Init(pMouseState);
 
             AppName = sAppName;
-            ConstructFontSheet();
             pDefaultDrawTarget = new Sprite(nScreenWidth, nScreenHeight);
             SetDrawTarget(ref pDefaultDrawTarget);
+            Clear(Pixel.BLACK);
             return rCode.OK;
         }
         public rCode Start()
@@ -500,7 +530,7 @@ namespace Pixel_Engine
         {
             return true;
         }
-        public virtual bool onUserUpdate(long fElapsedTime)
+        public virtual bool onUserUpdate(float fElapsedTime)
         {
             return false;
         }
@@ -721,21 +751,16 @@ namespace Pixel_Engine
             int d = 3 - 2 * radius;
             if (radius == 0) return;
 
-            Func<int, bool> BinaryBool = new Func<int, bool>(value =>
-            {
-                return value == 1;
-            });
-
             while (y0 >= x0) // only formulate 1/8 of circle
             {
-                if (BinaryBool(mask & 0x01)) Draw(x + x0, y - y0, p);
-                if (BinaryBool(mask & 0x02)) Draw(x + y0, y - x0, p);
-                if (BinaryBool(mask & 0x04)) Draw(x + y0, y + x0, p);
-                if (BinaryBool(mask & 0x08)) Draw(x + x0, y + y0, p);
-                if (BinaryBool(mask & 0x10)) Draw(x - x0, y + y0, p);
-                if (BinaryBool(mask & 0x20)) Draw(x - y0, y + x0, p);
-                if (BinaryBool(mask & 0x40)) Draw(x - y0, y - x0, p);
-                if (BinaryBool(mask & 0x80)) Draw(x - x0, y - y0, p);
+                Draw(x + x0, y - y0, p);
+                Draw(x + y0, y - x0, p);
+                Draw(x + y0, y + x0, p);
+                Draw(x + x0, y + y0, p);
+                Draw(x - x0, y + y0, p);
+                Draw(x - y0, y + x0, p);
+                Draw(x - y0, y - x0, p);
+                Draw(x - x0, y - y0, p);
                 if (d < 0) d += 4 * x0++ + 6;
                 else d += 4 * (x0++ - y0--) + 10;
             }
@@ -769,8 +794,8 @@ namespace Pixel_Engine
         {
             DrawLine(x, y, x + w, y, p);
             DrawLine(x + w, y, x + w, y + h, p);
-            DrawLine(x + w, y + h, x, y + h, p);
-            DrawLine(x, y + h, x, y, p);
+            DrawLine(x, y + h, x + w, y + h, p);
+            DrawLine(x, y, x, y + h, p);
         }
         public void FillRect(int x, int y, int w, int h, Pixel p)
         {
@@ -797,14 +822,15 @@ namespace Pixel_Engine
             DrawLine(x2, y2, x3, y3, p);
             DrawLine(x3, y3, x1, y1, p);
         }
+        void swap(ref int x, ref int y)
+        {
+            int temp = x;
+            x = y;
+            y = temp;
+        }
         public void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, Pixel p)
         {
-            Action<int, int> swap = new Action<int, int>((num1, num2) =>
-            {
-                int temp = num1;
-                num1 = num2;
-                num2 = temp;
-            });
+            
             Action<int, int, int> drawline = new Action<int, int, int>((sx, ex, ny) =>
             {
                 for (int i = sx; i <= ex; i++)
@@ -819,9 +845,9 @@ namespace Pixel_Engine
             int signx1, signx2, dx1, dy1, dx2, dy2;
             int e1, e2;
             // Sort vertices
-            if (y1 > y2) { swap(y1, y2); swap(x1, x2); }
-            if (y1 > y3) { swap(y1, y3); swap(x1, x3); }
-            if (y2 > y3) { swap(y2, y3); swap(x2, x3); }
+            if (y1 > y2) { swap(ref y1, ref y2); swap(ref x1, ref x2); }
+            if (y1 > y3) { swap(ref y1, ref y3); swap(ref x1, ref x3); }
+            if (y2 > y3) { swap(ref y2, ref y3); swap(ref x2, ref x3); }
 
             t1x = t2x = x1; y = y1;   // Starting points
             dx1 = x2 - x1; 
@@ -836,12 +862,12 @@ namespace Pixel_Engine
 
             if (dy1 > dx1)
             {   // swap values
-                swap(dx1, dy1);
+                swap(ref dx1, ref dy1);
                 changed1 = true;
             }
             if (dy2 > dx2)
             {   // swap values
-                swap(dy2, dx2);
+                swap(ref dy2, ref dx2);
                 changed2 = true;
             }
 
@@ -909,7 +935,7 @@ namespace Pixel_Engine
 
             if (dy1 > dx1)
             {   // swap values
-                swap(dy1, dx1);
+                swap(ref dy1, ref dx1);
                 changed1 = true;
             }
             else changed1 = false;
@@ -964,84 +990,92 @@ namespace Pixel_Engine
                 if (y > y3) return;
             }
         }
-        public void DrawSprite(int x, int y, ref Sprite sprite, int scale = 1)
+        public void DrawSprite(int x, int y, Sprite sprite, int scale = 1)
         {
             if (sprite == null)
                 return;
 
             if (scale > 1)
             {
-                for (int i = 0; i < sprite.Width; i++)
-                    for (int j = 0; j < sprite.Height; j++)
-                        for (int isc = 0; isc < scale; isc ++)
-                            for (int js = 0; js < scale; js++)
+                Parallel.For(0, sprite.Width, (i) =>
+                {
+                    Parallel.For(0, sprite.Height, (j) =>
+                    {
+                        Parallel.For(0, scale, (isc) =>
+                        {
+                            Parallel.For(0, scale, (js) =>
+                            {
                                 Draw(x + (i * scale) + isc, y + (j * scale) + js, sprite.GetPixel(i, j));
+                            });
+                        });
+                    });
+                });
             }
             else
             {
-                for (int i = 0; i < sprite.Width; i++)
-                    for (int j = 0; j < sprite.Height; j++)
+                Parallel.For(0, sprite.Width, (i) =>
+                { 
+                    Parallel.For(0, sprite.Height, (j) =>
+                    {
                         Draw(x + i, y + j, sprite.GetPixel(i, j));
+                    });
+                });
             }
         }
-        public void DrawPartialSprite(int x, int y, ref Sprite sprite, int ox, int oy, int w, int h, int scale = 1)
+        public void DrawPartialSprite(int x, int y, Sprite sprite, int ox, int oy, int w, int h, int scale = 1)
         {
             if (sprite == null)
                 return;
 
             if (scale > 1)
             {
-                for (int i = 0; i < w; i++)
-                    for (int j = 0; j < h; j++)
-                        for (int isc = 0; isc < scale; isc++)
-                            for (int js = 0; js < scale; js++)
+                Parallel.For(0, w, (i) =>
+                {
+                    Parallel.For(0, h, (j) =>
+                    {
+                        Parallel.For(0, scale, (isc) =>
+                        {
+                            Parallel.For(0, scale, (js) =>
+                            {
                                 Draw(x + (i * scale) + isc, y + (j * scale) + js, sprite.GetPixel(i + ox, j + oy));
+                            });
+                        });
+                    });
+                });
             }
             else
             {
-                for (int i = 0; i < w; i++)
-                    for (int j = 0; j < h; j++)
+                Parallel.For(0, w, (i) =>
+                {
+                    Parallel.For(0, h, (j) =>
+                    {
                         Draw(x + i, y + j, sprite.GetPixel(i + ox, j + oy));
+                    });
+                });
             }
         }
         public void DrawString(int x, int y, string sText, Pixel col, int scale = 1)
         {
-            int sx = 0;
-            int sy = 0;
-            Pixel.Mode m = nPixelMode;
-            if (col.A != 255) SetPixelMode(Pixel.Mode.ALPHA);
-            else SetPixelMode(Pixel.Mode.MASK);
+            int counter = 1;
+            int max = 0;
+            int temp = 0;
             foreach (char c in sText)
             {
+                temp++;
                 if (c == '\n')
                 {
-                    sx = 0; sy += 8 * scale;
-                }
-                else
-                {
-                    int ox = (c - 32) % 16;
-                    int oy = (c - 32) / 16;
-
-                    if (scale > 1)
-                    {
-                        for (int i = 0; i < 8; i++)
-                            for (int j = 0; j < 8; j++)
-                                if (fontSprite.GetPixel(i + ox * 8, j + oy * 8).R > 0)
-                                    for (int isc = 0; isc < scale; isc ++)
-                                        for (int js = 0; js < scale; js++)
-                                            Draw(x + sx + (i * scale) + isc, y + sy + (j * scale) + js, col);
-                    }
-                    else
-                    {
-                        for (int i = 0; i < 8; i++)
-                            for (int j = 0; j < 8; j++)
-                                if (fontSprite.GetPixel(i + ox * 8, j + oy * 8).R > 0)
-                                    Draw(x + sx + i, y + sy + j, col);
-                    }
-                    sx += 8 * scale;
+                    counter++;
+                    if (max < temp) max = temp;
+                    temp = 0;
                 }
             }
-            SetPixelMode(m);
+            Bitmap bitmap = new Bitmap((int)(7.4 * temp), 20 * counter);
+            Graphics g = Graphics.FromImage(bitmap);
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
+            g.Clear(Color.Transparent);
+            TextRenderer.DrawText(g, sText, new Font(FontFamily.GenericSansSerif, 10), new Point(0, 0), col);
+            DrawSprite(x, y, new Sprite(bitmap), scale);
+            bitmap.Dispose();
         }
         public void Clear(Pixel p)
         {
@@ -1096,11 +1130,9 @@ namespace Pixel_Engine
         bool bHasInputFocus = false;
         bool bHasMouseFocus = false;
         bool bShowFPS = false;
-        long lFrameTimer = 1000;
+        float fFrameTimer = 1.0f;
         int nFrameCount = 0;
-        Sprite fontSprite = null;
         Func<int, int, Pixel, Pixel, Pixel> funcPixelMode;
-        Sprite pPrevousDrawTarget = null;
 
         static Dictionary<int, byte> mapKeys = new Dictionary<int, byte>();
         bool[] pKeyNewState = new bool[256];
@@ -1160,44 +1192,6 @@ namespace Pixel_Engine
             nViewY = (nWindowHeight - nViewH) / 2;
         }
 
-        void ConstructFontSheet()
-        {
-            string data = "";
-            data += "?Q`0001oOch0o01o@F40o0<AGD4090LAGD<090@A7ch0?00O7Q`0600>00000000";
-            data += "O000000nOT0063Qo4d8>?7a14Gno94AA4gno94AaOT0>o3`oO400o7QN00000400";
-            data += "Of80001oOg<7O7moBGT7O7lABET024@aBEd714AiOdl717a_=TH013Q>00000000";
-            data += "720D000V?V5oB3Q_HdUoE7a9@DdDE4A9@DmoE4A;Hg]oM4Aj8S4D84@`00000000";
-            data += "OaPT1000Oa`^13P1@AI[?g`1@A=[OdAoHgljA4Ao?WlBA7l1710007l100000000";
-            data += "ObM6000oOfMV?3QoBDD`O7a0BDDH@5A0BDD<@5A0BGeVO5ao@CQR?5Po00000000";
-            data += "Oc``000?Ogij70PO2D]??0Ph2DUM@7i`2DTg@7lh2GUj?0TO0C1870T?00000000";
-            data += "70<4001o?P<7?1QoHg43O;`h@GT0@:@LB@d0>:@hN@L0@?aoN@<0O7ao0000?000";
-            data += "OcH0001SOglLA7mg24TnK7ln24US>0PL24U140PnOgl0>7QgOcH0K71S0000A000";
-            data += "00H00000@Dm1S007@DUSg00?OdTnH7YhOfTL<7Yh@Cl0700?@Ah0300700000000";
-            data += "<008001QL00ZA41a@6HnI<1i@FHLM81M@@0LG81?O`0nC?Y7?`0ZA7Y300080000";
-            data += "O`082000Oh0827mo6>Hn?Wmo?6HnMb11MP08@C11H`08@FP0@@0004@000000000";
-            data += "00P00001Oab00003OcKP0006@6=PMgl<@440MglH@000000`@000001P00000000";
-            data += "Ob@8@@00Ob@8@Ga13R@8Mga172@8?PAo3R@827QoOb@820@0O`0007`0000007P0";
-            data += "O`000P08Od400g`<3V=P0G`673IP0`@3>1`00P@6O`P00g`<O`000GP800000000";
-            data += "?P9PL020O`<`N3R0@E4HC7b0@ET<ATB0@@l6C4B0O`H3N7b0?P01L3R000000020";
-
-            fontSprite = new Sprite(128, 48);
-            int px = 0, py = 0;
-            for (int b = 0; b < 1024; b += 4)
-            {
-                int sym1 = (int)data[b + 0] - 48;
-                int sym2 = (int)data[b + 1] - 48;
-                int sym3 = (int)data[b + 2] - 48;
-                int sym4 = (int)data[b + 3] - 48;
-                int r = sym1 << 18 | sym2 << 12 | sym3 << 6 | sym4;
-
-                for (int i = 0; i < 24; i++)
-                {
-                    int k = (r & (1 << i)) == 1 ? 255 : 0;
-                    fontSprite.SetPixel(px, py, new Pixel((byte)k, (byte)k, (byte)k, (byte)k));
-                    if (++py == 48) { px++; py = 0; }
-                }
-            }
-        }
         bool OpenGLCreate()
         {
             OpenGLControl GLControl = ((Form1)Control.FromHandle(HWnd)).GetGLControl();
@@ -1277,7 +1271,7 @@ namespace Pixel_Engine
             {
                 while (bAtomActive)
                 {
-                    long elapsedTime = tp1.ElapsedMilliseconds;
+                    float elapsedTime = (float)tp1.Elapsed.TotalSeconds;
                     tp1.Reset();
                     tp1.Start();
                     Parallel.For(0, 256, (i) =>
@@ -1348,11 +1342,11 @@ namespace Pixel_Engine
 
                     glDeviceContext = Graphics.FromHwnd(HWnd).GetHdc();
 
-                    lFrameTimer += elapsedTime;
+                    fFrameTimer += elapsedTime;
                     nFrameCount++;
-                    if(lFrameTimer > 1000 && bShowFPS)
+                    if(fFrameTimer > 1.0f && bShowFPS)
                     {
-                        lFrameTimer -= 1000;
+                        fFrameTimer -= 1.0f;
                         string sTitle = AppName + " - FPS: " + nFrameCount.ToString();
                         if (window.InvokeRequired)
                         {
@@ -1397,6 +1391,8 @@ namespace Pixel_Engine
             nViewW = nWindowWidth;
             nViewH = nWindowHeight;
 
+            Window.Height += 39;
+
             UpdateViewport();
 
             HWnd = Window.Handle;
@@ -1407,7 +1403,7 @@ namespace Pixel_Engine
             });
             Window.SizeChanged += new EventHandler((sender, e) =>
             {
-                UpdateWindowSize(Window.Width, Window.Height);
+                UpdateWindowSize(Window.Width, Window.Height - 39);
             });
             Window.MouseWheel += new MouseEventHandler((sender, e) =>
             {
@@ -1417,8 +1413,8 @@ namespace Pixel_Engine
             Window.MouseEnter += new EventHandler((sender, e) => bHasMouseFocus = true);
             Window.GotFocus += new EventHandler((sender, e) => bHasInputFocus = true);
             Window.LostFocus += new EventHandler((sender, e) => bHasInputFocus = false);
-            Window.KeyDown += new KeyEventHandler((sender, e) => pKeyNewState[mapKeys[(int)e.KeyCode]] = true);
-            Window.KeyUp += new KeyEventHandler((sender, e) => pKeyNewState[mapKeys[(int)e.KeyCode]] = false);
+            Window.KeyDown += new KeyEventHandler((sender, e) => pKeyNewState[mapKeys[(int)e.KeyValue]] = true);
+            Window.KeyUp += new KeyEventHandler((sender, e) => pKeyNewState[mapKeys[(int)e.KeyValue]] = false);
             Window.MouseDown += new MouseEventHandler((sender, e) =>
             {
                 if(e.Button == MouseButtons.Left)
@@ -1450,6 +1446,8 @@ namespace Pixel_Engine
                 }
             });
             Window.FormClosing += new FormClosingEventHandler((sender, e) => bAtomActive = false);
+
+            Window.KeyPreview = true;
 
             for (int i = 0; i < 255; i++)
             {
