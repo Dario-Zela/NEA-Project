@@ -568,7 +568,7 @@ namespace Pixel_Engine
         {
             return nScreenWidth;
         }
-        public int ScreenHeght()
+        public int ScreenHeight()
         {
             return nScreenHeight;
         }
@@ -582,7 +582,7 @@ namespace Pixel_Engine
         public int GetDrawTargetHeight()
         {
             if (pDrawTarget != null)
-                return pDrawTarget.Width;
+                return pDrawTarget.Height;
             else
                 return 0;
         }
@@ -1391,8 +1391,6 @@ namespace Pixel_Engine
             nViewW = nWindowWidth;
             nViewH = nWindowHeight;
 
-            Window.Height += 39;
-
             UpdateViewport();
 
             HWnd = Window.Handle;
@@ -1403,7 +1401,7 @@ namespace Pixel_Engine
             });
             Window.SizeChanged += new EventHandler((sender, e) =>
             {
-                UpdateWindowSize(Window.Width, Window.Height - 39);
+                UpdateWindowSize(Window.Width, Window.Height);
             });
             Window.MouseWheel += new MouseEventHandler((sender, e) =>
             {
@@ -1446,6 +1444,8 @@ namespace Pixel_Engine
                 }
             });
             Window.FormClosing += new FormClosingEventHandler((sender, e) => bAtomActive = false);
+
+            UpdateWindowSize(Window.Width, Window.Height - 39);
 
             Window.KeyPreview = true;
 
