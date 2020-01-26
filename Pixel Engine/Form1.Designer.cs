@@ -42,7 +42,6 @@ namespace Pixel_Engine
             this.glControl.TabIndex = 0;
             this.glControl.Size = new System.Drawing.Size(0, 0);
 
-            this.MaximizeBox = false;
             this.Controls.Add(glControl);
             this.components = new System.ComponentModel.Container();
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;

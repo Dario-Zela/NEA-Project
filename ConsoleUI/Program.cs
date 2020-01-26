@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 //using Models.WorldGen;
 using Pixel_Engine;
+using System.Linq;
 
 namespace UI
 {
@@ -80,7 +81,7 @@ namespace UI
                                 }
                             }
                         }
-                        if(Valid) lisVisibilityPolygonPoints.Add((minAngle, minPx, minPy));
+                        if (Valid) lisVisibilityPolygonPoints.Add((minAngle, minPx, minPy));
                     }
                 }
             }
@@ -232,6 +233,10 @@ namespace UI
 
             Clear(Pixel.BLACK);
 
+            int Num = lisVisibilityPolygonPoints.Count;
+
+            DrawString(0, 0, "Num1: " + Num.ToString(), Pixel.WHITE);
+
             if(GetMouse(1).bHeld && lisVisibilityPolygonPoints.Count > 1)
             {
                 for (int i = 0; i < lisVisibilityPolygonPoints.Count - 1; i++)
@@ -274,13 +279,6 @@ namespace UI
             }
 
             if(GetMouse(0).bPressed) ConvertTileMapToPolyMap(0, 0, worldWidth, worldHeight, BlockWidth, worldWidth);
-
-            foreach (Edge edge in lisEdges)
-            {
-                DrawLine((int)edge.sx, (int)edge.sy, (int)edge.ex, (int)edge.ey, Pixel.RED);
-                FillCircle((int)edge.sx, (int)edge.sy, 3, Pixel.RED);
-                FillCircle((int)edge.ex, (int)edge.ey, 3, Pixel.RED);
-            }
 
             return true;
         }

@@ -1069,12 +1069,16 @@ namespace Pixel_Engine
                     temp = 0;
                 }
             }
-            Bitmap bitmap = new Bitmap((int)(7.4 * temp), 20 * counter);
+            Bitmap bitmap = new Bitmap((int)(8 * temp), 20 * counter);
             Graphics g = Graphics.FromImage(bitmap);
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
             g.Clear(Color.Transparent);
             TextRenderer.DrawText(g, sText, new Font(FontFamily.GenericSansSerif, 10), new Point(0, 0), col);
+            Pixel.Mode a = GetPixelMode();
+            SetPixelMode(Pixel.Mode.MASK);
             DrawSprite(x, y, new Sprite(bitmap), scale);
+            SetPixelMode(a);
             bitmap.Dispose();
         }
         public void Clear(Pixel p)
@@ -1401,7 +1405,7 @@ namespace Pixel_Engine
             });
             Window.SizeChanged += new EventHandler((sender, e) =>
             {
-                UpdateWindowSize(Window.Width, Window.Height);
+                UpdateWindowSize(Window.Width, Window.Height - 39);
             });
             Window.MouseWheel += new MouseEventHandler((sender, e) =>
             {
