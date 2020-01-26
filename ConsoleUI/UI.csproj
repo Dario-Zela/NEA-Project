@@ -66,9 +66,9 @@
       <Project>{1a0eea7a-2c42-4c2c-bd9d-bc96a8c8e935}</Project>
       <Name>Models</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Pixel Engine\Pixel Engine.csproj">
+    <ProjectReference Include="..\Pixel Engine\ToolBox.csproj">
       <Project>{e32d3e7d-535d-447c-8cb5-d9858d3c34d9}</Project>
-      <Name>Pixel Engine</Name>
+      <Name>ToolBox</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

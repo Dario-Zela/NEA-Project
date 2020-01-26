@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Models", "Models\Models.csproj", "{1A0EEA7A-2C42-4C2C-BD9D-BC96A8C8E935}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleUI", "ConsoleUI\ConsoleUI.csproj", "{6ED6A19D-C5E2-4D4B-8C7A-4833E32832E2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI", "ConsoleUI\UI.csproj", "{6ED6A19D-C5E2-4D4B-8C7A-4833E32832E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel Engine", "Pixel Engine\Pixel Engine.csproj", "{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToolBox", "Pixel Engine\ToolBox.csproj", "{E32D3E7D-535D-447C-8CB5-D9858D3C34D9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
