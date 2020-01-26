@@ -6,306 +6,172 @@ using System.Linq;
 
 namespace UI
 {
-    class Edge
+    class Point
     {
-        public float sx = 0, sy = 0;
-        public float ex = 0, ey = 0;
+        public float x = 0;
+        public float y = 0;
+
+        public Point(float x, float y)
+        {
+            this.x = x;
+            this.y = y;
+        }
     }
 
-    class Cell
+    class Spline
     {
-        public int[] edgeId = new int[4];
-        public bool[] edgeExist = new bool[4];
-        public bool exist = false;
+        public List<Point> points = new List<Point>();
+
+        public Point GetSplinePoint(float t, bool Looped = false)
+        {
+            int p0, p1, p2, p3;
+            if (!Looped)
+            {
+                p1 = (int)t + 1;
+                p2 = p1 + 1;
+                p3 = p2 + 1;
+                p0 = p1 - 1;
+            }
+            else
+            {
+                p1 = (int)t;
+                p2 = (p1 + 1) % points.Count;
+                p3 = (p2 + 1) % points.Count;
+                p0 = p1 >= 1 ? p1 - 1 : points.Count - 1;
+            }
+
+            t = t - (int)t;
+
+            float tt = t * t;
+            float ttt = tt * t;
+
+            float q0 = -ttt + 2 * tt - t;
+            float q1 = 3 * ttt - 5 * tt + 2;
+            float q2 = -3 * ttt + 4 * tt + t;
+            float q3 = ttt - tt;
+
+            float tx = points[p0].x * q0 + points[p1].x * q1 + points[p2].x * q2 + points[p3].x * q3;
+            float ty = points[p0].y * q0 + points[p1].y * q1 + points[p2].y * q2 + points[p3].y * q3;
+
+            return new Point(tx * 0.5f, ty * 0.5f);
+        }
+
+        public Point GetSplineGrad(float t, bool Looped = false)
+        {
+            int p0, p1, p2, p3;
+            if (!Looped)
+            {
+                p1 = (int)t + 1;
+                p2 = p1 + 1;
+                p3 = p2 + 1;
+                p0 = p1 - 1;
+            }
+            else
+            {
+                p1 = (int)t;
+                p2 = (p1 + 1) % points.Count;
+                p3 = (p2 + 1) % points.Count;
+                p0 = p1 >= 1 ? p1 - 1 : points.Count - 1;
+            }
+
+            t = t - (int)t;
+
+            float tt = t * t;
+            float ttt = tt * t;
+
+            float q0 = -3 * tt + 4 * t - 1;
+            float q1 = 9 * tt - 10 * t;
+            float q2 = -9 * tt + 8 * t + 1;
+            float q3 = 3 * tt - 2 * t;
+
+            float tx = points[p0].x * q0 + points[p1].x * q1 + points[p2].x * q2 + points[p3].x * q3;
+            float ty = points[p0].y * q0 + points[p1].y * q1 + points[p2].y * q2 + points[p3].y * q3;
+
+            return new Point(tx * 0.5f, ty * 0.5f);
+        }
     }
 
-    enum Direction
+    class Splines : Engine
     {
-        North, South, East, West
-    }
 
-    class ShadowCasting : Engine
-    {
-        Cell[] world;
-        int worldWidth = 40;
-        int worldHeight = 30;
-        List<Edge> lisEdges;
-        List<(float, float, float)> lisVisibilityPolygonPoints;
-        void CalculateVisibilityPolygon(float ox, float oy, float radius)
+        Spline path = new Spline();
+
+        float agentLoc = 0;
+
+        public Splines()
         {
-            lisVisibilityPolygonPoints.Clear();
-
-            foreach (Edge edge1 in lisEdges)
-            {
-                for (int i = 0; i < 2; i++)
-                {
-                    float rdx, rdy;
-                    rdx = (i == 0 ? edge1.sx : edge1.ex) - ox;
-                    rdy = (i == 0 ? edge1.sy : edge1.ey) - oy;
-
-                    float baseAngle = (float)Math.Atan2(rdy, rdx);
-
-                    float angle = 0;
-
-                    for (int j = 0; j < 3; j++)
-                    {
-                        angle = j == 0 ? baseAngle - 0.0001f : j == 1 ? baseAngle : baseAngle + 0.0001f;
-
-                        rdx = radius * (float)Math.Cos(angle);
-                        rdy = radius * (float)Math.Sin(angle);
-
-                        float minT1 = float.PositiveInfinity, minPx = 0, minPy = 0, minAngle = 0;
-
-                        bool Valid = false;
-
-                        foreach (Edge edge2 in lisEdges)
-                        {
-                            float sdx, sdy;
-                            sdx = edge2.ex - edge2.sx;
-                            sdy = edge2.ey - edge2.sy;
-
-                            if(Math.Abs(sdx - rdx) > 0 && Math.Abs(sdy - rdy) > 0)
-                            {
-                                float t2 = (rdx * (edge2.sy - oy) + (rdy * (ox - edge2.sx))) / (sdx * rdy - sdy * rdx);
-                                float t1 = (edge2.sx + sdx * t2 - ox) / rdx;
-                                if(t1 > 0 && t2 >= 0 && t2 <= 1)
-                                {
-                                    if(t1 < minT1)
-                                    {
-                                        minT1 = t1;
-                                        minPx = ox + rdx * t1;
-                                        minPy = oy + rdy * t1;
-                                        minAngle = (float)Math.Atan2(minPy - oy, minPx - ox);
-                                        Valid = true;
-                                    }
-                                }
-                            }
-                        }
-                        if (Valid) lisVisibilityPolygonPoints.Add((minAngle, minPx, minPy));
-                    }
-                }
-            }
-            lisVisibilityPolygonPoints.Sort(new Comparison<(float, float, float)>((x, y) =>
-            {
-                if (x.Item1 < y.Item1)
-                {
-                    return -1;
-                }
-                else if (x.Item1 == y.Item1)
-                {
-                    return 0;
-                }
-                else return 1;
-            }));
+            sAppName = "Splines";
         }
 
-        void ConvertTileMapToPolyMap(int sx, int sy, int wi, int h, float BlockWidth, int pitch)
-        {
-            lisEdges.Clear();
-
-            for (int x = 0; x < wi; x++)
-            {
-                for (int y = 0; y < h; y++)
-                {
-                    for (int j = 0; j < 4; j++)
-                    {
-                        world[(y + sy) * pitch + (x + sx)].edgeId[j] = 0;
-                        world[(y + sy) * pitch + (x + sx)].edgeExist[j] = false;
-                    }
-                }
-            }
-
-            for (int x = 1; x < wi - 1; x++)
-            {
-                for (int y = 1; y < h - 1; y++)
-                {
-                    int i = (y + sy) * pitch + (x + sx);
-                    int n = (y + sy - 1) * pitch + (x + sx);
-                    int s = (y + sy + 1) * pitch + (x + sx);
-                    int e = (y + sy) * pitch + (x + sx + 1);
-                    int w = (y + sy) * pitch + (x + sx - 1);
-
-                    if (world[i].exist)
-                    {
-                        if (!world[w].exist)
-                        {
-                            if (world[n].edgeExist[(int)Direction.West])
-                            {
-                                lisEdges[world[n].edgeId[(int)Direction.West]].ey += BlockWidth;
-                                world[i].edgeId[(int)Direction.West] = world[n].edgeId[(int)Direction.West];
-                                world[i].edgeExist[(int)Direction.West] = true;
-                            }
-                            else
-                            {
-                                Edge edge = new Edge();
-                                edge.sx = (sx + x) * BlockWidth; edge.sy = (sy + y) * BlockWidth;
-                                edge.ex = edge.sx; edge.ey = edge.sy + BlockWidth;
-
-                                world[i].edgeId[(int)Direction.West] = lisEdges.Count;
-                                world[i].edgeExist[(int)Direction.West] = true;
-                                lisEdges.Add(edge);
-                            }
-                        }
-                        if (!world[e].exist)
-                        {
-                            if (world[n].edgeExist[(int)Direction.East])
-                            {
-                                lisEdges[world[n].edgeId[(int)Direction.East]].ey += BlockWidth;
-                                world[i].edgeId[(int)Direction.East] = world[n].edgeId[(int)Direction.East];
-                                world[i].edgeExist[(int)Direction.East] = true;
-                            }
-                            else
-                            {
-                                Edge edge = new Edge();
-                                edge.sx = (sx + x + 1) * BlockWidth; edge.sy = (sy + y) * BlockWidth;
-                                edge.ex = edge.sx; edge.ey = edge.sy + BlockWidth;
-
-                                world[i].edgeId[(int)Direction.East] = lisEdges.Count;
-                                world[i].edgeExist[(int)Direction.East] = true;
-                                lisEdges.Add(edge);
-                            }
-                        }
-                        if (!world[n].exist)
-                        {
-                            if (world[w].edgeExist[(int)Direction.North])
-                            {
-                                lisEdges[world[w].edgeId[(int)Direction.North]].ex += BlockWidth;
-                                world[i].edgeId[(int)Direction.North] = world[w].edgeId[(int)Direction.North];
-                                world[i].edgeExist[(int)Direction.North] = true;
-                            }
-                            else
-                            {
-                                Edge edge = new Edge();
-                                edge.sx = (sx + x) * BlockWidth; edge.sy = (sy + y) * BlockWidth;
-                                edge.ex = edge.sx + BlockWidth; edge.ey = edge.sy;
-
-                                world[i].edgeId[(int)Direction.North] = lisEdges.Count;
-                                world[i].edgeExist[(int)Direction.North] = true;
-                                lisEdges.Add(edge);
-                            }
-                        }
-                        if (!world[s].exist)
-                        {
-                            if (world[w].edgeExist[(int)Direction.South])
-                            {
-                                lisEdges[world[w].edgeId[(int)Direction.South]].ex += BlockWidth;
-                                world[i].edgeId[(int)Direction.South] = world[w].edgeId[(int)Direction.South];
-                                world[i].edgeExist[(int)Direction.South] = true;
-                            }
-                            else
-                            {
-                                Edge edge = new Edge();
-                                edge.sx = (sx + x) * BlockWidth; edge.sy = (sy + y + 1) * BlockWidth;
-                                edge.ex = edge.sx + BlockWidth; edge.ey = edge.sy;
-
-                                world[i].edgeId[(int)Direction.South] = lisEdges.Count;
-                                world[i].edgeExist[(int)Direction.South] = true;
-                                lisEdges.Add(edge);
-                            }
-                        }
-                    }
-                }
-            }
-
-        }
-
-        public ShadowCasting()
-        {
-            sAppName = "ShadowCasting";
-        }
+        int SelectedPoint = 0;
 
         public override bool onUserUpdate(float fElapsedTime)
         {
-            float BlockWidth = 16;
-            float SourceX = GetMouseX();
-            float SourceY = GetMouseY();
-
-            if (GetMouse(0).bPressed)
-            {
-                int i = ((int)SourceY / (int)BlockWidth) * worldWidth + (int)SourceX / (int)BlockWidth;
-                world[i].exist = !world[i].exist;
-            }
-
-            if (GetMouse(1).bHeld)
-            {
-                CalculateVisibilityPolygon(SourceX, SourceY, 1000);
-            }
-
             Clear(Pixel.BLACK);
 
-            int Num = lisVisibilityPolygonPoints.Count;
-
-            DrawString(0, 0, "Num1: " + Num.ToString(), Pixel.WHITE);
-
-            if(GetMouse(1).bHeld && lisVisibilityPolygonPoints.Count > 1)
+            if (GetKey(Key.X).bPressed)
             {
-                for (int i = 0; i < lisVisibilityPolygonPoints.Count - 1; i++)
-                {
-                    FillTriangle(
-                        (int)SourceX,
-                        (int)SourceY,
-
-                        (int)lisVisibilityPolygonPoints[i].Item2,
-                        (int)lisVisibilityPolygonPoints[i].Item3,
-
-                        (int)lisVisibilityPolygonPoints[i + 1].Item2,
-                        (int)lisVisibilityPolygonPoints[i + 1].Item3,
-
-                        Pixel.YELLOW);
-                }
-                FillTriangle(
-                        (int)SourceX,
-                        (int)SourceY,
-
-                        (int)lisVisibilityPolygonPoints[0].Item2,
-                        (int)lisVisibilityPolygonPoints[0].Item3,
-
-                        (int)lisVisibilityPolygonPoints[lisVisibilityPolygonPoints.Count - 1].Item2,
-                        (int)lisVisibilityPolygonPoints[lisVisibilityPolygonPoints.Count - 1].Item3,
-
-                        Pixel.YELLOW
-                    );
+                SelectedPoint = (SelectedPoint + 1) % path.points.Count;
             }
 
-            for (int x = 0; x < worldWidth; x++)
+            if (GetKey(Key.Z).bPressed)
             {
-                for (int y = 0; y < worldHeight; y++)
-                {
-                    if (world[y * worldWidth + x].exist)
-                    {
-                        FillRect(x * (int)BlockWidth, y * (int)BlockWidth, (int)BlockWidth, (int)BlockWidth, Pixel.BLUE);
-                    }
-                }
+                SelectedPoint--;
+                SelectedPoint = SelectedPoint == -1 ? path.points.Count - 1 : SelectedPoint;
             }
 
-            if(GetMouse(0).bPressed) ConvertTileMapToPolyMap(0, 0, worldWidth, worldHeight, BlockWidth, worldWidth);
+            if (GetKey(Key.UP).bHeld)
+            {
+                path.points[SelectedPoint].y -= 30f * fElapsedTime;
+            }
+
+            if (GetKey(Key.DOWN).bHeld)
+            {
+                path.points[SelectedPoint].y += 30f * fElapsedTime;
+            }
+
+            if (GetKey(Key.LEFT).bHeld)
+            {
+                path.points[SelectedPoint].x -= 30f * fElapsedTime;
+            }
+
+            if (GetKey(Key.RIGHT).bHeld)
+            {
+                path.points[SelectedPoint].x += 30f * fElapsedTime;
+            }
+
+            if (GetKey(Key.SPACE).bHeld) agentLoc += 5 * fElapsedTime;
+
+            if (agentLoc >= path.points.Count) agentLoc -= path.points.Count;
+
+            for (float t = 0; t < (float)path.points.Count; t += 0.005f)
+            {
+                Point pos = path.GetSplinePoint(t, true);
+                Draw((int)pos.x, (int)pos.y, Pixel.WHITE);
+            }
+
+            for (int i = 0; i < path.points.Count; i++)
+            {
+                FillRect((int)path.points[i].x - 1, (int)path.points[i].y - 1, 2, 2, Pixel.BLUE);
+            }
+
+            FillRect((int)path.points[SelectedPoint].x - 1, (int)path.points[SelectedPoint].y - 1, 2, 2, Pixel.YELLOW);
+
+            Point p1 = path.GetSplinePoint(agentLoc, true);
+            Point p2 = path.GetSplineGrad(agentLoc, true);
+
+            float rad = (float)Math.Atan2(-p2.y, p2.x);
+            DrawLine((int)(5 * Math.Sin(rad) + p1.x), (int)(5 * Math.Cos(rad) + p1.y), (int)(-5 * Math.Sin(rad) + p1.x), (int)(-5 * Math.Cos(rad) + p1.y), Pixel.RED);
 
             return true;
         }
 
         public override bool OnUserCreate()
         {
-            world = new Cell[worldWidth * worldHeight];
-            for (int i = 0; i < worldWidth * worldHeight; i++)
+            for (int i = 1; i < 11; i++)
             {
-                world[i] = new Cell();
+                path.points.Add(new Point(10 * i, 41));
             }
-            lisEdges = new List<Edge>();
-            lisVisibilityPolygonPoints = new List<(float, float, float)>();
-
-            for (int i = 1; i < (worldWidth - 1); i++)
-            {
-                world[worldWidth + i].exist = true;
-                world[(worldHeight - 2) * worldWidth + i].exist = true;
-            }
-
-            for (int i = 1; i < (worldHeight - 1); i++)
-            {
-                world[i * worldWidth + 1].exist = true;
-                world[i * worldWidth + worldWidth - 2].exist = true;
-            }
-
-            ConvertTileMapToPolyMap(0, 0, worldWidth, worldHeight, 16, worldWidth);
 
             return true;
         }
@@ -368,8 +234,8 @@ namespace UI
     {
         static void Main()
         {
-            ShadowCasting demo = new ShadowCasting();
-            if((int)demo.Construct(640, 480, 2, 2, false, true) == 1)
+            Splines demo = new Splines();
+            if((int)demo.Construct(160, 80, 10, 10, false, true) == 1)
             {
                 demo.Start();
             }

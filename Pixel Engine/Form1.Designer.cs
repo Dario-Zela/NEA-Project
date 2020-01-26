@@ -1,4 +1,6 @@
 ﻿using SharpGL;
+using System;
+using System.Windows.Forms;
 
 namespace Pixel_Engine
 {
@@ -42,6 +44,7 @@ namespace Pixel_Engine
             this.glControl.TabIndex = 0;
             this.glControl.Size = new System.Drawing.Size(0, 0);
 
+            this.KeyPreview = true;
             this.Controls.Add(glControl);
             this.components = new System.ComponentModel.Container();
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -57,6 +60,13 @@ namespace Pixel_Engine
 
         private OpenGLControl glControl;
         #endregion
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            OnKeyDown(new KeyEventArgs(keyData));
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
     }
 }
 
