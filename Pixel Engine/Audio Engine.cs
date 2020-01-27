@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
@@ -48,10 +48,10 @@ namespace Audio_Engine
             */
         }
 
-        public void PlaySine(float frequency, short amplitude)
+        public void Play(float frequency, short amplitude)
         {
             short[] wave = new short[SAMPLE_RATE * NUM_CHANNELS];
-            byte[] bynaryWave = new byte[SAMPLE_RATE * sizeof(short)];
+            byte[] bynaryWave = new byte[SAMPLE_RATE * NUM_CHANNELS * sizeof(short)];
             if(NUM_CHANNELS == 1)
                 for (int i = 0; i < SAMPLE_RATE; i++)
                 {
