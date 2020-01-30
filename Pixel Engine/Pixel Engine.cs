@@ -78,12 +78,7 @@ namespace Pixel_Engine
         BLACK = new Pixel(0, 0, 0),
         BLANK = new Pixel(0, 0, 0, 0);
 
-        /*
-        public override bool Equals(object obj)
-        {
-            return obj is Pixel pixel && pixel.IntValue == IntValue;
-        }
-        */
+
         public override int GetHashCode()
         {
             var hashCode = 166155883;
@@ -210,6 +205,16 @@ namespace Pixel_Engine
         public void AddTile(string name, Sprite s)
         {
             TileSetDict.Add(name, s);
+        }
+
+        public string[] Names
+        {
+            get
+            {
+                string[] temp = new string[TileSetDict.Count];
+                TileSetDict.Keys.CopyTo(temp, 0);
+                return temp;
+            }
         }
     }
 
