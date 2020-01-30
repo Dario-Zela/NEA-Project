@@ -119,6 +119,7 @@ namespace Pixel_Engine
     {
         public TileSet(string sFilePath)
         {
+            TileSetDict = new Dictionary<string, Sprite>();
             LoadTileSet(sFilePath);
         }
 
