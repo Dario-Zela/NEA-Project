@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Collections.Generic;
@@ -78,12 +78,12 @@ namespace Pixel_Engine
         BLACK = new Pixel(0, 0, 0),
         BLANK = new Pixel(0, 0, 0, 0);
 
-        
+        /*
         public override bool Equals(object obj)
         {
             return obj is Pixel pixel && pixel.IntValue == IntValue;
         }
-        
+        */
         public override int GetHashCode()
         {
             var hashCode = 166155883;
@@ -120,120 +120,97 @@ namespace Pixel_Engine
         public bool bHeld = false;
     }
 
-    public class ResourcePack
+    public class TileSet
     {
-        public ResourcePack() { }
-        public class sEntry
+        public TileSet(string sFilePath)
         {
-            public int nID = 0, nFileOffset = 0, nFileSize = 0;
-            public byte[] data = null;
-            public BufferedStream buffer;
-
-
-            public void config()
-            {
-                buffer = new BufferedStream(new MemoryStream(data, nFileOffset, nFileSize));
-            }
+            LoadTileSet(sFilePath);
         }
 
-        public rCode AddToPack(string sFile)
+        private void LoadTileSet(string sFilePath)
         {
             try
             {
-                BinaryReader reader = new BinaryReader(new FileStream(sFile, FileMode.Open));
-                sEntry entry = new sEntry();
-                int size = (int)reader.BaseStream.Length;
-                entry.nFileSize = size;
-                entry.data = new byte[entry.nFileSize];
-                reader.Read(entry.data, 0, size);
-                mapFiles.Add(sFile, entry);
-                reader.Close();
-                return rCode.OK;
+                BinaryReader reader = new BinaryReader(new FileStream(sFilePath, FileMode.Open));
+                TileWidth = reader.ReadInt32();
+                int Num = reader.ReadInt32();
+                for (int i = 0; i < Num; i++)
+                {
+                    string name = reader.ReadString();
+                    Sprite s = new Sprite(TileWidth, TileWidth);
+                    byte[] data = new byte[TileWidth * TileWidth];
+                    reader.Read(data, (int)reader.BaseStream.Position, TileWidth * TileWidth);
+                    int[] dataToUse = Array.ConvertAll(data, Convert.ToInt32);
+                    Pixel[] arr = new Pixel[dataToUse.Length];
+                    for (int j = 0; j < dataToUse.Length; j++)
+			        {
+                        arr[i] = new Pixel(dataToUse[i]);
+			        }
+                    s.SetData(arr);
+                    TileSetDict.Add(name, s);
+                }
             }
-            catch { return rCode.FAIL; }
+            catch { return; }
         }
-        public rCode SavePack(string sFile)
+
+        public void SaveTileSet(string FilePath)
         {
             try
             {
-                BinaryWriter writer = new BinaryWriter(new FileStream(sFile, FileMode.OpenOrCreate));
-                int MapSize = mapFiles.Count;
-                writer.Write(MapSize);
-                foreach (var entry in mapFiles)
+                BinaryWriter writer = new BinaryWriter(new FileStream(FilePath, FileMode.OpenOrCreate));
+                writer.Write(TileWidth);
+                writer.Write(TileSetDict.Count);
+                foreach (var Tile in TileSetDict)
                 {
-                    int PathSize = entry.Key.Length;
-                    writer.Write(PathSize);
-                    writer.Write(entry.Key);
-                    writer.Write(entry.Value.nID);
-                    writer.Write(entry.Value.nFileSize);
-                    writer.Write(entry.Value.nFileOffset);
-                }
-                int offset = (int)writer.BaseStream.Position;
-                foreach (var entry in mapFiles)
-                {
-                    entry.Value.nFileOffset = offset;
-                    writer.Write(entry.Value.data);
-                    offset += entry.Value.nFileSize;
-                }
-                writer.BaseStream.Position = 0;
-                foreach (var entry in mapFiles)
-                {
-                    int PathSize = entry.Key.Length;
-                    writer.Write(PathSize);
-                    writer.Write(entry.Key);
-                    writer.Write(entry.Value.nID);
-                    writer.Write(entry.Value.nFileSize);
-                    writer.Write(entry.Value.nFileOffset);
-                }
-                writer.Close();
-                return rCode.OK;
-            }
-            catch { return rCode.FAIL; }
-        }
-        public rCode LoadPack(string sFile)
-        {
-            try
-            {
-                BinaryReader reader = new BinaryReader(new FileStream(sFile, FileMode.Open));
-                int MapEntries = reader.ReadInt32();
-                for (int i = 0; i < MapEntries; i++)
-                {
-                    int PathSize = reader.ReadInt32();
-                    string FileName = "";
-                    for (int j = 0; j < PathSize; j++)
+                    writer.Write(Tile.Key);
+                    int[] arr = new int[Tile.Value.GetData().Length];
+                    int pos = 0;
+                    foreach (var pixel in Tile.Value.GetData())
                     {
-                        FileName += reader.ReadChar();
+                        arr[pos] = pixel.IntValue;
+                        pos++;
                     }
-                    sEntry entry = new sEntry();
-                    entry.nID = reader.ReadInt32();
-                    entry.nFileSize = reader.ReadInt32();
-                    entry.nFileOffset = reader.ReadInt32();
-                    mapFiles.Add(FileName, entry);
+                    byte[] data = Array.ConvertAll(arr, Convert.ToByte);
+                    writer.Write(data);
                 }
 
-                foreach (var entry in mapFiles)
-                {
-                    entry.Value.data = new byte[entry.Value.nFileSize];
-                    reader.BaseStream.Position = entry.Value.nFileOffset;
-                    reader.Read(entry.Value.data, 0, entry.Value.nFileSize);
-                }
-
-                reader.Close();
-                return rCode.OK;
             }
-            catch { return rCode.FAIL; }
-        }
-        public rCode ClearPack()
-        {
-            mapFiles.Clear();
-            return rCode.OK;
-        }
-        public sEntry GetStreamBuffer(string sFile)
-        {
-            return mapFiles[sFile];
+            catch { return; }
         }
 
-        private Dictionary<string, sEntry> mapFiles = new Dictionary<string,sEntry>();
+        public int TileWidth;
+        private Dictionary<string, Sprite> TileSetDict;
+
+        public Sprite GetTile(string name)
+        {
+            if(TileSetDict.ContainsKey(name)) return TileSetDict[name];
+            else return null;
+        }
+
+        public void SetTile(string name, Sprite s)
+        {
+            try
+            {
+                TileSetDict[name] = s;
+            }
+            catch { return; }
+        }
+
+        public void SetName(string oldName, string newName)
+        {
+            try
+            {
+                Sprite temp = TileSetDict[oldName];
+                TileSetDict.Remove(oldName);
+                TileSetDict.Add(newName, temp);
+            }
+            catch { return; }
+        }
+
+        public void AddTile(string name, Sprite s)
+        {
+            TileSetDict.Add(name, s);
+        }
     }
 
     public class Sprite
@@ -247,10 +224,6 @@ namespace Pixel_Engine
         public Sprite(string sImageFile)
         {
             LoadFromFile(sImageFile);
-        }
-        public Sprite(string sImageFile, ref ResourcePack pack)
-        {
-            LoadFromPGESprFile(sImageFile, ref pack);
         }
         public Sprite(int Width, int Height)
         {
@@ -281,7 +254,6 @@ namespace Pixel_Engine
             }
             return rCode.OK;
         }
-
         public rCode LoadFromFile(string sImageFile)
         {
             StreamReader reader = new StreamReader(sImageFile);
@@ -301,72 +273,6 @@ namespace Pixel_Engine
             return rCode.OK;
         }
 
-        public rCode LoadFromPGESprFile(string sImageFile, ref ResourcePack pack)
-        {
-            if (ColData != null) ColData = null;
-            if (pack == new ResourcePack())
-            {
-                try
-                {
-                    BinaryReader reader = new BinaryReader(new FileStream(sImageFile, FileMode.Open));
-                    Width = reader.ReadInt32();
-                    Height = reader.ReadInt32();
-                    ColData = new Pixel[Width * Height];
-                    for (int i = 0; i < Width * Height; i++)
-                    {
-                        ColData[i] = new Pixel(reader.ReadInt32());
-                    }
-                    reader.Close();
-                    return rCode.OK;
-                }
-                catch { return rCode.FAIL; }
-            }
-            else
-            {
-                try
-                {
-                    var streamBuffer = pack.GetStreamBuffer(sImageFile);
-                    StreamReader reader = new StreamReader(streamBuffer.buffer);
-                    char[] buffer = new char[sizeof(int)];
-                    reader.Read(buffer, 0, sizeof(int));
-                    Width = int.Parse(new string(buffer));
-                    reader.Read(buffer, 0, sizeof(int));
-                    Height = int.Parse(new string(buffer));
-                    ColData = new Pixel[Width * Height];
-                    buffer = new char[Width * Height * sizeof(int)];
-                    reader.Read(buffer, 0, buffer.Length);
-                    for (int i = 0; i < Width * Height; i++)
-                    {
-                        string value = "";
-                        value += buffer[i * 4];
-                        value += buffer[i * 4 + 1];
-                        value += buffer[i * 4 + 1];
-                        value += buffer[i * 4 + 1];
-                        ColData[i] = new Pixel(int.Parse(value));
-                    }
-                    reader.Close();
-                    return rCode.OK;
-                }
-                catch { return rCode.FAIL; }
-            }
-        }
-        public rCode SaveToPGESprFile(string sImageFile)
-        {
-            if (ColData == null) return rCode.FAIL;
-            try
-            {
-                BinaryWriter writer = new BinaryWriter(new FileStream(sImageFile, FileMode.OpenOrCreate));
-                writer.Write(Width);
-                writer.Write(Height);
-                for (int i = 0; i < ColData.Length; i++)
-                {
-                    writer.Write(ColData[i].IntValue);
-                }
-                writer.Close();
-                return rCode.OK;
-            }
-            catch { return rCode.FAIL; }
-        }
 
         public int Width;
         public int Height;
