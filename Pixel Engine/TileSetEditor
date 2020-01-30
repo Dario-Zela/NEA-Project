@@ -1,0 +1,41 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Pixel_Engine
+{
+    class TileSetEditor : Engine
+    {
+        TileSet tileSet;
+
+        public TileSetEditor(string Path)
+        {
+            tileSet = new TileSet(Path);
+        }
+
+        public override bool OnUserCreate()
+        {
+            return true;
+        }
+
+        public override bool onUserUpdate(float fElapsedTime)
+        {
+            //Draw Sprites
+            int x = 0;
+            int y = 0;
+            foreach (string name in tileSet.Names)
+            {
+                DrawSprite(x, y, tileSet.GetTile(name));
+                x += tileSet.TileWidth;
+                if (x >= ScreenWidth())
+                {
+                    x = 0;
+                    y += tileSet.TileWidth;
+                }
+            }
+            return true;
+        }
+    }
+}
