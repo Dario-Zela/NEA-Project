@@ -22,16 +22,18 @@ namespace Pixel_Engine
 
         public override bool onUserUpdate(float fElapsedTime)
         {
+
+
             //Draw Sprites
-            int x = 0;
-            int y = 0;
+            int x = 100;
+            int y = 100;
             foreach (string name in tileSet.Names)
             {
                 DrawSprite(x, y, tileSet.GetTile(name));
                 x += tileSet.TileWidth;
-                if (x >= ScreenWidth())
+                if (x >= ScreenWidth() - 100)
                 {
-                    x = 0;
+                    x = 100;
                     y += tileSet.TileWidth;
                 }
             }
