@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audio Engine.cs" />
+    <Compile Include="TileSetEditor" />
     <Compile Include="Pixel Engine Display.cs">
       <SubType>Form</SubType>
     </Compile>
