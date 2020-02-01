@@ -101,13 +101,6 @@ namespace Pixel_Engine
         }
     }
 
-    public enum rCode
-    {
-        FAIL = 0,
-        OK = 1,
-        NO_FILE = -1
-    }
-
     public class HWButton
     {
         public bool bPressed = false;
@@ -120,6 +113,7 @@ namespace Pixel_Engine
         public TileSet(string sFilePath)
         {
             TileSetDict = new Dictionary<string, Sprite>();
+            TileWidth = 16;
             LoadTileSet(sFilePath);
         }
 
@@ -146,7 +140,10 @@ namespace Pixel_Engine
                     TileSetDict.Add(name, s);
                 }
             }
-            catch { return; }
+            catch 
+            {
+                AddTile(" ", new Sprite(TileWidth, TileWidth));
+            }
         }
 
         public void SaveTileSet(string FilePath)
@@ -208,6 +205,11 @@ namespace Pixel_Engine
             TileSetDict.Add(name, s);
         }
 
+        public void RemoveTile(string name)
+        {
+            if(TileSetDict.ContainsKey(name)) TileSetDict.Remove(name);
+        }
+
         public string[] Names
         {
             get
@@ -231,23 +233,24 @@ namespace Pixel_Engine
         {
             LoadFromFile(sImageFile);
         }
-        public Sprite(int Width, int Height)
+        public Sprite(int Width, int Height) : this(Width, Height, Pixel.WHITE) { }
+        public Sprite(Bitmap bitmap)
+        {
+            LoadFromBitmap(bitmap);
+        }
+        public Sprite(int Width, int Height, Pixel p)
         {
             if (ColData != null) ColData = null;
             this.Width = Width;
             this.Height = Height;
             ColData = new Pixel[Width * Height];
             for (int i = 0; i < Width * Height; i++)
-                ColData[i] = new Pixel();
-        }
-        public Sprite(Bitmap bitmap)
-        {
-            LoadFromBitmap(bitmap);
+                ColData[i] = p;
         }
 
-        public rCode LoadFromBitmap(Bitmap bitmap)
+        public bool LoadFromBitmap(Bitmap bitmap)
         {
-            if (bitmap == null) return rCode.NO_FILE;
+            if (bitmap == null) return false;
             Width = bitmap.Width;
             Height = bitmap.Height;
             ColData = new Pixel[Width * Height];
@@ -258,13 +261,13 @@ namespace Pixel_Engine
                     SetPixel(x, y, bitmap.GetPixel(x, y));
                 }
             }
-            return rCode.OK;
+            return true;
         }
-        public rCode LoadFromFile(string sImageFile)
+        public bool LoadFromFile(string sImageFile)
         {
             StreamReader reader = new StreamReader(sImageFile);
             Bitmap bitmap = (Bitmap)Image.FromFile(sImageFile);
-            if (bitmap == null) return rCode.NO_FILE;
+            if (bitmap == null) return false;
             Width = bitmap.Width;
             Height = bitmap.Height;
             ColData = new Pixel[Width * Height];
@@ -276,9 +279,8 @@ namespace Pixel_Engine
                 }
             }
             bitmap.Dispose();
-            return rCode.OK;
+            return true;
         }
-
 
         public int Width;
         public int Height;
@@ -391,7 +393,7 @@ namespace Pixel_Engine
             PGEX.pge = this;
         }
 
-        public rCode Construct(int screenW, int screenH, int pixelW, int pixelH, bool fullScreen = false, bool showFPS = false)
+        public bool Construct(int screenW, int screenH, int pixelW, int pixelH, bool fullScreen = false, bool showFPS = false)
         {
             nScreenWidth = screenW;
             nScreenHeight = screenH;
@@ -402,7 +404,7 @@ namespace Pixel_Engine
 
             fPixelX = 2.0f / (float)nScreenWidth;
             fPixelY = 2.0f / (float)nScreenHeight;
-            if (nPixelWidth == 0 || nPixelHeight == 0 || nScreenWidth == 0 || nScreenHeight == 0) return rCode.FAIL;
+            if (nPixelWidth == 0 || nPixelHeight == 0 || nScreenWidth == 0 || nScreenHeight == 0) return false;
 
             Action<Array> Init = new Action<Array>((arr) => 
             {
@@ -419,9 +421,9 @@ namespace Pixel_Engine
             pDefaultDrawTarget = new Sprite(nScreenWidth, nScreenHeight);
             SetDrawTarget(ref pDefaultDrawTarget);
             Clear(Pixel.BLACK);
-            return rCode.OK;
+            return true;
         }
-        public rCode Start()
+        public bool Start()
         {
             try
             {
@@ -429,9 +431,9 @@ namespace Pixel_Engine
                 bAtomActive = true;
                 WindowCreate(action);
                 ((Form1)Control.FromHandle(HWnd)).Start();
-                return rCode.OK;
+                return true;
             }
-            catch { return rCode.FAIL; }
+            catch { return false; }
         }
 
         public virtual bool OnUserCreate()
@@ -981,12 +983,12 @@ namespace Pixel_Engine
                     temp = 0;
                 }
             }
-            Bitmap bitmap = new Bitmap((int)(10 * temp), 20 * counter);
+            Bitmap bitmap = new Bitmap((int)(15 * temp), 30 * counter);
             Graphics g = Graphics.FromImage(bitmap);
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
             g.Clear(Color.Transparent);
-            TextRenderer.DrawText(g, sText, new Font(FontFamily.GenericSansSerif, 10), new Point(0, 0), col);
+            TextRenderer.DrawText(g, sText, new Font(FontFamily.GenericSansSerif, 13), new Point(0, 0), col);
             Pixel.Mode a = GetPixelMode();
             SetPixelMode(Pixel.Mode.MASK);
             DrawSprite(x, y, new Sprite(bitmap));
