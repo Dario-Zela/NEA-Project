@@ -1,0 +1,7 @@
+{
+  "BiomeMap": {
+      "src": "TileSetMapGen.bmp",
+    "tileWidth": 32,
+    "value":  []
+    }
+}

@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using Models.WorldGen;
+using Pixel_Engine;
+using Models.Sprites;
 
 /// <summary>
 /// The world creation algorithm, taking inspiration from the Unity's implementations;
@@ -855,6 +856,12 @@ namespace Models.WorldGen
             float[,] humidMap = gen.GenerateNoiseMap(Height, Width, scale, seedHumid, Octaves, Persistance, Lacunarity - 1);
             biomeMap = new GetBiome(heightMap, humidMap, tempMap, Width, Height);
             */
+        }
+
+        public Sprite GetBiomeSprite(int x, int y)
+        {
+            var tileSet = TileSet.Instance.GetSprites("BiomeMap");
+            return tileSet[World.landBlocks[World.idx(x,y)].type - 1];
         }
     }
 }

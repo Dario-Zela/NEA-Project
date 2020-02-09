@@ -108,119 +108,6 @@ namespace Pixel_Engine
         public bool bHeld = false;
     }
 
-    public class TileSet
-    {
-        public TileSet(string sFilePath)
-        {
-            TileSetDict = new Dictionary<string, Sprite>();
-            TileWidth = 16;
-            LoadTileSet(sFilePath);
-        }
-
-        private void LoadTileSet(string sFilePath)
-        {
-            try
-            {
-                BinaryReader reader = new BinaryReader(new FileStream(sFilePath, FileMode.Open));
-                TileWidth = reader.ReadInt32();
-                int Num = reader.ReadInt32();
-                for (int i = 0; i < Num; i++)
-                {
-                    string name = reader.ReadString();
-                    Sprite s = new Sprite(TileWidth, TileWidth);
-                    byte[] data = new byte[TileWidth * TileWidth];
-                    reader.Read(data, (int)reader.BaseStream.Position, TileWidth * TileWidth);
-                    int[] dataToUse = Array.ConvertAll(data, Convert.ToInt32);
-                    Pixel[] arr = new Pixel[dataToUse.Length];
-                    for (int j = 0; j < dataToUse.Length; j++)
-			        {
-                        arr[i] = new Pixel(dataToUse[i]);
-			        }
-                    s.SetData(arr);
-                    TileSetDict.Add(name, s);
-                }
-            }
-            catch 
-            {
-                AddTile(" ", new Sprite(TileWidth, TileWidth));
-            }
-        }
-
-        public void SaveTileSet(string FilePath)
-        {
-            try
-            {
-                BinaryWriter writer = new BinaryWriter(new FileStream(FilePath, FileMode.OpenOrCreate));
-                writer.Write(TileWidth);
-                writer.Write(TileSetDict.Count);
-                foreach (var Tile in TileSetDict)
-                {
-                    writer.Write(Tile.Key);
-                    int[] arr = new int[Tile.Value.GetData().Length];
-                    int pos = 0;
-                    foreach (var pixel in Tile.Value.GetData())
-                    {
-                        arr[pos] = pixel.IntValue;
-                        pos++;
-                    }
-                    byte[] data = Array.ConvertAll(arr, Convert.ToByte);
-                    writer.Write(data);
-                }
-
-            }
-            catch { return; }
-        }
-
-        public int TileWidth;
-        private Dictionary<string, Sprite> TileSetDict;
-
-        public Sprite GetTile(string name)
-        {
-            if(TileSetDict.ContainsKey(name)) return TileSetDict[name];
-            else return null;
-        }
-
-        public void SetTile(string name, Sprite s)
-        {
-            try
-            {
-                TileSetDict[name] = s;
-            }
-            catch { return; }
-        }
-
-        public void SetName(string oldName, string newName)
-        {
-            try
-            {
-                Sprite temp = TileSetDict[oldName];
-                TileSetDict.Remove(oldName);
-                TileSetDict.Add(newName, temp);
-            }
-            catch { return; }
-        }
-
-        public void AddTile(string name, Sprite s)
-        {
-            TileSetDict.Add(name, s);
-        }
-
-        public void RemoveTile(string name)
-        {
-            if(TileSetDict.ContainsKey(name)) TileSetDict.Remove(name);
-        }
-
-        public string[] Names
-        {
-            get
-            {
-                string[] temp = new string[TileSetDict.Count];
-                TileSetDict.Keys.CopyTo(temp, 0);
-                return temp;
-            }
-        }
-    }
-
     public class Sprite
     {
         public Sprite()
@@ -265,7 +152,6 @@ namespace Pixel_Engine
         }
         public bool LoadFromFile(string sImageFile)
         {
-            StreamReader reader = new StreamReader(sImageFile);
             Bitmap bitmap = (Bitmap)Image.FromFile(sImageFile);
             if (bitmap == null) return false;
             Width = bitmap.Width;
@@ -578,16 +464,10 @@ namespace Pixel_Engine
                 pattern = (pattern << 1) | (pattern >> 31);
                 return (pattern & 1) == 1;
             });
-            Action<int, int> swap = new Action<int, int>((num1, num2) =>
-            {
-                int temp = num1;
-                num1 = num2;
-                num2 = temp;
-            });
 
             if(dx == 0)
             {
-                if (y2 < y1) swap(y2, y1);
+                if (y2 < y1) swap(ref y2, ref y1);
                 for (int j = y1; j < y2; j++)
                 {
                     if (rol()) Draw(x1, j, p);
@@ -596,7 +476,7 @@ namespace Pixel_Engine
             }
             if(dy == 0)
             {
-                if (x2 < x1) swap(x2, x1);
+                if (x2 < x1) swap(ref x2, ref x1);
                 for (int j = x1; j < x2; j++)
                 {
                     if (rol()) Draw(j, y1, p);
@@ -658,7 +538,7 @@ namespace Pixel_Engine
                 }
             }
         }
-        public void DrawCircle(int x, int y, int radius, Pixel p, byte mask = 0xFF)
+        public void DrawCircle(int x, int y, int radius, Pixel p)
         {
             int x0 = 0;
             int y0 = radius;
@@ -1118,7 +998,7 @@ namespace Pixel_Engine
             glDeviceContext = Graphics.FromHwnd(HWnd).GetHdc();
 
             #region PIXELFORMATDESCRIPTOR Construct
-            SharpGL.Win32.PIXELFORMATDESCRIPTOR pfd = new Win32.PIXELFORMATDESCRIPTOR();
+            Win32.PIXELFORMATDESCRIPTOR pfd = new Win32.PIXELFORMATDESCRIPTOR();
             pfd.nSize = 40;
             pfd.nVersion = 1;
             pfd.dwFlags = Win32.PFD_DRAW_TO_WINDOW | Win32.PFD_SUPPORT_OPENGL | Win32.PFD_DOUBLEBUFFER;
