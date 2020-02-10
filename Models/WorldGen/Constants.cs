@@ -1,4 +1,4 @@
-﻿namespace Models.WorldGen
+namespace Models.WorldGen
 {
     static class Constants
     {
