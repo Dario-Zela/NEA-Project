@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
@@ -127,10 +127,10 @@ namespace Models.WorldGen
         public void buildBiomes(ref Map World, ref Random rng)
         {
             int nBiomes = Constants.WORLD_TILES_COUNT / (32 + rng.Next(1, 33));
-            List<(int, int)> centroids = new List<(int, int)>();
+            List<Tuple<int,int>> centroids = new List<Tuple<int,int>>();
             for (int i = 0; i < nBiomes; i++)
             {
-                centroids.Add((rng.Next(1, Constants.WORLD_WIDTH), rng.Next(1, Constants.WORLD_HEIGHT)));
+                centroids.Add(new Tuple<int,int>(rng.Next(1, Constants.WORLD_WIDTH), rng.Next(1, Constants.WORLD_HEIGHT)));
                 World.biomes.Add(new Biome());
             }
 
@@ -166,7 +166,7 @@ namespace Models.WorldGen
                 Dictionary<int, double> membershipCount = biomeMembership(ref World, ref count);
                 if (!(membershipCount.Count == 0))
                 {
-                    List<(double, int)> possibleTypes = findPossibleBiomes(ref membershipCount, ref World.biomes, World.biomes.IndexOf(biome));
+                    List<Tuple<double,int>> possibleTypes = findPossibleBiomes(ref membershipCount, ref World.biomes, World.biomes.IndexOf(biome));
                     if (!(possibleTypes.Count == 0))
                     {
                         double maxRoll = 0.0;
@@ -196,9 +196,9 @@ namespace Models.WorldGen
             }
         }
 
-        private List<(double, int)> findPossibleBiomes(ref Dictionary<int, double> percents, ref List<Biome> biomes, int index)
+        private List<Tuple<double,int>> findPossibleBiomes(ref Dictionary<int, double> percents, ref List<Biome> biomes, int index)
         {
-            List<(double, int)> result = new List<(double, int)>();
+            List<Tuple<double,int>> result = new List<Tuple<double,int>>();
 
             int idx = 0;
             for (int i = 0; i < BiomeTypes.Count; i++)
@@ -208,7 +208,7 @@ namespace Models.WorldGen
             return result;
         }
 
-        private void possibleBiomesMethod(biomeType bt, ref Dictionary<int, double> percents, ref List<Biome> biomes, ref List<(double, int)> results, ref int idx, int index)
+        private void possibleBiomesMethod(biomeType bt, ref Dictionary<int, double> percents, ref List<Biome> biomes, ref List<Tuple<double,int>> results, ref int idx, int index)
         {
             if (biomes[index].meanTemperature >= bt.minTemp && biomes[index].meanTemperature <= bt.maxTemp
                 && biomes[index].meanRainfall >= bt.minRain && biomes[index].meanRainfall <= bt.maxRain
@@ -221,7 +221,7 @@ namespace Models.WorldGen
                     bool finder = percents.ContainsKey(occour);
                     if (finder && percents[occour] > 0)
                     {
-                        results.Add((percents[occour] * 100.0, idx));
+                        results.Add(new Tuple<double, int>(percents[occour] * 100.0, idx));
                     }
                 }
             }
@@ -461,11 +461,11 @@ namespace Models.WorldGen
 		        int x = river.startX;
 		        int y = river.startY;
 		        while (!done) {
-			        Dictionary<int,(int, int)> candidates = new Dictionary<int,(int, int)>();
-			        if (x > 0 && !usedSteps.Contains(World.idx(x-1, y))) candidates.Add(World.landBlocks[World.idx(x-1, y)].height, (x-1, y));
-                    else if (x < Constants.WORLD_WIDTH-1 && !usedSteps.Contains(World.idx(x+1, y))) candidates.Add(World.landBlocks[World.idx(x+1, y)].height, (x+1, y));
-                    else if (y > 0 && !usedSteps.Contains(World.idx(x, y-1))) candidates.Add(World.landBlocks[World.idx(x, y-1)].height, (x, y-1));
-                    else if (y < Constants.WORLD_HEIGHT-1 && !usedSteps.Contains(World.idx(x, y+1))) candidates.Add(World.landBlocks[World.idx(x, y+1)].height, (x, y+1));
+			        Dictionary<int,Tuple<int,int>> candidates = new Dictionary<int,Tuple<int,int>>();
+			        if (x > 0 && !usedSteps.Contains(World.idx(x-1, y))) candidates.Add(World.landBlocks[World.idx(x-1, y)].height, new Tuple<int,int>(x-1, y));
+                    else if (x < Constants.WORLD_WIDTH-1 && !usedSteps.Contains(World.idx(x+1, y))) candidates.Add(World.landBlocks[World.idx(x+1, y)].height, new Tuple<int,int>(x+1, y));
+                    else if (y > 0 && !usedSteps.Contains(World.idx(x, y-1))) candidates.Add(World.landBlocks[World.idx(x, y-1)].height, new Tuple<int,int>(x, y-1));
+                    else if (y < Constants.WORLD_HEIGHT - 1 && !usedSteps.Contains(World.idx(x, y + 1))) candidates.Add(World.landBlocks[World.idx(x, y + 1)].height, new Tuple<int, int>(x, y + 1));
 			        RiverStep step = new RiverStep();
 			        if (candidates.Count == 0) {
 				        done = true;
