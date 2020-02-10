@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -233,7 +233,7 @@ namespace Models.WorldGen
 
         
         #region Old
-        public (float[,], float[,], float[,]) GenerateNoiseMap(int mapDepth, int mapWidth, int seed, int Octaves, float Persistance, float Lacunarity, int REGION_FRACTION_TO_CONSIDER)
+        public Tuple<float[,],float[,],float[,]> GenerateNoiseMap(int mapDepth, int mapWidth, int seed, int Octaves, float Persistance, float Lacunarity, int REGION_FRACTION_TO_CONSIDER)
         {
             float[,] NoiseMap = new float[mapDepth, mapWidth];
             PerlinNoise perlin = new PerlinNoise(Octaves, Persistance, Lacunarity, seed);
@@ -290,7 +290,7 @@ namespace Models.WorldGen
                 }
             }
 
-            return (NoiseMap, maximas, minimas);
+            return new Tuple<float[,],float[,],float[,]>(NoiseMap, maximas, minimas);
         }
 
         private float InverseLerp(float min, float max, float value)
@@ -317,7 +317,7 @@ namespace Models.WorldGen
         public void noiseMap(ref Map World, int seed, int octaves, float persistence, float lacunarity)
         {
             const int REGION_FRACTION_TO_CONSIDER = 64;
-            (float[,], float[,], float[,]) temp = GenerateNoiseMap(Constants.WORLD_HEIGHT, Constants.WORLD_WIDTH, seed, octaves, persistence, lacunarity, REGION_FRACTION_TO_CONSIDER);
+            Tuple<float[,],float[,],float[,]> temp = GenerateNoiseMap(Constants.WORLD_HEIGHT, Constants.WORLD_WIDTH, seed, octaves, persistence, lacunarity, REGION_FRACTION_TO_CONSIDER);
             float[,] noiseMap = temp.Item1;
             float[,] maximas = temp.Item2;
             float[,] minimas = temp.Item3;
@@ -529,8 +529,8 @@ namespace Models.WorldGen
         public Gender gender = new Gender();
         public Sexuality sexuality = new Sexuality();
         public HairStyle hairStyle = new HairStyle();
-        public (string, Colour) skinColour = ("", new Colour(0, 0, 0));
-        public (string, Colour) hairColor = ("", new Colour(0, 0, 0));
+        public Tuple<string, Colour> skinColour = new Tuple<string,Colour>("", new Colour(0, 0, 0));
+        public Tuple<string, Colour> hairColor = new Tuple<string,Colour>("", new Colour(0, 0, 0));
         public float height = 0;
         public float weight = 0;
         public bool bearded = false;
@@ -598,10 +598,7 @@ namespace Models.WorldGen
 
         public override bool Equals(object obj)
         {
-            return obj is Colour colour &&
-                   r == colour.r &&
-                   g == colour.g &&
-                   b == colour.b;
+            return obj is Colour;
         }
 
         public override int GetHashCode()
@@ -618,13 +615,13 @@ namespace Models.WorldGen
     {
         public string tag = "", name = "", maleName = "", femaleName = "", collectiveName = "", description = "";
         public Dictionary<string, int> statMods = new Dictionary<string, int>();
-        public List<(string, int, int)> bodyParts = new List<(string, int, int)>();
+        public List<Tuple<string, int, int>> bodyParts = new List<Tuple<string, int, int>>();
         public Diet diet = Diet.Omnivore;
         public Alignment alignment = Alignment.Neutral;
         public bool spreadsBlight = false;
         public int maxAge = 90, infantAge = 5, childAge = 12;
         public char glyph = '@', glyphAscii = '@', worldgenGlyph = '@';
-        public List<(string, Colour)> skinColors = new List<(string, Colour)>(), hairColors = new List<(string, Colour)>();
+        public List<Tuple<string, Colour>> skinColors = new List<Tuple<string, Colour>>(), hairColors = new List<Tuple<string, Colour>>();
     };
 
     public class civUnitNaturalAttack
@@ -639,7 +636,7 @@ namespace Models.WorldGen
 
     public class civEquipment
     {
-        public List<(int, string, string)> startingClothes = new List<(int, string, string)>();
+        public List<Tuple<int, string, string>> startingClothes = new List<Tuple<int, string, string>>();
         public string melee = "";
         public string ranged = "";
         public string ammo = "";
@@ -701,7 +698,7 @@ namespace Models.WorldGen
         public int minMutation = 0, maxMutation = 100, soilPct = 50, sandPct = 50;
         public List<int> occurs = new List<int>();
         public int worldgenTextureIndex = 0;
-        public List<(string, int)> plants = new List<(string, int)>();
+        public List<Tuple<string, int>> plants = new List<Tuple<string, int>>();
         public List<string> wildlife = new List<string>();
         public int deciduousTreeChance = 0;
         public int evergreenTreeChance = 0;
