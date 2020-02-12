@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using Models.WorldGen;
 using Pixel_Engine;
 using System.Linq;
-using System.IO;
+using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace UI
 {
@@ -21,16 +22,19 @@ namespace UI
             return true;
         }
 
+        bool pass = false;
         public override bool onUserUpdate(float fElapsedTime)
         {
-            Console.WriteLine("Pass");
-
-            for (int x = 0; x < ScreenWidth() / 8 ; x++)
+            if (!pass)
             {
-                for (int y = 0; y < ScreenHeight() / 8; y++)
+                Parallel.For(0, ScreenWidth() / 8, (x) =>
                 {
-                    DrawPartialSprite(x * 8, y * 8, world.GetBiomeSprite(x, y), 0, 0, 8, 8);
-                }
+                    Parallel.For(0, ScreenWidth() / 8, (y) =>
+                    {
+                        DrawPartialSprite(x * 8, y * 8, world.GetBiomeSprite(x, y), 0, 0, 8, 8);
+                    });
+                });
+                pass = true;
             }
             return true;
         }

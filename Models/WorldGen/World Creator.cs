@@ -827,7 +827,7 @@ namespace Models.WorldGen
         private const int Octaves = 5;
         //public GetBiome biomeMap;
         public Map World;
-
+        private Sprite[] BiomeMap = TileSet.Instance.GetSprites("BiomeMap");
         public WorldCreator(int seed)
         {
             MapGen gen = new MapGen();
@@ -857,8 +857,7 @@ namespace Models.WorldGen
 
         public Sprite GetBiomeSprite(int x, int y)
         {
-            var tileSet = TileSet.Instance.GetSprites("BiomeMap");
-            return tileSet[World.landBlocks[World.idx(x,y)].type - 1];
+            return BiomeMap[World.landBlocks[World.idx(x,y)].type - 1];
         }
     }
 }

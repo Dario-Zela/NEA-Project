@@ -113,6 +113,7 @@ namespace Pixel_Engine
         public Sprite()
         {
             ColData = null;
+            ColDataInt = null;
             Width = 0;
             Height = 0;
         }
@@ -131,8 +132,12 @@ namespace Pixel_Engine
             this.Width = Width;
             this.Height = Height;
             ColData = new Pixel[Width * Height];
+            ColDataInt = new int[Width * Height];
             for (int i = 0; i < Width * Height; i++)
+            {
                 ColData[i] = p;
+                ColDataInt[i] = p.IntValue;
+            }
         }
 
         public bool LoadFromBitmap(Bitmap bitmap)
@@ -141,6 +146,7 @@ namespace Pixel_Engine
             Width = bitmap.Width;
             Height = bitmap.Height;
             ColData = new Pixel[Width * Height];
+            ColDataInt = new int[Width * Height];
             for (int x = 0; x < Width; x++)
             {
                 for (int y = 0; y < Height; y++)
@@ -157,6 +163,7 @@ namespace Pixel_Engine
             Width = bitmap.Width;
             Height = bitmap.Height;
             ColData = new Pixel[Width * Height];
+            ColDataInt = new int[Width * Height];
             for (int x = 0; x < Width; x++)
             {
                 for (int y = 0; y < Height; y++)
@@ -190,6 +197,7 @@ namespace Pixel_Engine
             if (x >= 0 && x < Width && y >= 0 && y < Height)
             {
                 ColData[y * Width + x] = p;
+                ColDataInt[y * Width + x] = p.IntValue;
                 return true;
             }
             else
@@ -241,19 +249,19 @@ namespace Pixel_Engine
         }
         public int[] GetIntData()
         {
-            int[] ret = new int[ColData.Length];
-            Parallel.For(0,ColData.Length, (i) =>
-			{
-                ret[i] = ColData[i].IntValue;
-			});
-            return ret;
+            return ColDataInt;
         }
         public void SetData(Pixel[] data)
         {
             ColData = data;
+            Parallel.For(0, ColData.Length, (i) =>
+            {
+                ColDataInt[i] = ColData[i].IntValue;
+            });
         }
 
-        private Pixel[] ColData = null;
+        private Pixel[] ColData;
+        private int[] ColDataInt;
         private Mode modeSample = Mode.NORMAL;
     }
 
@@ -1121,9 +1129,13 @@ namespace Pixel_Engine
 
                     nMouseWheelDelta = nMouseWheelDeltaCache;
                     nMouseWheelDeltaCache = 0;
-                    
+
+                    Stopwatch s = Stopwatch.StartNew();
+
                     if (!onUserUpdate(elapsedTime))
                         bAtomActive = false;
+                    s.Stop();
+                    Console.WriteLine(s.ElapsedTicks + " or " + s.ElapsedMilliseconds);
 
                     GL.Viewport(nViewX, nViewY, nViewW, nViewH);
 

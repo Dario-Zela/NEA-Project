@@ -11,3 +11,17 @@ C:\Users\zelad005.319\Downloads\NEA-Project-master\Models\obj\Debug\Models.dll
 C:\Users\zelad005.319\Downloads\NEA-Project-master\Models\obj\Debug\Models.pdb
 C:\Users\zelad005.319\Downloads\NEA-Project-master\Models\bin\Debug\Newtonsoft.Json.dll
 C:\Users\zelad005.319\Downloads\NEA-Project-master\Models\bin\Debug\Newtonsoft.Json.xml
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Models\bin\Debug\Models.dll
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Models\bin\Debug\Models.pdb
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Models\bin\Debug\Newtonsoft.Json.dll
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Models\bin\Debug\Pixel Engine.exe
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Models\bin\Debug\SharpGL.WinForms.dll
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Models\bin\Debug\SharpGL.dll
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Models\bin\Debug\Pixel Engine.pdb
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Models\bin\Debug\Pixel Engine.exe.config
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Models\bin\Debug\SharpGL.WinForms.xml
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Models\bin\Debug\SharpGL.xml
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Models\obj\Debug\Models.csprojAssemblyReference.cache
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Models\obj\Debug\Models.csproj.CopyComplete
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Models\obj\Debug\Models.dll
+C:\Users\arben\Desktop\Dario\Programming\C#.NET\NEA\Models\obj\Debug\Models.pdb
