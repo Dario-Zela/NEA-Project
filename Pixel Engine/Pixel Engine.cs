@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Diagnostics;
 using SharpGL;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Pixel_Engine
 {
@@ -856,7 +857,7 @@ namespace Pixel_Engine
                 });
             }
         }
-        public void DrawString(int x, int y, string sText, Pixel col)
+        public void DrawString(int x, int y, string sText, Pixel col, int Size)
         {
             int counter = 1;
             int max = 0;
@@ -871,12 +872,12 @@ namespace Pixel_Engine
                     temp = 0;
                 }
             }
-            Bitmap bitmap = new Bitmap((int)(15 * temp), 30 * counter);
+            Bitmap bitmap = new Bitmap((int)(Size * temp), Size * 2 * counter);
             Graphics g = Graphics.FromImage(bitmap);
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
             g.Clear(Color.Transparent);
-            TextRenderer.DrawText(g, sText, new Font(FontFamily.GenericSansSerif, 13), new Point(0, 0), col);
+            TextRenderer.DrawText(g, sText, new Font(FontFamily.GenericSansSerif, Size), new Point(0, 0), col);
             Pixel.Mode a = GetPixelMode();
             SetPixelMode(Pixel.Mode.MASK);
             DrawSprite(x, y, new Sprite(bitmap));
@@ -904,10 +905,63 @@ namespace Pixel_Engine
             GL.Clear(OpenGL.GL_COLOR_BUFFER_BIT);
             UpdateViewport();
         }
+        public char ReadKey()
+        {
+            for (int i = 0; i < CharacterKeys.Length; i++)
+            {
+                if ((GetKey(Key.SHIFT).bPressed || GetKey(Key.SHIFT).bHeld) && GetKey(CharacterKeys[i]).bPressed)
+                {
+                    return CharactersUpper[i];
+                }
+                else if (GetKey(CharacterKeys[i]).bPressed)
+                {
+                    return CharactersLower[i];
+                }
+            }
+            for (int i = 0; i < NumberKeys.Length; i++)
+            {
+                if (GetKey(NumberKeys[i]).bPressed)
+                {
+                    return Numbers[i];
+                }
+            }
+
+            return '\0';
+        }
+        public string ReadLine()
+        {
+            string s = "";
+            BackgroundWorker bw = new BackgroundWorker();
+            bw.DoWork += new DoWorkEventHandler((sender, e) =>
+            {
+                while (GetKey(Key.ENTER).bPressed)
+                {
+                    s += ReadKey();
+                }
+            });
+            bw.RunWorkerAsync();
+        }
 
         #region Declerations
         public string sAppName;
 
+        Key[] CharacterKeys = new[] {Key.A, Key.B, Key.C, Key.D, Key.E,
+            Key.F, Key.G, Key.H, Key.I, Key.J, Key.K, Key.L, Key.M, Key.N,
+            Key.O, Key.P, Key.Q, Key.R, Key.S, Key.T, Key.U, Key.V, Key.W,
+            Key.X, Key.Y, Key.Z};
+        Key[] NumberKeys = new[] {Key.NP1, Key.NP2, Key.NP3, Key.NP4, Key.NP5,
+            Key.NP6, Key.NP7, Key.NP8, Key.NP9, Key.NP0, Key.NP_ADD, Key.NP_DIV,
+            Key.NP_MUL, Key.NP_SUB, Key.NP_DECIMAL, Key.SPACE, Key.K1, Key.K2, Key.K3, Key.K4, Key.K5,
+            Key.K6, Key.K7, Key.K8, Key.K9, Key.K0};
+        char[] CharactersUpper = new[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G',
+            'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+            'U', 'V', 'W', 'X', 'Y', 'Z'};
+        char[] Numbers = new[]  {'1', '2', '3', '4', '5', '6', '7',
+            '8', '9', '0', '+', '/', '*', '-', '.', ' ', '1', '2', '3', '4',
+            '5', '6', '7', '8', '9', '0',};
+        char[] CharactersLower = new[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g',
+            'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+            'u', 'v', 'w', 'x', 'y', 'z' };
         Sprite pDefaultDrawTarget = null;
         Sprite pDrawTarget = null;
         Pixel.Mode nPixelMode = Pixel.Mode.NORMAL;
@@ -1130,12 +1184,8 @@ namespace Pixel_Engine
                     nMouseWheelDelta = nMouseWheelDeltaCache;
                     nMouseWheelDeltaCache = 0;
 
-                    Stopwatch s = Stopwatch.StartNew();
-
                     if (!onUserUpdate(elapsedTime))
                         bAtomActive = false;
-                    s.Stop();
-                    Console.WriteLine(s.ElapsedTicks + " or " + s.ElapsedMilliseconds);
 
                     GL.Viewport(nViewX, nViewY, nViewW, nViewH);
 
@@ -1253,7 +1303,10 @@ namespace Pixel_Engine
                     pMouseNewState[2] = false;
                 }
             });
-            Window.FormClosing += new FormClosingEventHandler((sender, e) => bAtomActive = false);
+            Window.FormClosing += new FormClosingEventHandler((sender, e) =>
+            {
+                bAtomActive = false;
+            });
 
             UpdateWindowSize(Window.Width, Window.Height - 39);
 
