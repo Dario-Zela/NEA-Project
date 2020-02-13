@@ -274,7 +274,7 @@ namespace Pixel_Engine
         F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
         UP, DOWN, LEFT, RIGHT,
         SPACE, TAB, SHIFT, CTRL, INS, DEL, HOME, END, PGUP, PGDN,
-        BACK, ESCAPE, RETURN, ENTER, PAUSE, SCROLL,
+        BACKSPACE, ESCAPE, RETURN, ENTER, PAUSE, SCROLL,
         NP0, NP1, NP2, NP3, NP4, NP5, NP6, NP7, NP8, NP9,
         NP_MUL, NP_DIV, NP_ADD, NP_SUB, NP_DECIMAL,
     };
@@ -859,6 +859,7 @@ namespace Pixel_Engine
         }
         public void DrawString(int x, int y, string sText, Pixel col, int Size)
         {
+            if (sText.Length == 0) return;
             int counter = 1;
             int max = 0;
             int temp = 0;
@@ -872,16 +873,18 @@ namespace Pixel_Engine
                     temp = 0;
                 }
             }
-            Bitmap bitmap = new Bitmap((int)(Size * temp), Size * 2 * counter);
+            if (max < temp) max = temp;
+            Bitmap bitmap = new Bitmap((int)((Size) * max), Size * 2 * counter);
             Graphics g = Graphics.FromImage(bitmap);
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
             g.Clear(Color.Transparent);
-            TextRenderer.DrawText(g, sText, new Font(FontFamily.GenericSansSerif, Size), new Point(0, 0), col);
+            TextRenderer.DrawText(g, sText, new Font(FontFamily.GenericSerif, Size), new Point(0, 0), col);
             Pixel.Mode a = GetPixelMode();
             SetPixelMode(Pixel.Mode.MASK);
             DrawSprite(x, y, new Sprite(bitmap));
             SetPixelMode(a);
+            DrawRect(x,y,(Size + 2) * max,Size * 2 * counter,Pixel.BLUE);
             bitmap.Dispose();
         }
         public void Clear(Pixel p)
@@ -925,21 +928,7 @@ namespace Pixel_Engine
                     return Numbers[i];
                 }
             }
-
             return '\0';
-        }
-        public string ReadLine()
-        {
-            string s = "";
-            BackgroundWorker bw = new BackgroundWorker();
-            bw.DoWork += new DoWorkEventHandler((sender, e) =>
-            {
-                while (GetKey(Key.ENTER).bPressed)
-                {
-                    s += ReadKey();
-                }
-            });
-            bw.RunWorkerAsync();
         }
 
         #region Declerations
@@ -1330,7 +1319,7 @@ namespace Pixel_Engine
             mapKeys[0x28] = (byte)Key.DOWN; mapKeys[0x25] = (byte)Key.LEFT; mapKeys[0x27] = (byte)Key.RIGHT; mapKeys[0x26] = (byte)Key.UP;
             mapKeys[0x0D] = (byte)Key.ENTER;
 
-            mapKeys[0x08] = (byte)Key.BACK; mapKeys[0x1B] = (byte)Key.ESCAPE; mapKeys[0x13] = (byte)Key.PAUSE;
+            mapKeys[0x08] = (byte)Key.BACKSPACE; mapKeys[0x1B] = (byte)Key.ESCAPE; mapKeys[0x13] = (byte)Key.PAUSE;
             mapKeys[0x91] = (byte)Key.SCROLL; mapKeys[0x09] = (byte)Key.TAB; mapKeys[0x2E] = (byte)Key.DEL; mapKeys[0x24] = (byte)Key.HOME;
             mapKeys[0x23] = (byte)Key.END; mapKeys[0x21] = (byte)Key.PGUP; mapKeys[0x22] = (byte)Key.PGDN; mapKeys[0x2D] = (byte)Key.INS;
             mapKeys[0x10] = (byte)Key.SHIFT; mapKeys[0x11] = (byte)Key.CTRL;
