@@ -18,13 +18,29 @@ namespace UI
         WorldCreator world;
         public override bool OnUserCreate()
         {
-            world = new WorldCreator(800);
+            //world = new WorldCreator(800);
             return true;
         }
 
-        bool pass = false;
+        string output = "";
         public override bool onUserUpdate(float fElapsedTime)
         {
+            Clear(Pixel.BLACK);
+            var x = ReadKey();
+            if (x != '\0' && !GetKey(Key.ENTER).bPressed)
+            {
+                output += x;
+            }
+            else if(GetKey(Key.ENTER).bPressed)
+            {
+                output+='\n';
+            }
+            else if (GetKey(Key.BACKSPACE).bPressed)
+            {
+                output = output.Remove(output.Length-1);
+            }
+            DrawString(0, 0, output, Pixel.WHITE, 12);
+            /*
             if (!pass)
             {
                 Parallel.For(0, ScreenWidth() / 8, (x) =>
@@ -36,6 +52,7 @@ namespace UI
                 });
                 pass = true;
             }
+            */
             return true;
         }
     }
