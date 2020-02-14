@@ -22,9 +22,19 @@ namespace UI
             return true;
         }
 
-        string output = "";
+        string output = "abcdefghijklmno\npqrstuvwxyz\nABCDEFGHIJKLMNO\nPQRSTUVWXYZ";
+        int Size = 1;
+        int font = 22;
         public override bool onUserUpdate(float fElapsedTime)
         {
+            if (GetMouseWheel() > 0)
+            {
+                Size++;
+            }
+            else if (GetMouseWheel() < 0 && Size != 1)
+            {
+                Size--;
+            }
             Clear(Pixel.BLACK);
             var x = ReadKey();
             if (x != '\0' && !GetKey(Key.ENTER).bPressed)
@@ -35,11 +45,22 @@ namespace UI
             {
                 output+='\n';
             }
-            else if (GetKey(Key.BACKSPACE).bPressed)
+            else if (GetKey(Key.BACKSPACE).bPressed && output.Length != 0)
             {
                 output = output.Remove(output.Length-1);
             }
-            DrawString(0, 0, output, Pixel.WHITE, 12);
+            if (GetKey(Key.DOWN).bPressed && font != 0)
+            {
+                font--;
+            }
+            else if (GetKey(Key.UP).bPressed)
+            {
+               font++;
+               Console.WriteLine(font);
+            }
+
+            DrawString(0, 0, output, Pixel.WHITE, Size, font);
+            
             /*
             if (!pass)
             {
@@ -63,7 +84,7 @@ namespace UI
         static void Main()
         {
             Test demo = new Test();
-            if (demo.Construct(800, 800, 1, 1, false, true))
+            if (demo.Construct(1040, 540, 1, 1, true, true))
             {
                 demo.Start();
             }
