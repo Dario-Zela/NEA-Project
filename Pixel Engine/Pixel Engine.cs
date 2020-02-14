@@ -857,7 +857,7 @@ namespace Pixel_Engine
                 });
             }
         }
-        public void DrawString(int x, int y, string sText, Pixel col, int Size)
+        public void DrawString(int x, int y, string sText, Pixel col, int Size, int font)
         {
             if (sText.Length == 0) return;
             int counter = 1;
@@ -874,17 +874,16 @@ namespace Pixel_Engine
                 }
             }
             if (max < temp) max = temp;
-            Bitmap bitmap = new Bitmap((int)((Size) * max), Size * 2 * counter);
+            Bitmap bitmap = new Bitmap((int)(9 * max), 18 * counter);
             Graphics g = Graphics.FromImage(bitmap);
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
-            g.Clear(Color.Transparent);
-            TextRenderer.DrawText(g, sText, new Font(FontFamily.GenericSerif, Size), new Point(0, 0), col);
+            g.Clear(Pixel.BLACK);
+            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+            TextRenderer.DrawText(g, sText, new Font(FontFamily.Families[font], 9, GraphicsUnit.Pixel), Point.Empty, Pixel.WHITE);
             Pixel.Mode a = GetPixelMode();
             SetPixelMode(Pixel.Mode.MASK);
-            DrawSprite(x, y, new Sprite(bitmap));
+            DrawSprite(x, y, new Sprite(bitmap), Size);
             SetPixelMode(a);
-            DrawRect(x,y,(Size + 2) * max,Size * 2 * counter,Pixel.BLUE);
             bitmap.Dispose();
         }
         public void Clear(Pixel p)
@@ -1098,127 +1097,131 @@ namespace Pixel_Engine
 
         private void EngineThread(BackgroundWorker worker)
         {
-            OpenGLCreate();
-
-            Form1 window = (Form1)Control.FromHandle(HWnd);
-            OpenGL GL = window.GetGLControl().OpenGL;
-
-            GL.Enable(OpenGL.GL_TEXTURE_2D);
-            GL.GenTextures(1, new uint[]{ glBuffer});
-            GL.BindTexture(OpenGL.GL_TEXTURE_2D, glBuffer);
-            GL.TexParameterI(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MAG_FILTER, new uint[]{ OpenGL.GL_NEAREST});
-            GL.TexParameterI(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MIN_FILTER, new uint[] { OpenGL.GL_NEAREST });
-            GL.TexEnv(OpenGL.GL_TEXTURE_ENV, OpenGL.GL_TEXTURE_ENV_MODE, OpenGL.GL_DECAL);
-
-            GL.TexImage2D(OpenGL.GL_TEXTURE_2D, 0, OpenGL.GL_RGBA, nScreenWidth, nScreenHeight, 0, OpenGL.GL_RGBA, OpenGL.GL_UNSIGNED_BYTE, pDefaultDrawTarget.GetByteData());
-
-            if (!OnUserCreate()) bAtomActive = false;
-
-            Stopwatch tp1 = Stopwatch.StartNew();
-
-            while (bAtomActive)
+            try
             {
+                OpenGLCreate();
+
+                Form1 window = (Form1)Control.FromHandle(HWnd);
+                OpenGL GL = window.GetGLControl().OpenGL;
+
+                GL.Enable(OpenGL.GL_TEXTURE_2D);
+                GL.GenTextures(1, new uint[] { glBuffer });
+                GL.BindTexture(OpenGL.GL_TEXTURE_2D, glBuffer);
+                GL.TexParameterI(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MAG_FILTER, new uint[] { OpenGL.GL_NEAREST });
+                GL.TexParameterI(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MIN_FILTER, new uint[] { OpenGL.GL_NEAREST });
+                GL.TexEnv(OpenGL.GL_TEXTURE_ENV, OpenGL.GL_TEXTURE_ENV_MODE, OpenGL.GL_DECAL);
+
+                GL.TexImage2D(OpenGL.GL_TEXTURE_2D, 0, OpenGL.GL_RGBA, nScreenWidth, nScreenHeight, 0, OpenGL.GL_RGBA, OpenGL.GL_UNSIGNED_BYTE, pDefaultDrawTarget.GetByteData());
+
+                if (!OnUserCreate()) bAtomActive = false;
+
+                Stopwatch tp1 = Stopwatch.StartNew();
+
                 while (bAtomActive)
                 {
-                    float elapsedTime = (float)tp1.Elapsed.TotalSeconds;
-                    tp1.Reset();
-                    tp1.Start();
-                    Parallel.For(0, 256, (i) =>
+                    while (bAtomActive)
                     {
-                        pKeyboardState[i].bPressed = false;
-                        pKeyboardState[i].bReleased = false;
-
-                        if (pKeyNewState[i] != pKeyOldState[i])
+                        float elapsedTime = (float)tp1.Elapsed.TotalSeconds;
+                        tp1.Reset();
+                        tp1.Start();
+                        Parallel.For(0, 256, (i) =>
                         {
-                            if (pKeyNewState[i])
+                            pKeyboardState[i].bPressed = false;
+                            pKeyboardState[i].bReleased = false;
+
+                            if (pKeyNewState[i] != pKeyOldState[i])
                             {
-                                pKeyboardState[i].bPressed = !pKeyboardState[i].bHeld;
-                                pKeyboardState[i].bHeld = true;
+                                if (pKeyNewState[i])
+                                {
+                                    pKeyboardState[i].bPressed = !pKeyboardState[i].bHeld;
+                                    pKeyboardState[i].bHeld = true;
+                                }
+                                else
+                                {
+                                    pKeyboardState[i].bReleased = true;
+                                    pKeyboardState[i].bHeld = false;
+                                }
+                            }
+
+                            pKeyOldState[i] = pKeyNewState[i];
+                        });
+
+                        Parallel.For(0, 5, (i) =>
+                          {
+                              pMouseState[i].bPressed = false;
+                              pMouseState[i].bReleased = false;
+
+                              if (pMouseNewState[i] != pMouseOldState[i])
+                              {
+                                  if (pMouseNewState[i])
+                                  {
+                                      pMouseState[i].bPressed = !pMouseState[i].bHeld;
+                                      pMouseState[i].bHeld = true;
+                                  }
+                                  else
+                                  {
+                                      pMouseState[i].bReleased = true;
+                                      pMouseState[i].bHeld = false;
+                                  }
+                              }
+
+                              pMouseOldState[i] = pMouseNewState[i];
+                          });
+
+                        nMousePosX = nMousePosXcache;
+                        nMousePosY = nMousePosYcache;
+
+                        nMouseWheelDelta = nMouseWheelDeltaCache;
+                        nMouseWheelDeltaCache = 0;
+
+                        if (!onUserUpdate(elapsedTime))
+                            bAtomActive = false;
+
+                        GL.Viewport(nViewX, nViewY, nViewW, nViewH);
+
+                        GL.TexSubImage2D(OpenGL.GL_TEXTURE_2D, 0, 0, 0, nScreenWidth, nScreenHeight, OpenGL.GL_RGBA, OpenGL.GL_UNSIGNED_BYTE, pDefaultDrawTarget.GetIntData());
+
+                        GL.Begin(OpenGL.GL_QUADS);
+                        GL.TexCoord(0.0, 1.0); GL.Vertex(-1.0f + (fSubPixelOffsetX), -1.0f + (fSubPixelOffsetY), 0.0f);
+                        GL.TexCoord(0.0, 0.0); GL.Vertex(-1.0f + (fSubPixelOffsetX), 1.0f + (fSubPixelOffsetY), 0.0f);
+                        GL.TexCoord(1.0, 0.0); GL.Vertex(1.0f + (fSubPixelOffsetX), 1.0f + (fSubPixelOffsetY), 0.0f);
+                        GL.TexCoord(1.0, 1.0); GL.Vertex(1.0f + (fSubPixelOffsetX), -1.0f + (fSubPixelOffsetY), 0.0f);
+                        GL.End();
+
+                        Win32.SwapBuffers(glDeviceContext);
+
+                        glDeviceContext = Graphics.FromHwnd(HWnd).GetHdc();
+
+                        fFrameTimer += elapsedTime;
+                        nFrameCount++;
+                        if (fFrameTimer > 1.0f && bShowFPS)
+                        {
+                            fFrameTimer -= 1.0f;
+                            string sTitle = AppName + " - FPS: " + nFrameCount.ToString();
+                            if (window.InvokeRequired)
+                            {
+                                window.Invoke(new Action(() => window.Text = sTitle));
                             }
                             else
                             {
-                                pKeyboardState[i].bReleased = true;
-                                pKeyboardState[i].bHeld = false;
+                                window.Text = sTitle;
                             }
+                            nFrameCount = 0;
                         }
-
-                        pKeyOldState[i] = pKeyNewState[i];
-                    });
-
-                    Parallel.For(0, 5, (i) =>
-                      {
-                          pMouseState[i].bPressed = false;
-                          pMouseState[i].bReleased = false;
-
-                          if (pMouseNewState[i] != pMouseOldState[i])
-                          {
-                              if (pMouseNewState[i])
-                              {
-                                  pMouseState[i].bPressed = !pMouseState[i].bHeld;
-                                  pMouseState[i].bHeld = true;
-                              }
-                              else
-                              {
-                                  pMouseState[i].bReleased = true;
-                                  pMouseState[i].bHeld = false;
-                              }
-                          }
-
-                          pMouseOldState[i] = pMouseNewState[i];
-                      });
-
-                    nMousePosX = nMousePosXcache;
-                    nMousePosY = nMousePosYcache;
-
-                    nMouseWheelDelta = nMouseWheelDeltaCache;
-                    nMouseWheelDeltaCache = 0;
-
-                    if (!onUserUpdate(elapsedTime))
-                        bAtomActive = false;
-
-                    GL.Viewport(nViewX, nViewY, nViewW, nViewH);
-
-                    GL.TexSubImage2D(OpenGL.GL_TEXTURE_2D, 0, 0, 0, nScreenWidth, nScreenHeight, OpenGL.GL_RGBA, OpenGL.GL_UNSIGNED_BYTE, pDefaultDrawTarget.GetIntData());
-
-                    GL.Begin(OpenGL.GL_QUADS);
-                    GL.TexCoord(0.0, 1.0); GL.Vertex(-1.0f + (fSubPixelOffsetX), -1.0f + (fSubPixelOffsetY), 0.0f);
-                    GL.TexCoord(0.0, 0.0); GL.Vertex(-1.0f + (fSubPixelOffsetX), 1.0f + (fSubPixelOffsetY), 0.0f);
-                    GL.TexCoord(1.0, 0.0); GL.Vertex(1.0f + (fSubPixelOffsetX), 1.0f + (fSubPixelOffsetY), 0.0f);
-                    GL.TexCoord(1.0, 1.0); GL.Vertex(1.0f + (fSubPixelOffsetX), -1.0f + (fSubPixelOffsetY), 0.0f);
-                    GL.End();
-
-                    Win32.SwapBuffers(glDeviceContext);
-
-                    glDeviceContext = Graphics.FromHwnd(HWnd).GetHdc();
-
-                    fFrameTimer += elapsedTime;
-                    nFrameCount++;
-                    if(fFrameTimer > 1.0f && bShowFPS)
-                    {
-                        fFrameTimer -= 1.0f;
-                        string sTitle = AppName + " - FPS: " + nFrameCount.ToString();
-                        if (window.InvokeRequired)
-                        {
-                            window.Invoke(new Action(() => window.Text = sTitle));
-                        }
-                        else
-                        {
-                            window.Text = sTitle;
-                        }
-                        nFrameCount = 0;
+                        worker.ReportProgress(0);
                     }
-                    worker.ReportProgress(0);
-                }
-                if (OnUserDestroy())
-                {
+                    if (OnUserDestroy())
+                    {
 
+                    }
+                    else
+                    {
+                        bAtomActive = true;
+                    }
                 }
-                else
-                {
-                    bAtomActive = true;
-                }
+                Win32.wglDeleteContext(glRenderContext);
             }
-            Win32.wglDeleteContext(glRenderContext);
+            catch { };
         }
 
         IntPtr HWnd = new IntPtr();
