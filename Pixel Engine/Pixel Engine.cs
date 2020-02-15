@@ -9,6 +9,7 @@ using System.Diagnostics;
 using SharpGL;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Linq;
 
 namespace Pixel_Engine
 {
@@ -216,7 +217,7 @@ namespace Pixel_Engine
             u = u * Width - 0.5f;
             v = v * Height - 0.5f;
             int x = (int)Math.Floor(u);
-            int y = (int)Math.Floor(v); 
+            int y = (int)Math.Floor(v);
             float uRatio = u - x;
             float vRatio = v - y;
             float uOpposite = 1 - uRatio;
@@ -301,7 +302,7 @@ namespace Pixel_Engine
             fPixelY = 2.0f / (float)nScreenHeight;
             if (nPixelWidth == 0 || nPixelHeight == 0 || nScreenWidth == 0 || nScreenHeight == 0) return false;
 
-            Action<Array> Init = new Action<Array>((arr) => 
+            Action<Array> Init = new Action<Array>((arr) =>
             {
                 for (int i = 0; i < arr.Length; i++)
                 {
@@ -402,7 +403,7 @@ namespace Pixel_Engine
 
         public void SetDrawTarget(ref Sprite target)
         {
-            if(target != null)
+            if (target != null)
             {
                 pDrawTarget = target;
             }
@@ -447,7 +448,7 @@ namespace Pixel_Engine
             {
                 if (p.A == 255) return pDrawTarget.SetPixel(x, y, p);
             }
-            if(nPixelMode == Pixel.Mode.ALPHA)
+            if (nPixelMode == Pixel.Mode.ALPHA)
             {
                 Pixel d = pDrawTarget.GetPixel(x, y);
                 float a = (p.A / 255.0f) * fBlendFactor;
@@ -457,7 +458,7 @@ namespace Pixel_Engine
                 float b = a * p.B + c * d.B;
                 return pDrawTarget.SetPixel(x, y, new Pixel((byte)r, (byte)g, (byte)b));
             }
-            if(nPixelMode == Pixel.Mode.CUSTOM)
+            if (nPixelMode == Pixel.Mode.CUSTOM)
             {
                 return pDrawTarget.SetPixel(x, y, funcPixelMode(x, y, p, pDrawTarget.GetPixel(x, y)));
             }
@@ -474,7 +475,7 @@ namespace Pixel_Engine
                 return (pattern & 1) == 1;
             });
 
-            if(dx == 0)
+            if (dx == 0)
             {
                 if (y2 < y1) swap(ref y2, ref y1);
                 for (int j = y1; j < y2; j++)
@@ -483,7 +484,7 @@ namespace Pixel_Engine
                 }
                 return;
             }
-            if(dy == 0)
+            if (dy == 0)
             {
                 if (x2 < x1) swap(ref x2, ref x1);
                 for (int j = x1; j < x2; j++)
@@ -633,7 +634,7 @@ namespace Pixel_Engine
         }
         public void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, Pixel p)
         {
-            
+
             Action<int, int, int> drawline = new Action<int, int, int>((sx, ex, ny) =>
             {
                 for (int i = sx; i <= ex; i++)
@@ -653,12 +654,12 @@ namespace Pixel_Engine
             if (y2 > y3) { swap(ref y2, ref y3); swap(ref x2, ref x3); }
 
             t1x = t2x = x1; y = y1;   // Starting points
-            dx1 = x2 - x1; 
+            dx1 = x2 - x1;
             if (dx1 < 0) { dx1 = -dx1; signx1 = -1; }
             else signx1 = 1;
             dy1 = y2 - y1;
 
-            dx2 = x3 - x1; 
+            dx2 = x3 - x1;
             if (dx2 < 0) { dx2 = -dx2; signx2 = -1; }
             else signx2 = 1;
             dy2 = y3 - y1;
@@ -817,7 +818,7 @@ namespace Pixel_Engine
             else
             {
                 Parallel.For(0, sprite.Width, (i) =>
-                { 
+                {
                     Parallel.For(0, sprite.Height, (j) =>
                     {
                         Draw(x + i, y + j, sprite.GetPixel(i, j));
@@ -860,31 +861,26 @@ namespace Pixel_Engine
         public void DrawString(int x, int y, string sText, Pixel col, int Size, int font)
         {
             if (sText.Length == 0) return;
-            int counter = 1;
-            int max = 0;
-            int temp = 0;
-            foreach (char c in sText)
+            string[] strings = sText.Split(new[] { '\n' });
+            if (strings[strings.Length - 1].Length == 0)
             {
-                temp++;
-                if (c == '\n')
-                {
-                    counter++;
-                    if (max < temp) max = temp;
-                    temp = 0;
-                }
+                strings = strings.Take(strings.Length - 1).ToArray();
             }
-            if (max < temp) max = temp;
-            Bitmap bitmap = new Bitmap((int)(9 * max), 18 * counter);
-            Graphics g = Graphics.FromImage(bitmap);
-            g.Clear(Pixel.BLACK);
-            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-            TextRenderer.DrawText(g, sText, new Font(FontFamily.Families[font], 9, GraphicsUnit.Pixel), Point.Empty, Pixel.WHITE);
-            Pixel.Mode a = GetPixelMode();
-            SetPixelMode(Pixel.Mode.MASK);
-            DrawSprite(x, y, new Sprite(bitmap), Size);
-            SetPixelMode(a);
-            bitmap.Dispose();
+            Parallel.For(0, strings.Length, (i) =>
+            {
+                Bitmap bitmap = new Bitmap(9 * strings[i].Length, 18);
+                Graphics g = Graphics.FromImage(bitmap);
+                g.Clear(Pixel.BLACK);
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+                TextRenderer.DrawText(g, strings[i], new Font(FontFamily.Families[font], 9, GraphicsUnit.Pixel), Point.Empty, Pixel.WHITE);
+                Pixel.Mode a = GetPixelMode();
+                SetPixelMode(Pixel.Mode.MASK);
+                DrawSprite(x, y + i * Size * 18, new Sprite(bitmap), Size);
+                SetPixelMode(a);
+                bitmap.Dispose();
+            });
         }
         public void Clear(Pixel p)
         {
@@ -1054,27 +1050,27 @@ namespace Pixel_Engine
             pfd.dwFlags = Win32.PFD_DRAW_TO_WINDOW | Win32.PFD_SUPPORT_OPENGL | Win32.PFD_DOUBLEBUFFER;
             pfd.iPixelType = Win32.PFD_TYPE_RGBA;
             pfd.cColorBits = 32;
-            pfd.cRedBits        = 0;
-            pfd.cRedShift       = 0;
-            pfd.cGreenBits      = 0;
-            pfd.cGreenShift     = 0;
-            pfd.cBlueBits       = 0;
-            pfd.cBlueShift      = 0;
-            pfd.cAlphaBits      = 0;
-            pfd.cAlphaShift     = 0;
-            pfd.cAccumBits      = 0;
-            pfd.cAccumRedBits   = 0;
+            pfd.cRedBits = 0;
+            pfd.cRedShift = 0;
+            pfd.cGreenBits = 0;
+            pfd.cGreenShift = 0;
+            pfd.cBlueBits = 0;
+            pfd.cBlueShift = 0;
+            pfd.cAlphaBits = 0;
+            pfd.cAlphaShift = 0;
+            pfd.cAccumBits = 0;
+            pfd.cAccumRedBits = 0;
             pfd.cAccumGreenBits = 0;
-            pfd.cAccumBlueBits  = 0;
+            pfd.cAccumBlueBits = 0;
             pfd.cAccumAlphaBits = 0;
-            pfd.cDepthBits      = 0;
-            pfd.cStencilBits    = 0;
-            pfd.cAuxBuffers     = 0;
-            pfd.iLayerType      = Win32.PFD_MAIN_PLANE;
-            pfd.bReserved       = 0;
-            pfd.dwLayerMask     = 0;
-            pfd.dwVisibleMask   = 0;
-            pfd.dwDamageMask    = 0;
+            pfd.cDepthBits = 0;
+            pfd.cStencilBits = 0;
+            pfd.cAuxBuffers = 0;
+            pfd.iLayerType = Win32.PFD_MAIN_PLANE;
+            pfd.bReserved = 0;
+            pfd.dwLayerMask = 0;
+            pfd.dwVisibleMask = 0;
+            pfd.dwDamageMask = 0;
             #endregion
 
             int pf = Win32.ChoosePixelFormat(glDeviceContext, pfd);
@@ -1147,26 +1143,26 @@ namespace Pixel_Engine
                         });
 
                         Parallel.For(0, 5, (i) =>
-                          {
-                              pMouseState[i].bPressed = false;
-                              pMouseState[i].bReleased = false;
+                        {
+                            pMouseState[i].bPressed = false;
+                            pMouseState[i].bReleased = false;
 
-                              if (pMouseNewState[i] != pMouseOldState[i])
-                              {
-                                  if (pMouseNewState[i])
-                                  {
-                                      pMouseState[i].bPressed = !pMouseState[i].bHeld;
-                                      pMouseState[i].bHeld = true;
-                                  }
-                                  else
-                                  {
-                                      pMouseState[i].bReleased = true;
-                                      pMouseState[i].bHeld = false;
-                                  }
-                              }
+                            if (pMouseNewState[i] != pMouseOldState[i])
+                            {
+                                if (pMouseNewState[i])
+                                {
+                                    pMouseState[i].bPressed = !pMouseState[i].bHeld;
+                                    pMouseState[i].bHeld = true;
+                                }
+                                else
+                                {
+                                    pMouseState[i].bReleased = true;
+                                    pMouseState[i].bHeld = false;
+                                }
+                            }
 
-                              pMouseOldState[i] = pMouseNewState[i];
-                          });
+                            pMouseOldState[i] = pMouseNewState[i];
+                        });
 
                         nMousePosX = nMousePosXcache;
                         nMousePosY = nMousePosYcache;
@@ -1221,7 +1217,11 @@ namespace Pixel_Engine
                 }
                 Win32.wglDeleteContext(glRenderContext);
             }
-            catch { };
+            catch 
+            {
+                Form1 window = (Form1)Control.FromHandle(HWnd);
+                window.Close();
+            };
         }
 
         IntPtr HWnd = new IntPtr();
@@ -1267,15 +1267,15 @@ namespace Pixel_Engine
             Window.KeyUp += new KeyEventHandler((sender, e) => { try { pKeyNewState[mapKeys[(int)e.KeyCode]] = false; } catch { } });
             Window.MouseDown += new MouseEventHandler((sender, e) =>
             {
-                if(e.Button == MouseButtons.Left)
+                if (e.Button == MouseButtons.Left)
                 {
                     pMouseNewState[0] = true;
                 }
-                else if(e.Button == MouseButtons.Right)
+                else if (e.Button == MouseButtons.Right)
                 {
                     pMouseNewState[1] = true;
                 }
-                else if(e.Button == MouseButtons.Middle)
+                else if (e.Button == MouseButtons.Middle)
                 {
                     pMouseNewState[2] = true;
                 }
@@ -1337,7 +1337,7 @@ namespace Pixel_Engine
 
             for (int i = 0; i < 255; i++)
             {
-                if(mapKeys[i] == 255)
+                if (mapKeys[i] == 255)
                 {
                     mapKeys.Remove(i);
                 }
