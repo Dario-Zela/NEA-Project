@@ -101,7 +101,7 @@ namespace UI
                     Parallel.For(0, ScreenHeight(), (y) =>
                     {
                         float i = vs[x, y];
-                        Pixel p = new Pixel((byte)(255 * i), (byte)(255 * i), (byte)(255 * i));
+                        Pixel p = i<0.1? Pixel.BLUE:i<0.15?Pixel.YELLOW:i<0.7?new Pixel(0,(byte)(255*i),0):i<0.8?Pixel.DARK_GREEN:i<0.9? new Pixel(150,75,0):Pixel.WHITE;
                         Draw(x, y, p);
                     });
                 });
