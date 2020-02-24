@@ -15,16 +15,15 @@ namespace UI
             sAppName = "World";
         }
 
-        MapGen world;
+        WorldCreator world;
         public override bool OnUserCreate()
         {
-            world = new MapGen();
+            world = new WorldCreator(800);
             return true;
         }
 
         bool pass = false;
-        float Scale = 40;
-        uint Seed = 800;
+        int Seed = 800;
         int Octaves = 1;
         float Pers = (float)0.2;
         float Luca = 2;
@@ -32,24 +31,22 @@ namespace UI
         {
             if (GetMouseWheel() > 0)
             {
-                Scale++;
+                Luca -= (float)0.1;
                 pass = false;
-                Console.WriteLine(Scale);
             }
             if (GetMouseWheel() < 0)
             {
-                Scale--;
+                Luca += (float)0.1;
                 pass = false;
-                Console.WriteLine(Scale);
             }
             if (GetKey(Key.UP).bPressed)
             {
-                Seed++;
+                Pers += (float)0.1;
                 pass = false;
             }
             if (GetKey(Key.DOWN).bPressed)
             {
-                Seed--;
+                Pers -= (float)0.1;
                 pass = false;
             }
             if (GetKey(Key.LEFT).bPressed)
@@ -62,47 +59,20 @@ namespace UI
                 Octaves--;
                 pass = false;
             }
-            if (GetKey(Key.TAB).bPressed)
-            {
-                if (GetKey(Key.SHIFT).bHeld)
-                {
-                    Pers -= (float)0.1;
-                    pass = false;
-                }
-                else
-                {
-                    Pers += (float)0.1;
-                    pass = false;
-                }
-            }
             if (GetKey(Key.ENTER).bPressed)
             {
-                if (GetKey(Key.SHIFT).bHeld)
-                {
-                    Luca -= (float)0.1;
-                    pass = false;
-                }
-                else
-                {
-                    Luca += (float)0.1;
-                    pass = false;
-                }
+                Seed = new Random().Next(1000000);
+                pass = false;
             }
-            if (GetKey(Key.SPACE).bPressed)
-            {
-                Console.WriteLine("Scale: " + Scale + "\nSeed: " + Seed + "\nOctaves: " + Octaves + "\nPersistance: " + Pers + "\nLucanarity: " + Luca);
-            }
-
             if (!pass)
             {
-                float[,] vs = world.GenerateNoiseMap(128, 128, Scale, (int)Seed, Octaves, Pers, Luca);
+                Console.WriteLine(Seed + " " + Pers + " " + Luca + " " + Octaves);
+                world = new WorldCreator(Seed, Pers, Luca, Octaves);
                 Parallel.For(0, ScreenWidth(), (x) =>
                 {
                     Parallel.For(0, ScreenHeight(), (y) =>
                     {
-                        float i = vs[x, y];
-                        Pixel p = i<0.1? Pixel.BLUE:i<0.15?Pixel.YELLOW:i<0.7?new Pixel(0,(byte)(255*i),0):i<0.8?Pixel.DARK_GREEN:i<0.9? new Pixel(150,75,0):Pixel.WHITE;
-                        Draw(x, y, p);
+                        DrawPartialSprite(x, y, world.GetBiomeSprite(x, y), 0, 0, 1, 1);
                     });
                 });
                 pass = true;
@@ -111,13 +81,15 @@ namespace UI
         }
     }
 
+    //990715 1.3 0.3999996 6
+
     class Start
     {
 
         static void Main()
         {
             Test demo = new Test();
-            if (demo.Construct(128, 128, 4, 4, false, true))
+            if (demo.Construct(128, 128, 16, 16, false, true))
             {
                 demo.Start();
             }
