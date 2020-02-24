@@ -82,6 +82,7 @@ namespace UI
     }
 
     //990715 1.3 0.3999996 6
+    //1.7 0.4 6
 
     class Start
     {
