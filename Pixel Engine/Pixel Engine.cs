@@ -345,63 +345,63 @@ namespace Pixel_Engine
             return false;
         }
 
-        public bool IsFocused()
+        public static bool IsFocused()
         {
             return bHasInputFocus;
         }
-        public bool HasMouseFocus()
+        public static bool HasMouseFocus()
         {
             return bHasMouseFocus;
         }
-        public HWButton GetKey(Key k)
+        public static HWButton GetKey(Key k)
         {
             return pKeyboardState[(int)k];
         }
-        public HWButton GetMouse(int b)
+        public static HWButton GetMouse(int b)
         {
             return pMouseState[b];
         }
-        public int GetMouseX()
+        public static int GetMouseX()
         {
             return nMousePosX;
         }
-        public int GetMouseY()
+        public static int GetMouseY()
         {
             return nMousePosY;
         }
-        public int GetMouseWheel()
+        public static int GetMouseWheel()
         {
             return nMouseWheelDelta;
         }
 
-        public int ScreenWidth()
+        public static int ScreenWidth()
         {
             return nScreenWidth;
         }
-        public int ScreenHeight()
+        public static int ScreenHeight()
         {
             return nScreenHeight;
         }
-        public int GetDrawTargetWidth()
+        public static int GetDrawTargetWidth()
         {
             if (pDrawTarget != null)
                 return pDrawTarget.Width;
             else
                 return 0;
         }
-        public int GetDrawTargetHeight()
+        public static int GetDrawTargetHeight()
         {
             if (pDrawTarget != null)
                 return pDrawTarget.Height;
             else
                 return 0;
         }
-        public Sprite GetDrawTarget()
+        public static Sprite GetDrawTarget()
         {
             return pDrawTarget;
         }
 
-        public void SetDrawTarget(ref Sprite target)
+        public static void SetDrawTarget(ref Sprite target)
         {
             if (target != null)
             {
@@ -412,11 +412,11 @@ namespace Pixel_Engine
                 pDrawTarget = pDefaultDrawTarget;
             }
         }
-        public void SetPixelMode(Pixel.Mode m)
+        public static void SetPixelMode(Pixel.Mode m)
         {
             nPixelMode = m;
         }
-        public Pixel.Mode GetPixelMode()
+        public static Pixel.Mode GetPixelMode()
         {
             return nPixelMode;
         }
@@ -437,7 +437,7 @@ namespace Pixel_Engine
             fSubPixelOffsetY = oy * fPixelY;
         }
 
-        public virtual bool Draw(int x, int y, Pixel p)
+        public static bool Draw(int x, int y, Pixel p)
         {
             if (pDrawTarget == null) return false;
             if (nPixelMode == Pixel.Mode.NORMAL)
@@ -464,7 +464,7 @@ namespace Pixel_Engine
             }
             return false;
         }
-        public void DrawLine(int x1, int y1, int x2, int y2, Pixel p, uint pattern = 0xFFFFFFFF)
+        public static void DrawLine(int x1, int y1, int x2, int y2, Pixel p, uint pattern = 0xFFFFFFFF)
         {
             int x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
             dx = x2 - x1; dy = y2 - y1;
@@ -548,7 +548,7 @@ namespace Pixel_Engine
                 }
             }
         }
-        public void DrawCircle(int x, int y, int radius, Pixel p)
+        public static void DrawCircle(int x, int y, int radius, Pixel p)
         {
             int x0 = 0;
             int y0 = radius;
@@ -594,7 +594,7 @@ namespace Pixel_Engine
                 else d += 4 * (x0++ - y0--) + 10;
             }
         }
-        public void DrawRect(int x, int y, int w, int h, Pixel p)
+        public static void DrawRect(int x, int y, int w, int h, Pixel p)
         {
             DrawLine(x, y, x + w, y, p);
             DrawLine(x + w, y, x + w, y + h, p);
@@ -620,13 +620,13 @@ namespace Pixel_Engine
                 for (int j = y; j < y2; j++)
                     Draw(i, j, p);
         }
-        public void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, Pixel p)
+        public static void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, Pixel p)
         {
             DrawLine(x1, y1, x2, y2, p);
             DrawLine(x2, y2, x3, y3, p);
             DrawLine(x3, y3, x1, y1, p);
         }
-        void swap(ref int x, ref int y)
+        static void swap(ref int x, ref int y)
         {
             int temp = x;
             x = y;
@@ -794,7 +794,7 @@ namespace Pixel_Engine
                 if (y > y3) return;
             }
         }
-        public void DrawSprite(int x, int y, Sprite sprite, int scale = 1)
+        public static void DrawSprite(int x, int y, Sprite sprite, int scale = 1)
         {
             if (sprite == null)
                 return;
@@ -826,7 +826,7 @@ namespace Pixel_Engine
                 });
             }
         }
-        public void DrawPartialSprite(int x, int y, Sprite sprite, int ox, int oy, int w, int h, int scale = 1)
+        public static void DrawPartialSprite(int x, int y, Sprite sprite, int ox, int oy, int w, int h, int scale = 1)
         {
             if (sprite == null)
                 return;
@@ -858,7 +858,7 @@ namespace Pixel_Engine
                 });
             }
         }
-        public void DrawString(int x, int y, string sText, Pixel col, int Size, int font)
+        public static void DrawString(int x, int y, string sText, Pixel col, int Size, int font)
         {
             if (sText.Length == 0) return;
             string[] strings = sText.Split(new[] { '\n' });
@@ -868,7 +868,7 @@ namespace Pixel_Engine
             }
             Parallel.For(0, strings.Length, (i) =>
             {
-                Bitmap bitmap = new Bitmap(9 * strings[i].Length, 18);
+                Bitmap bitmap = new Bitmap(9 * strings[i].Length, 11);
                 Graphics g = Graphics.FromImage(bitmap);
                 g.Clear(Pixel.BLACK);
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
@@ -877,12 +877,12 @@ namespace Pixel_Engine
                 TextRenderer.DrawText(g, strings[i], new Font(FontFamily.Families[font], 9, GraphicsUnit.Pixel), Point.Empty, Pixel.WHITE);
                 Pixel.Mode a = GetPixelMode();
                 SetPixelMode(Pixel.Mode.MASK);
-                DrawSprite(x, y + i * Size * 18, new Sprite(bitmap), Size);
+                DrawSprite(x, y + i * Size * 11, new Sprite(bitmap), Size);
                 SetPixelMode(a);
                 bitmap.Dispose();
             });
         }
-        public void Clear(Pixel p)
+        public static void Clear(Pixel p)
         {
             int pixels = GetDrawTargetWidth() * GetDrawTargetHeight();
             Pixel[] m = GetDrawTarget().GetData();
@@ -890,7 +890,7 @@ namespace Pixel_Engine
                 m[i] = p;
             GetDrawTarget().SetData(m);
         }
-        public void SetScreenSize(int w, int h)
+        public static void SetScreenSize(int w, int h)
         {
             pDefaultDrawTarget = null;
             nScreenWidth = w;
@@ -903,7 +903,7 @@ namespace Pixel_Engine
             GL.Clear(OpenGL.GL_COLOR_BUFFER_BIT);
             UpdateViewport();
         }
-        public char ReadKey()
+        public static char ReadKey()
         {
             for (int i = 0; i < CharacterKeys.Length; i++)
             {
@@ -927,69 +927,69 @@ namespace Pixel_Engine
         }
 
         #region Declerations
-        public string sAppName;
+        public static string sAppName;
 
-        Key[] CharacterKeys = new[] {Key.A, Key.B, Key.C, Key.D, Key.E,
+        static Key[] CharacterKeys = new[] {Key.A, Key.B, Key.C, Key.D, Key.E,
             Key.F, Key.G, Key.H, Key.I, Key.J, Key.K, Key.L, Key.M, Key.N,
             Key.O, Key.P, Key.Q, Key.R, Key.S, Key.T, Key.U, Key.V, Key.W,
             Key.X, Key.Y, Key.Z};
-        Key[] NumberKeys = new[] {Key.NP1, Key.NP2, Key.NP3, Key.NP4, Key.NP5,
+        static Key[] NumberKeys = new[] {Key.NP1, Key.NP2, Key.NP3, Key.NP4, Key.NP5,
             Key.NP6, Key.NP7, Key.NP8, Key.NP9, Key.NP0, Key.NP_ADD, Key.NP_DIV,
             Key.NP_MUL, Key.NP_SUB, Key.NP_DECIMAL, Key.SPACE, Key.K1, Key.K2, Key.K3, Key.K4, Key.K5,
             Key.K6, Key.K7, Key.K8, Key.K9, Key.K0};
-        char[] CharactersUpper = new[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G',
+        static char[] CharactersUpper = new[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G',
             'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
             'U', 'V', 'W', 'X', 'Y', 'Z'};
-        char[] Numbers = new[]  {'1', '2', '3', '4', '5', '6', '7',
+        static char[] Numbers = new[]  {'1', '2', '3', '4', '5', '6', '7',
             '8', '9', '0', '+', '/', '*', '-', '.', ' ', '1', '2', '3', '4',
             '5', '6', '7', '8', '9', '0',};
-        char[] CharactersLower = new[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g',
+        static char[] CharactersLower = new[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g',
             'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
             'u', 'v', 'w', 'x', 'y', 'z' };
-        Sprite pDefaultDrawTarget = null;
-        Sprite pDrawTarget = null;
-        Pixel.Mode nPixelMode = Pixel.Mode.NORMAL;
-        float fBlendFactor = 1.0f;
-        int nScreenWidth = 256;
-        int nScreenHeight = 240;
-        int nPixelWidth = 4;
-        int nPixelHeight = 4;
-        int nMousePosX = 0;
-        int nMousePosY = 0;
-        int nMouseWheelDelta = 0;
-        int nMousePosXcache = 0;
-        int nMousePosYcache = 0;
-        int nMouseWheelDeltaCache = 0;
-        int nWindowWidth = 0;
-        int nWindowHeight = 0;
-        int nViewX = 0;
-        int nViewY = 0;
-        int nViewW = 0;
-        int nViewH = 0;
-        bool bFullScreen = false;
-        float fPixelX = 1.0f;
-        float fPixelY = 1.0f;
-        float fSubPixelOffsetX = 0.0f;
-        float fSubPixelOffsetY = 0.0f;
-        bool bHasInputFocus = false;
-        bool bHasMouseFocus = false;
-        bool bShowFPS = false;
-        float fFrameTimer = 1.0f;
-        int nFrameCount = 0;
-        Func<int, int, Pixel, Pixel, Pixel> funcPixelMode;
+        static Sprite pDefaultDrawTarget = null;
+        static Sprite pDrawTarget = null;
+        static Pixel.Mode nPixelMode = Pixel.Mode.NORMAL;
+        static float fBlendFactor = 1.0f;
+        static int nScreenWidth = 256;
+        static int nScreenHeight = 240;
+        static int nPixelWidth = 4;
+        static int nPixelHeight = 4;
+        static int nMousePosX = 0;
+        static int nMousePosY = 0;
+        static int nMouseWheelDelta = 0;
+        static int nMousePosXcache = 0;
+        static int nMousePosYcache = 0;
+        static int nMouseWheelDeltaCache = 0;
+        static int nWindowWidth = 0;
+        static int nWindowHeight = 0;
+        static int nViewX = 0;
+        static int nViewY = 0;
+        static int nViewW = 0;
+        static int nViewH = 0;
+        static bool bFullScreen = false;
+        static float fPixelX = 1.0f;
+        static float fPixelY = 1.0f;
+        static float fSubPixelOffsetX = 0.0f;
+        static float fSubPixelOffsetY = 0.0f;
+        static bool bHasInputFocus = false;
+        static bool bHasMouseFocus = false;
+        static bool bShowFPS = false;
+        static float fFrameTimer = 1.0f;
+        static int nFrameCount = 0;
+        static Func<int, int, Pixel, Pixel, Pixel> funcPixelMode;
 
         static Dictionary<int, byte> mapKeys = new Dictionary<int, byte>();
-        bool[] pKeyNewState = new bool[256];
-        bool[] pKeyOldState = new bool[256];
-        HWButton[] pKeyboardState = new HWButton[256];
+        static bool[] pKeyNewState = new bool[256];
+        static bool[] pKeyOldState = new bool[256];
+        static HWButton[] pKeyboardState = new HWButton[256];
 
-        bool[] pMouseNewState = new bool[5];
-        bool[] pMouseOldState = new bool[5];
-        HWButton[] pMouseState = new HWButton[5];
+        static bool[] pMouseNewState = new bool[5];
+        static bool[] pMouseOldState = new bool[5];
+        static HWButton[] pMouseState = new HWButton[5];
 
-        bool bAtomActive;
+        static bool bAtomActive;
         #endregion
-        void UpdateMouse(int x, int y)
+        static void UpdateMouse(int x, int y)
         {
             x -= nViewX;
             y -= nViewY;
@@ -1007,17 +1007,17 @@ namespace Pixel_Engine
             if (nMousePosYcache < 0)
                 nMousePosYcache = 0;
         }
-        void UpdateMouseWheel(int delta)
+        static void UpdateMouseWheel(int delta)
         {
             nMouseWheelDeltaCache += delta;
         }
-        void UpdateWindowSize(int x, int y)
+        static void UpdateWindowSize(int x, int y)
         {
             nWindowWidth = x;
             nWindowHeight = y;
             UpdateViewport();
         }
-        void UpdateViewport()
+        static void UpdateViewport()
         {
             int ww = nScreenWidth * nPixelWidth;
             int wh = nScreenHeight * nPixelHeight;
@@ -1036,7 +1036,7 @@ namespace Pixel_Engine
             nViewY = (nWindowHeight - nViewH) / 2;
         }
 
-        bool OpenGLCreate()
+        static bool OpenGLCreate()
         {
             OpenGLControl GLControl = ((Form1)Control.FromHandle(HWnd)).GetGLControl();
             OpenGL GL = GLControl.OpenGL;
@@ -1086,10 +1086,10 @@ namespace Pixel_Engine
             return true;
         }
 
-        IntPtr glDeviceContext;
-        IntPtr glRenderContext;
+        static IntPtr glDeviceContext;
+        static IntPtr glRenderContext;
 
-        uint glBuffer = 0;
+        static uint glBuffer = 0;
 
         private void EngineThread(BackgroundWorker worker)
         {
@@ -1219,13 +1219,11 @@ namespace Pixel_Engine
             }
             catch 
             {
-                Form1 window = (Form1)Control.FromHandle(HWnd);
-                window.Close();
             };
         }
 
-        IntPtr HWnd = new IntPtr();
-        IntPtr WindowCreate(Action<BackgroundWorker> action)
+        static IntPtr HWnd = new IntPtr();
+        static IntPtr WindowCreate(Action<BackgroundWorker> action)
         {
             Form1 Window = new Form1(action);
 
@@ -1345,7 +1343,7 @@ namespace Pixel_Engine
 
             return HWnd;
         }
-        string AppName;
+        static string AppName;
 
         internal class PGEX
         {
