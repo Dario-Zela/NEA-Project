@@ -193,6 +193,7 @@ namespace Models.WorldGen
                         noMatch++;
                     }
                 }
+                count++;
             }
         }
 
