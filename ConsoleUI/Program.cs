@@ -47,7 +47,7 @@ namespace UI
                 int x = GetMouseX();
                 int y = GetMouseY();
                 var val = world.World.biomes[world.World.landBlocks[world.World.idx(x, y)].biomeIdx];
-                Console.WriteLine(val.name + "  (" + val.centerX + ", " + val.centerY + ")");
+                Console.WriteLine(val.name + "  (" + val.centerX + ", " + val.centerY + ")" + "({0}, {1})",x,y);
             }
             if (GetKey(Key.ENTER).bPressed)
             {
