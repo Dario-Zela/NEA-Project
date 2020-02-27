@@ -453,28 +453,29 @@ namespace Models.WorldGen
                 bool startOK = false;
                 do
                 {
-                    river.startX = rng.Next(1, Constants.WORLD_WIDTH);
-                    river.startY = rng.Next(1, Constants.WORLD_HEIGHT);
-                    Block pos = World.landBlocks[World.idx(river.startX, river.startY)];
-                    if ((pos.type == (int)blockType.MOUNTAINS || pos.type == (int)blockType.HIGHLANDS) && !usedStarts.Contains(new RiverStep(river.startX, river.startY)))
+                    river.Start = new RiverStep(rng.Next(1, Constants.WORLD_WIDTH), rng.Next(1, Constants.WORLD_HEIGHT));
+                    Block pos = World.landBlocks[World.idx(river.Start.x, river.Start.y)];
+                    if ((pos.type == (int)blockType.MOUNTAINS || pos.type == (int)blockType.HIGHLANDS) && !usedStarts.Contains(river.Start))
                         startOK = true;
                 }
                 while (!startOK);
 
-                RiverStep curPos = new RiverStep(river.startX, river.startY);
+                RiverStep curPos = river.Start;
 
                 int riverLen = 1;
-                while (Check(curPos, World, usedStarts) && riverLen < 17)
+                while (Check(curPos, World, usedStarts) && riverLen < 30)
                 {
                     usedStarts.Add(curPos);
                     curPos = FindNextPos(curPos, World);
                     river.route.Add(curPos);
                     riverLen++;
                 }
+                river.route.Remove(curPos);
+                river.End = curPos;
+                usedStarts.Add(curPos);
 
                 World.rivers.Add(river);
-            }
-            
+            }   
         }
 
         bool Check(RiverStep pos, Map World, HashSet<RiverStep> used)
@@ -509,7 +510,6 @@ namespace Models.WorldGen
             return nextPos;
         }
     }
-    
     class HistoryMaker
     {
         #region startup
@@ -573,7 +573,6 @@ namespace Models.WorldGen
         }
 
         #endregion
-
         private rawSpecies getSpeciesDef(string tag)
         {
             rawSpecies ret;
@@ -624,9 +623,7 @@ namespace Models.WorldGen
                 civ.speciesTag = getRandomSpecies(ref rng, 0);
                 civ.techLevel = 0;
                 civ.extinct = false;
-                civ.r = (byte)rng.Next(1, 255);
-                civ.g = (byte)rng.Next(1, 255);
-                civ.b = (byte)rng.Next(1, 255);
+                civ.flag = new Colour((byte)rng.Next(1, 255), (byte)rng.Next(1, 255), (byte)rng.Next(1, 255));
                 civ.startX = wx;
                 civ.startY = wy;
 
@@ -941,7 +938,7 @@ namespace Models.WorldGen
         public void buildInitialHistory(ref Map World, ref Random rng)
         {
             int STARTING_YEAR = 2425;
-            for (int year = STARTING_YEAR; year < 2450; ++year)
+            for (int year = STARTING_YEAR; year < 2430; ++year)
             {
                 RunYear(ref World, ref rng);
             }

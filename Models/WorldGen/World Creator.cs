@@ -341,9 +341,12 @@ namespace Models.WorldGen
             }
             World.migrantCounter = 0;
             World.remainingSettlers = 200;
-            for (int i = 0; i < Constants.WORLD_TILES_COUNT; i++)
+            for (int i = 0; i < Constants.WORLD_WIDTH; i++)
             {
-                World.civs.regionInfo.Add(new regionInfo());
+                for (int j = 0; j < Constants.WORLD_HEIGHT; j++)
+                {
+                    World.civs.regionInfo.Add(new regionInfo(i,j));
+                }
             }
         }
 
@@ -642,6 +645,16 @@ namespace Models.WorldGen
             hashCode = hashCode * -1521134295 + b.GetHashCode();
             return hashCode;
         }
+
+        static public implicit operator Pixel(Colour c)
+        {
+            return new Pixel(c.r, c.g, c.b);
+        }
+
+        static public implicit operator Colour(Pixel c)
+        {
+            return new Colour(c.R,c.G,c.B);
+        }
     };
 
     public class rawSpecies
@@ -762,7 +775,6 @@ namespace Models.WorldGen
             this.year = year;
             this.type = type;
         }
-
     }
 
     public class History
@@ -775,7 +787,7 @@ namespace Models.WorldGen
         public int techLevel = 0, glyph = 0;
         public bool extinct = false;
         public string speciesTag = "", name = "", leaderName = "", origin = "";
-        public byte r = 0, g = 0, b = 0;
+        public Colour flag = Pixel.BLANK;
         public int startX = 0, startY = 0, cordexFeelings;
         public bool metCordex = false;
         public Dictionary<int, int> relations = new Dictionary<int,int>();
@@ -783,8 +795,14 @@ namespace Models.WorldGen
 
     public class regionInfo
     {
-        public int ownerCiv = 0, blightLevel = 0, settlementSize = 0;
+        public int ownerCiv = 0, blightLevel = 0, settlementSize = 0, x,y;
         public List<string> improvements = new List<string>();
+
+        public regionInfo(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
     }
 
     public class Unit
@@ -816,7 +834,8 @@ namespace Models.WorldGen
     public class River
     {
         public string name = "River";
-        public int startX = 0, startY = 0;
+        public RiverStep Start;
+        public RiverStep End;
         public List<RiverStep> route = new List<RiverStep>();
     }
 
@@ -852,24 +871,17 @@ namespace Models.WorldGen
     }
 
     #endregion
-
     public class WorldCreator
     {
-        private float Persistance = 0.5f;
-        private float Lacunarity = 2f;
-        private int Octaves = 5;
         //public GetBiome biomeMap;
         public Map World;
         private Sprite[] BiomeMap = TileSet.Instance.GetSprites("BiomeMap");
         public WorldCreator(int seed, float Persistance = 0.5f, float Lacunarity=2f, int Octaves=5)
         {
-            this.Persistance = Persistance;
-            this.Octaves = Octaves;
-            this.Lacunarity = Lacunarity;
             MapGen gen = new MapGen();
             BiomeMap biomes = new BiomeMap();
             RiverBuilder rivers = new RiverBuilder();
-            //HistoryMaker history = new HistoryMaker();
+            HistoryMaker history = new HistoryMaker();
             World = new Map();
             Random rng = new Random(seed);
 
@@ -881,8 +893,8 @@ namespace Models.WorldGen
 
             biomes.buildBiomes(ref World, ref rng);
             rivers.buildRivers(ref World, ref rng);
-            //history.buildInitialCivs(ref World, ref rng);
-            //history.buildInitialHistory(ref World, ref rng);
+            history.buildInitialCivs(ref World, ref rng);
+            history.buildInitialHistory(ref World, ref rng);
         }
 
         public Sprite GetBiomeSprite(int x, int y)

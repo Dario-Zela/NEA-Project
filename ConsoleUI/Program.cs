@@ -50,11 +50,21 @@ namespace UI
                 });
                 foreach (var item in world.World.rivers)
                 {
-                    Draw(item.startX, item.startY, Pixel.RED);
+                    Draw(item.Start.x, item.Start.y, Pixel.RED);
+                    Draw(item.End.x, item.End.y, Pixel.MAGENTA);
                     foreach (var it2 in item.route)
                     {
                         Draw(it2.x, it2.y, Pixel.BLUE);
                     }
+                }
+                foreach (var item in world.World.civs.regionInfo)
+                {
+                    try
+                    {
+                        if (item.ownerCiv != 0)
+                            Draw(item.x, item.y, world.World.civs.civs[item.ownerCiv].flag);
+                    }
+                    catch { }
                 }
                 pass = true;
             }
