@@ -18,26 +18,51 @@ namespace UI
         static WorldCreator world;
         public override bool OnUserCreate()
         {
-            world = new WorldCreator(800, 1.3f, 0.4f, 6);
+            world = new WorldCreator(978120, 1.3f, 0.4f, 6);
+            /*
             Random rng = new Random();
             biomeCol = new Pixel[world.World.biomes.Count];
             for (int i = 0; i < biomeCol.Length; i++)
             {
                 biomeCol[i] = new Pixel((byte)rng.Next(255), (byte)rng.Next(255), (byte)rng.Next(255));
             }
-            List<Biome> toRem = new List<Biome>();
-            foreach (var item in world.World.biomes)
-            if (item.centerX == 0 && item.centerY == 0)
+            */
+            return true;
+        }
+
+        bool pass = false;
+        public override bool onUserUpdate(float fElapsedTime)
+        {
+            if (GetKey(Key.ENTER).bPressed)
             {
-                toRem.Add(item);
+                world = new WorldCreator(new Random().Next(100000), 1.3f, 0.4f, 6);
+                pass = false;
             }
-            foreach (var item in toRem)
+
+            if (!pass)
             {
-                world.World.biomes.Remove(item);
+                Parallel.For(0, ScreenWidth(), (x) =>
+                {
+                    Parallel.For(0, ScreenHeight(), (y) =>
+                    {
+                        DrawPartialSprite(x, y, world.GetBiomeSprite(x, y), 0, 0, 1, 1);
+                    });
+                });
+                foreach (var item in world.World.rivers)
+                {
+                    Draw(item.startX, item.startY, Pixel.RED);
+                    foreach (var it2 in item.route)
+                    {
+                        Draw(it2.x, it2.y, Pixel.BLUE);
+                    }
+                }
+                pass = true;
             }
             return true;
         }
 
+
+        /*
         bool pass = false;
         Pixel[] biomeCol;
         public override bool onUserUpdate(float fElapsedTime)
@@ -46,8 +71,26 @@ namespace UI
             {
                 int x = GetMouseX();
                 int y = GetMouseY();
-                var val = world.World.biomes[world.World.landBlocks[world.World.idx(x, y)].biomeIdx];
-                Console.WriteLine(val.name + "  (" + val.centerX + ", " + val.centerY + ")" + "({0}, {1})",x,y);
+                try
+                {
+                    var val = world.World.biomes[world.World.landBlocks[world.World.idx(x, y)].biomeIdx];
+                    Biome vel = new Biome();
+                    int count = -1;
+                    foreach (var item in world.World.biomes)
+                    {
+                        count++;
+                        if (item.centerX == x && item.centerY == y)
+                        {
+                            vel = item;
+                            break;
+                        }
+                    }
+                    Console.WriteLine(val.name + "  (" + val.centerX + ", " + val.centerY + ", " + world.World.landBlocks[world.World.idx(x, y)].biomeIdx + ")" + "{0} ({1}, {2}, {3}) ", vel.name, vel.centerX, vel.centerY, count);
+                }
+                catch
+                {
+                    Console.WriteLine("({0}, {1})", x, y);
+                }
             }
             if (GetKey(Key.ENTER).bPressed)
             {
@@ -58,18 +101,9 @@ namespace UI
                 {
                     biomeCol[i] = new Pixel((byte)rng.Next(255), (byte)rng.Next(255), (byte)rng.Next(255));
                 }
-                List<Biome> toRem = new List<Biome>();
-                foreach (var item in world.World.biomes)
-                if (item.centerX == 0 && item.centerY == 0)
-                {
-                    toRem.Add(item);
-                }
-                foreach (var item in toRem)
-                {
-                    world.World.biomes.Remove(item);
-                }
                 pass = false;
             }
+            List<Tuple<int,int>> centres = new List<Tuple<int,int>>();
             if (!pass)
             {
                 Parallel.For(0, ScreenWidth(), (x) =>
@@ -83,13 +117,28 @@ namespace UI
                 pass= true;
                 foreach (var item in world.World.biomes)
                 {
-
+                    centres.Add(new Tuple<int,int>(item.centerX, item.centerY));
                     Draw(item.centerX, item.centerY, Pixel.DARK_GREY);
                 }
+                for (int i = 0; i < centres.Count; i++)
+                {
+                    int x = centres[i].Item1;
+                    int y = centres[i].Item2;
+                    try
+                    {
+                        var val = world.World.biomes[world.World.landBlocks[world.World.idx(x, y)].biomeIdx];
+                        if (val.centerX != x && val.centerY != y)
+                        {
+                            Console.WriteLine("(" + x + ", " + y);
+                        }
+                    }
+                    catch { }
+                }
             }
+
             return true;
         }
-
+        */
         /*
         bool pass = false;
         int Seed = 800;
