@@ -34,7 +34,7 @@ namespace Models.WorldGen
             BiomeTypes = JsonConvert.DeserializeObject<List<biomeType>>(reader.ReadToEnd());
         }
 
-        private Dictionary<int, double> biomeMembership(ref Map World, ref int idx) {
+        private Dictionary<int, double> biomeMembership(ref Map World, int idx) {
             Dictionary<int, double> percents = new Dictionary<int, double>();
             Dictionary<int, long> counts = new Dictionary<int, long>();
             int nCells = 0;
@@ -154,19 +154,24 @@ namespace Models.WorldGen
                             closestIndex = i;
                         }
                     }
-
                     World.landBlocks[World.idx(x, y)].biomeIdx = closestIndex;
                 }
             }
 
             int count = 0;
             int noMatch = 0;
+            List<Biome> toRem = new List<Biome>();
             foreach (Biome biome in World.biomes)
             {
-                Dictionary<int, double> membershipCount = biomeMembership(ref World, ref count);
+                Dictionary<int, double> membershipCount = biomeMembership(ref World, count);
+                if(biome.centerX == 0 && biome.centerY == 0)
+                {
+                    biome.centerX = -1;
+                    biome.centerY = -1;
+                }
                 if (!(membershipCount.Count == 0))
                 {
-                    List<Tuple<double,int>> possibleTypes = findPossibleBiomes(ref membershipCount, ref World.biomes, World.biomes.IndexOf(biome));
+                    List<Tuple<double, int>> possibleTypes = findPossibleBiomes(ref membershipCount, World.biomes, World.biomes.IndexOf(biome));
                     if (!(possibleTypes.Count == 0))
                     {
                         double maxRoll = 0.0;
@@ -195,38 +200,35 @@ namespace Models.WorldGen
                 }
                 count++;
             }
+
         }
 
-        private List<Tuple<double,int>> findPossibleBiomes(ref Dictionary<int, double> percents, ref List<Biome> biomes, int index)
+        private List<Tuple<double,int>> findPossibleBiomes(ref Dictionary<int, double> percents, List<Biome> biomes, int index)
         {
             List<Tuple<double,int>> result = new List<Tuple<double,int>>();
 
             int idx = 0;
             for (int i = 0; i < BiomeTypes.Count; i++)
             {
-                possibleBiomesMethod(BiomeTypes[i], ref percents, ref biomes, ref result, ref idx, index);
-            }
-            return result;
-        }
-
-        private void possibleBiomesMethod(biomeType bt, ref Dictionary<int, double> percents, ref List<Biome> biomes, ref List<Tuple<double,int>> results, ref int idx, int index)
-        {
-            if (biomes[index].meanTemperature >= bt.minTemp && biomes[index].meanTemperature <= bt.maxTemp
+                var bt = BiomeTypes[i];
+                if (biomes[index].meanTemperature >= bt.minTemp && biomes[index].meanTemperature <= bt.maxTemp
                 && biomes[index].meanRainfall >= bt.minRain && biomes[index].meanRainfall <= bt.maxRain
                 && biomes[index].warpMutation >= bt.minMutation && biomes[index].warpMutation <= bt.maxMutation)
-            {
-
-                // It's possible, so check to see if tile types are available
-                foreach (int occour in bt.occurs)
                 {
-                    bool finder = percents.ContainsKey(occour);
-                    if (finder && percents[occour] > 0)
+
+                    // It's possible, so check to see if tile types are available
+                    foreach (int occour in bt.occurs)
                     {
-                        results.Add(new Tuple<double, int>(percents[occour] * 100.0, idx));
+                        bool finder = percents.ContainsKey(occour);
+                        if (finder && percents[occour] > 0)
+                        {
+                            result.Add(new Tuple<double, int>(percents[occour] * 100.0, idx));
+                        }
                     }
                 }
+                idx++;
             }
-            idx++;
+            return result;
         }
 
         private string nameBiome(ref Random rng, Biome biome)
@@ -236,7 +238,7 @@ namespace Models.WorldGen
             List<string> adjectives = new List<string>();
 
 	        // Location-based adjective
-	        if (Math.Abs(biome.centerX - Constants.WORLD_WIDTH/2) < Constants.WORLD_WIDTH /10 && Math.Abs(biome.centerY - Constants.WORLD_HEIGHT /2) < Constants.WORLD_HEIGHT /10) {
+	        if (Math.Abs(biome.centerX - Constants.WORLD_WIDTH/2) < Constants.WORLD_WIDTH /5 && Math.Abs(biome.centerY - Constants.WORLD_HEIGHT /2) < Constants.WORLD_HEIGHT /5) {
 		        adjectives.Add("Central");
 	        } 
             else
@@ -440,69 +442,71 @@ namespace Models.WorldGen
 
     class RiverBuilder
     {
-        public void buildRivers(ref Map World, ref Random rng) {
-	        int nRivers = Constants.WORLD_WIDTH/2;
-	        HashSet<int> usedStarts = new HashSet<int>();
+        public void buildRivers(ref Map World, ref Random rng)
+        {
+            int nRivers = Constants.WORLD_WIDTH / 2;
+            HashSet<RiverStep> usedStarts = new HashSet<RiverStep>();
+            for (int i = 0; i < nRivers; i++)
+            {
+                River river = new River();
 
-	        for (int i=0; i<nRivers; ++i) {
-		        River river = new River();
-
-		        bool startOk = false;
-		        while (!startOk) 
+                bool startOK = false;
+                do
                 {
-			        river.startX = rng.Next(1, Constants.WORLD_WIDTH)-1;
-			        river.startY = rng.Next(1, Constants.WORLD_HEIGHT)-1;
-			        int pidx = World.idx(river.startX, river.startY);
-			        if ((World.landBlocks[pidx].type == (int)blockType.MOUNTAINS || World.landBlocks[pidx].type == (int)blockType.HILLS) && !usedStarts.Contains(pidx)) startOk = true;
-		        }
-		        usedStarts.Add(World.idx(river.startX, river.startY));
+                    river.startX = rng.Next(1, Constants.WORLD_WIDTH);
+                    river.startY = rng.Next(1, Constants.WORLD_HEIGHT);
+                    Block pos = World.landBlocks[World.idx(river.startX, river.startY)];
+                    if ((pos.type == (int)blockType.MOUNTAINS || pos.type == (int)blockType.HIGHLANDS) && !usedStarts.Contains(new RiverStep(river.startX, river.startY)))
+                        startOK = true;
+                }
+                while (!startOK);
 
-		        HashSet<int> usedSteps = new HashSet<int>();
-		        bool done = false;
-		        int x = river.startX;
-		        int y = river.startY;
-		        while (!done) {
-			        Dictionary<int,Tuple<int,int>> candidates = new Dictionary<int,Tuple<int,int>>();
-			        if (x > 0 && !usedSteps.Contains(World.idx(x-1, y))) candidates.Add(World.landBlocks[World.idx(x-1, y)].height, new Tuple<int,int>(x-1, y));
-                    else if (x < Constants.WORLD_WIDTH-1 && !usedSteps.Contains(World.idx(x+1, y))) candidates.Add(World.landBlocks[World.idx(x+1, y)].height, new Tuple<int,int>(x+1, y));
-                    else if (y > 0 && !usedSteps.Contains(World.idx(x, y-1))) candidates.Add(World.landBlocks[World.idx(x, y-1)].height, new Tuple<int,int>(x, y-1));
-                    else if (y < Constants.WORLD_HEIGHT - 1 && !usedSteps.Contains(World.idx(x, y + 1))) candidates.Add(World.landBlocks[World.idx(x, y + 1)].height, new Tuple<int, int>(x, y + 1));
-			        RiverStep step = new RiverStep();
-			        if (candidates.Count == 0) {
-				        done = true;
-			        } 
-                    else
+                RiverStep curPos = new RiverStep(river.startX, river.startY);
+
+                int riverLen = 1;
+                while (Check(curPos, World, usedStarts) && riverLen < 17)
+                {
+                    usedStarts.Add(curPos);
+                    curPos = FindNextPos(curPos, World);
+                    river.route.Add(curPos);
+                    riverLen++;
+                }
+
+                World.rivers.Add(river);
+            }
+            
+        }
+
+        bool Check(RiverStep pos, Map World, HashSet<RiverStep> used)
+        {
+            Block posB = World.landBlocks[World.idx(pos.x, pos.y)];
+            bool check = posB.type == (int)blockType.WATER || !used.Contains(pos);
+            check |= (pos.x == 0 && pos.y == 0) || (pos.x == Constants.WORLD_WIDTH && pos.y == 0) || 
+                (pos.x == 0 && pos.y == Constants.WORLD_HEIGHT) || (pos.x == Constants.WORLD_WIDTH && pos.y == Constants.WORLD_HEIGHT);
+            return check;
+        }
+
+        RiverStep FindNextPos(RiverStep pos, Map World)
+        {
+            RiverStep nextPos = pos;
+            int minHeight = World.landBlocks[World.idx(pos.x, pos.y)].height;
+            for (int i = -1; i < 2; i++)
+            {
+                for (int j = -1; j < 2; j++)
+                {
+                    if (pos.x + i > 0 && pos.x + i < Constants.WORLD_WIDTH && pos.y + j > 0 && pos.y + j < Constants.WORLD_HEIGHT)
                     {
-				        foreach(River test in World.rivers)
+                        if (World.landBlocks[World.idx(pos.x + i, pos.y + j)].height < minHeight)
                         {
-					        if (!done) 
-                            {
-						        foreach(RiverStep step2 in test.route)
-                                {
-							        if (x==step2.x && y==step2.y) { done=true; break; }
-						        }
-					        }
-				        }
-                        //Left Here
-				        if (!done) {
-                            int[] temp = new int[candidates.Count];
-                            candidates.Keys.CopyTo(temp,0);
-                            step.x = candidates[temp[0]].Item1;
-					        step.y = candidates[temp[0]].Item1;
-					        if (World.landBlocks[World.idx(x,y)].type == (int)blockType.WATER || x == 0 || x == Constants.WORLD_WIDTH || y ==0 || y==Constants.WORLD_HEIGHT) {
-						        done = true;
-					        } else {
-						        river.route.Add(step);
-						        usedSteps.Add(World.idx(step.x, step.y));
-						        x = step.x;
-						        y = step.y;
-					        }
-				        }
-			        }
-		        }
+                            minHeight = World.landBlocks[World.idx(pos.x + i, pos.y + j)].height;
+                            nextPos.x = pos.x + i;
+                            nextPos.y = pos.y + j;
+                        }
+                    }
 
-		        World.rivers.Add(river);
-	        }
+                }
+            }
+            return nextPos;
         }
     }
     
