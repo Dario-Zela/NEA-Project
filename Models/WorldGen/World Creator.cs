@@ -868,10 +868,10 @@ namespace Models.WorldGen
             this.Lacunarity = Lacunarity;
             MapGen gen = new MapGen();
             BiomeMap biomes = new BiomeMap();
-            //RiverBuilder rivers = new RiverBuilder();
+            RiverBuilder rivers = new RiverBuilder();
             //HistoryMaker history = new HistoryMaker();
             World = new Map();
-            //Random rng = new Random(seed);
+            Random rng = new Random(seed);
 
             gen.startMap(ref World);
             gen.noiseMap(ref World, seed, Octaves, Persistance, Lacunarity);
@@ -879,8 +879,8 @@ namespace Models.WorldGen
             gen.markCoastlines(ref World);
             gen.createRainfall(ref World);
 
-            //biomes.buildBiomes(ref World, ref rng);
-            //rivers.buildRivers(ref World, ref rng);
+            biomes.buildBiomes(ref World, ref rng);
+            rivers.buildRivers(ref World, ref rng);
             //history.buildInitialCivs(ref World, ref rng);
             //history.buildInitialHistory(ref World, ref rng);
         }
