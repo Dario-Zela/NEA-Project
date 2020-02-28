@@ -33,6 +33,11 @@ namespace UI
         bool pass = false;
         public override bool onUserUpdate(float fElapsedTime)
         {
+            if (GetKey(Key.TAB).bPressed)
+            {
+                world.history.RunYear(ref world.World, ref world.rng);
+                pass = false;
+            }
             if (GetKey(Key.ENTER).bPressed)
             {
                 world = new WorldCreator(new Random().Next(100000), 1.3f, 0.4f, 6);
