@@ -510,7 +510,7 @@ namespace Models.WorldGen
             return nextPos;
         }
     }
-    class HistoryMaker
+    public class HistoryMaker
     {
         #region startup
         int N_CIVS = Constants.WORLD_WIDTH;
@@ -802,7 +802,7 @@ namespace Models.WorldGen
             return civ;
         }
 
-        private void RunYear(ref Map World, ref Random rng) {
+        public void RunYear(ref Map World, ref Random rng) {
             // All civs get a turn
             int i=0;
             for (int j = 0; j < World.civs.civs.Count; j++)
