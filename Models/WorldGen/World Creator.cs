@@ -875,15 +875,17 @@ namespace Models.WorldGen
     {
         //public GetBiome biomeMap;
         public Map World;
+        public HistoryMaker history;
+        public Random rng;
         private Sprite[] BiomeMap = TileSet.Instance.GetSprites("BiomeMap");
         public WorldCreator(int seed, float Persistance = 0.5f, float Lacunarity=2f, int Octaves=5)
         {
             MapGen gen = new MapGen();
             BiomeMap biomes = new BiomeMap();
             RiverBuilder rivers = new RiverBuilder();
-            HistoryMaker history = new HistoryMaker();
             World = new Map();
-            Random rng = new Random(seed);
+            history = new HistoryMaker();
+            rng = new Random(seed);
 
             gen.startMap(ref World);
             gen.noiseMap(ref World, seed, Octaves, Persistance, Lacunarity);
@@ -894,7 +896,7 @@ namespace Models.WorldGen
             biomes.buildBiomes(ref World, ref rng);
             rivers.buildRivers(ref World, ref rng);
             history.buildInitialCivs(ref World, ref rng);
-            history.buildInitialHistory(ref World, ref rng);
+            //history.buildInitialHistory(ref World, ref rng);
         }
 
         public Sprite GetBiomeSprite(int x, int y)
