@@ -46,10 +46,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithms\PerlinNoise.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sprites\TileSet.cs" />
-    <Compile Include="WorldGen\Biome Types.cs" />
+    <Compile Include="WorldGen\Biome Gen.cs" />
     <Compile Include="WorldGen\Constants.cs" />
+    <Compile Include="WorldGen\Map Gen.cs" />
+    <Compile Include="WorldGen\History Gen.cs" />
+    <Compile Include="WorldGen\River Gen.cs" />
     <Compile Include="WorldGen\World Creator.cs" />
   </ItemGroup>
   <ItemGroup>

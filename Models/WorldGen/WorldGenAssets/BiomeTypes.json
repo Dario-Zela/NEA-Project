@@ -10,7 +10,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 1, 8 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 0,
     "plants": [
       {
         "Item1": "none",
@@ -49,7 +49,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 1, 8 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 1,
     "plants": [
       {
         "Item1": "none",
@@ -100,7 +100,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 1, 8 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 2,
     "plants": [
       {
         "Item1": "none",
@@ -203,7 +203,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 1, 8 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 3,
     "plants": [
       {
         "Item1": "none",
@@ -314,7 +314,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 8 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 4,
     "plants": [
       {
         "Item1": "none",
@@ -357,7 +357,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 8 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 5,
     "plants": [
       {
         "Item1": "none",
@@ -440,7 +440,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 8 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 6,
     "plants": [
       {
         "Item1": "none",
@@ -551,7 +551,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 8 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 7,
     "plants": [
       {
         "Item1": "none",
@@ -662,7 +662,7 @@
     "soilPct": 70,
     "sandPct": 30,
     "occurs": [ 9 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 8,
     "plants": [
       {
         "Item1": "none",
@@ -701,7 +701,7 @@
     "soilPct": 70,
     "sandPct": 30,
     "occurs": [ 9 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 9,
     "plants": [
       {
         "Item1": "none",
@@ -748,7 +748,7 @@
     "soilPct": 70,
     "sandPct": 30,
     "occurs": [ 9 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 10,
     "plants": [],
     "wildlife": [ "deer", "boar" ],
     "deciduousTreeChance": 15,
@@ -766,7 +766,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 9 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 11,
     "plants": [],
     "wildlife": [ "deer", "boar" ],
     "deciduousTreeChance": 15,
@@ -784,7 +784,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 2, 8, 5 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 12,
     "plants": [
       {
         "Item1": "none",
@@ -827,7 +827,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 2, 8, 5 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 13,
     "plants": [
       {
         "Item1": "none",
@@ -878,7 +878,7 @@
     "soilPct": 75,
     "sandPct": 25,
     "occurs": [ 2, 8, 5 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 14,
     "plants": [
       {
         "Item1": "none",
@@ -1033,7 +1033,7 @@
     "soilPct": 25,
     "sandPct": 75,
     "occurs": [ 2, 8, 5 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 15,
     "plants": [
       {
         "Item1": "none",
@@ -1212,7 +1212,7 @@
     "soilPct": 80,
     "sandPct": 20,
     "occurs": [ 3, 7 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 16,
     "plants": [
       {
         "Item1": "none",
@@ -1255,7 +1255,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 3, 7 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 17,
     "plants": [
       {
         "Item1": "none",
@@ -1310,7 +1310,7 @@
     "soilPct": 75,
     "sandPct": 25,
     "occurs": [ 3, 7 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 18,
     "plants": [
       {
         "Item1": "none",
@@ -1437,7 +1437,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 3, 7 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 19,
     "plants": [
       {
         "Item1": "none",
@@ -1540,7 +1540,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 6 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 20,
     "plants": [
       {
         "Item1": "none",
@@ -1583,7 +1583,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 6 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 21,
     "plants": [
       {
         "Item1": "none",
@@ -1630,7 +1630,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 6 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 22,
     "plants": [
       {
         "Item1": "none",
@@ -1733,7 +1733,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 6 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 23,
     "plants": [
       {
         "Item1": "none",
@@ -1848,7 +1848,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 6 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 24,
     "plants": [],
     "wildlife": [ "deer", "armadillo" ],
     "deciduousTreeChance": 1,
@@ -1866,7 +1866,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 7 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 25,
     "plants": [
       {
         "Item1": "none",
@@ -1909,7 +1909,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 7 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 26,
     "plants": [
       {
         "Item1": "none",
@@ -1952,7 +1952,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 7 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 27,
     "plants": [
       {
         "Item1": "none",
@@ -2015,7 +2015,7 @@
     "soilPct": 25,
     "sandPct": 75,
     "occurs": [ 7 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 28,
     "plants": [
       {
         "Item1": "none",
@@ -2074,7 +2074,7 @@
     "soilPct": 10,
     "sandPct": 90,
     "occurs": [ 7 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 29,
     "plants": [],
     "wildlife": [ "deer", "armadillo" ],
     "deciduousTreeChance": 1,
@@ -2092,7 +2092,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 4 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 30,
     "plants": [
       {
         "Item1": "none",
@@ -2135,7 +2135,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 4 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 31,
     "plants": [
       {
         "Item1": "none",
@@ -2174,7 +2174,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 4 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 32,
     "plants": [
       {
         "Item1": "none",
@@ -2217,7 +2217,7 @@
     "soilPct": 25,
     "sandPct": 75,
     "occurs": [ 4 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 33,
     "plants": [
       {
         "Item1": "none",
@@ -2264,7 +2264,7 @@
     "soilPct": 10,
     "sandPct": 90,
     "occurs": [ 4 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 34,
     "plants": [],
     "wildlife": [ "deer", "armadillo" ],
     "deciduousTreeChance": 1,
@@ -2282,7 +2282,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 2, 3, 7, 6, 8 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 35,
     "plants": [
       {
         "Item1": "none",
@@ -2325,7 +2325,7 @@
     "soilPct": 15,
     "sandPct": 85,
     "occurs": [ 2, 3, 7, 6, 8 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 36,
     "plants": [
       {
         "Item1": "none",
@@ -2368,7 +2368,7 @@
     "soilPct": 5,
     "sandPct": 95,
     "occurs": [ 2, 3, 8 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 37,
     "plants": [],
     "wildlife": [ "deer", "horse" ],
     "deciduousTreeChance": 1,
@@ -2386,7 +2386,7 @@
     "soilPct": 50,
     "sandPct": 50,
     "occurs": [ 4, 6, 3, 8 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 38,
     "plants": [],
     "wildlife": [ "deer", "armadillo", "horse" ],
     "deciduousTreeChance": 1,
@@ -2404,7 +2404,7 @@
     "soilPct": 80,
     "sandPct": 20,
     "occurs": [ 2, 3, 8 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 39,
     "plants": [
       {
         "Item1": "none",
@@ -2475,7 +2475,7 @@
     "soilPct": 80,
     "sandPct": 20,
     "occurs": [ 7, 3, 6 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 40,
     "plants": [
       {
         "Item1": "none",
@@ -2534,7 +2534,7 @@
     "soilPct": 80,
     "sandPct": 20,
     "occurs": [ 7, 3, 6 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 41,
     "plants": [
       {
         "Item1": "none",
@@ -2581,7 +2581,7 @@
     "soilPct": 80,
     "sandPct": 20,
     "occurs": [ 7, 4, 6 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 42,
     "plants": [
       {
         "Item1": "none",
@@ -2628,7 +2628,7 @@
     "soilPct": 90,
     "sandPct": 10,
     "occurs": [ 2, 3, 8 ],
-    "worldgenTextureIndex": 0,
+    "TextureIndex": 43,
     "plants": [],
     "wildlife": [ "deer", "antelope" ],
     "deciduousTreeChance": 200,

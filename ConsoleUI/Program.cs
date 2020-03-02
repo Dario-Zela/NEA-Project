@@ -35,7 +35,7 @@ namespace UI
         {
             if (GetKey(Key.TAB).bPressed)
             {
-                world.history.RunYear(ref world.World, ref world.rng);
+                world.history.RunYear(world.World, ref world.rng);
                 pass = false;
             }
             if (GetKey(Key.ENTER).bPressed)
@@ -301,7 +301,6 @@ namespace UI
 
     class Start
     {
-
         static void Main()
         {
             Test demo = new Test();
