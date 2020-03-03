@@ -43,6 +43,7 @@ namespace Pixel_Engine
             A = 0x00;
             this.IntValue = IntValue;
         }
+
         public enum Mode { NORMAL, MASK, ALPHA, CUSTOM }
 
         public static bool operator ==(Pixel pixel1, Pixel pixel2)
@@ -100,6 +101,15 @@ namespace Pixel_Engine
         public static implicit operator Color(Pixel p)
         {
             return Color.FromArgb(p.A, p.R, p.G, p.B);
+        }
+
+        public override bool Equals(object o)
+        {
+            if(o.GetType() == typeof(Pixel))
+            {
+                return (Pixel)o == this;
+            }
+            return false;
         }
     }
 
