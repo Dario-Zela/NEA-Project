@@ -39,8 +39,8 @@ namespace Models.Sprites
 
         internal class TileSetData
         {
-            public string src;
-            public int tileWidth;
+            public string src = "";
+            public int tileWidth = 0;
 
             public Sprite[] value;
             public void init()

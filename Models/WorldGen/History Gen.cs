@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
@@ -39,7 +39,7 @@ namespace Models.WorldGen
         public int techLevel = 0, glyph = 0;
         public bool extinct = false;
         public string speciesTag = "", name = "", leaderName = "", origin = "";
-        public Colour flag = Pixel.BLANK;
+        public Pixel flag = Pixel.BLANK;
         public int startX = 0, startY = 0, cordexFeelings;
         public bool metCordex = false;
         public Dictionary<int, int> relations = new Dictionary<int, int>();
@@ -81,7 +81,7 @@ namespace Models.WorldGen
         public bool spreadsBlight = false;
         public int maxAge = 90, infantAge = 5, childAge = 12;
         public char glyph = '@', glyphAscii = '@', worldgenGlyph = '@';
-        public List<Tuple<string, Colour>> skinColors = new List<Tuple<string, Colour>>(), hairColors = new List<Tuple<string, Colour>>();
+        public List<Tuple<string, Pixel>> skinColors = new List<Tuple<string, Pixel>>(), hairColors = new List<Tuple<string, Pixel>>();
     };
 
     public class civUnitNaturalAttack
@@ -172,8 +172,8 @@ namespace Models.WorldGen
         public Gender gender = new Gender();
         public Sexuality sexuality = new Sexuality();
         public HairStyle hairStyle = new HairStyle();
-        public Tuple<string, Colour> skinColour = new Tuple<string, Colour>("", new Colour(0, 0, 0));
-        public Tuple<string, Colour> hairColor = new Tuple<string, Colour>("", new Colour(0, 0, 0));
+        public Tuple<string, Pixel> skinPixel = new Tuple<string, Pixel>("", new Pixel(0, 0, 0));
+        public Tuple<string, Pixel> hairColor = new Tuple<string, Pixel>("", new Pixel(0, 0, 0));
         public float height = 0;
         public float weight = 0;
         public bool bearded = false;
@@ -197,7 +197,7 @@ namespace Models.WorldGen
         {
             get
             {
-                return skinColour.Item1;
+                return skinPixel.Item1;
             }
         }
     }
@@ -330,7 +330,7 @@ namespace Models.WorldGen
                 civ.speciesTag = getRandomSpecies(ref rng, 0);
                 civ.techLevel = 0;
                 civ.extinct = false;
-                civ.flag = new Colour((byte)rng.Next(0, 256), (byte)rng.Next(0, 256), (byte)rng.Next(0, 256));
+                civ.flag = new Pixel((byte)rng.Next(0, 256), (byte)rng.Next(0, 256), (byte)rng.Next(0, 256));
                 civ.startX = wx;
                 civ.startY = wy;
 
