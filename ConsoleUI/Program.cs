@@ -4,7 +4,7 @@ using Models.WorldGen;
 using Pixel_Engine;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Diagnostics;
+using System.ComponentModel;
 
 namespace UI
 {
@@ -27,17 +27,22 @@ namespace UI
                 biomeCol[i] = new Pixel((byte)rng.Next(255), (byte)rng.Next(255), (byte)rng.Next(255));
             }
             */
+            BackgroundWorker b = new BackgroundWorker();
+            b.DoWork += new DoWorkEventHandler((sender, e) =>
+            {
+                while (true)
+                {
+                    world.history.RunYear(world.World, ref world.rng);
+                    pass = false;
+                }
+            });
+            b.RunWorkerAsync();
             return true;
         }
 
         bool pass = false;
         public override bool onUserUpdate(float fElapsedTime)
         {
-            if (GetKey(Key.TAB).bPressed)
-            {
-                world.history.RunYear(world.World, ref world.rng);
-                pass = false;
-            }
             if (GetKey(Key.ENTER).bPressed)
             {
                 world = new WorldCreator(new Random().Next(100000), 1.3f, 0.4f, 6);

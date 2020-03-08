@@ -541,9 +541,10 @@ namespace Models.WorldGen
 
             // Unit combat - units in the same region but of different civs kill one another
             int killed = 0;
-            for (int y = 0; y < Constants.WORLD_HEIGHT; y++)
+            Random rngCopy = rng;
+            Parralel.For(0, Constants.WORLD_HEIGHT, (y) =>
             {
-                for (int x = 0; x < Constants.WORLD_WIDTH; x++)
+                Parralel.For(0, Constants.WORLD_WIDTH, (x) =>
                 {
                     int pidx = World.idx(x, y);
                     Dictionary<int, List<int>> occupants = new Dictionary<int, List<int>>();
@@ -600,7 +601,7 @@ namespace Models.WorldGen
                                     }
                                 }
                             }
-                            strengths[cit.Key] = str + rng.Next(2, 7);
+                            strengths[cit.Key] = str + rngCopy.Next(2, 7);
                         }
 
                         int max = 0, winner = 0;
@@ -634,8 +635,9 @@ namespace Models.WorldGen
                         World.civs.regionInfo[pidx].ownerCiv = temp[0];
                         if (World.civs.regionInfo[pidx].settlementSize == 0) World.civs.regionInfo[pidx].settlementSize = 1;
                     }
-                }
-            }
+                });
+            });
+            rng = rngCopy;
             //std::cout << "War has killed " << killed << " units this turn.\n";
             World.civs.units.RemoveAll(u => u.dead);
 
