@@ -4,6 +4,7 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using Pixel_Engine;
+using System.ComponentModel;
 
 namespace Models.WorldGen
 {
@@ -542,9 +543,9 @@ namespace Models.WorldGen
             // Unit combat - units in the same region but of different civs kill one another
             int killed = 0;
             Random rngCopy = rng;
-            Parralel.For(0, Constants.WORLD_HEIGHT, (y) =>
+            Parallel.For(0, Constants.WORLD_HEIGHT, (y) =>
             {
-                Parralel.For(0, Constants.WORLD_WIDTH, (x) =>
+                Parallel.For(0, Constants.WORLD_WIDTH, (x) =>
                 {
                     int pidx = World.idx(x, y);
                     Dictionary<int, List<int>> occupants = new Dictionary<int, List<int>>();
