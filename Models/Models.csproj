@@ -70,6 +70,7 @@
     <None Include="WorldGen\WorldGenAssets\BiomeTypes.json" />
     <None Include="WorldGen\WorldGenAssets\CivTypes.json" />
     <None Include="WorldGen\WorldGenAssets\Scentients.json" />
+    <None Include="WorldGen\WorldGenAssets\Species.json" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Sprites\TileSetMapGen.bmp" />

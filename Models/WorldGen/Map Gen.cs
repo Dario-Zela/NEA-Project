@@ -30,6 +30,7 @@ namespace Models.WorldGen
         public int idx(int x, int y) { return y * Constants.WORLD_WIDTH + x; }
         public civHolder civs = new civHolder();
         public History history = new History();
+        public RegionInfo[] RegionInfos;
     }
 
     enum blockType
@@ -128,13 +129,7 @@ namespace Models.WorldGen
                 World.topology.Add(new Terrain());
             }
             World.remainingSettlers = 200;
-            for (int i = 0; i < Constants.WORLD_WIDTH; i++)
-            {
-                for (int j = 0; j < Constants.WORLD_HEIGHT; j++)
-                {
-                    World.civs.regionInfo.Add(new regionInfo(i, j));
-                }
-            }
+            World.RegionInfos = new RegionInfo[Constants.WORLD_WIDTH * Constants.WORLD_HEIGHT];
         }
 
         public void noiseMap(World World, int seed, int octaves, float persistence, float lacunarity)
@@ -220,34 +215,46 @@ namespace Models.WorldGen
                 if (World.topology[i].height <= World.waterHeight)
                 {
                     World.topology[i].type = (int)blockType.WATER;
+                    World.RegionInfos[i].UseableSlots = 0;
                     World.topology[i].rainfall = 10;
                     if (World.topology[i].height + World.topology[i].variance / 2 > World.waterHeight)
+                    {
                         World.topology[i].type = (int)blockType.SALT_MARSH;
+                        World.RegionInfos[i].UseableSlots = 5;
+                    }
                 }
                 else if (World.topology[i].height <= World.plainsHeight)
                 {
                     World.topology[i].type = (int)blockType.PLAINS;
+                    World.RegionInfos[i].UseableSlots = 10;
                     World.topology[i].rainfall = 10;
                     if (World.topology[i].height - World.topology[i].variance / 2 > World.waterHeight)
+                    {
                         World.topology[i].type = (int)blockType.MARSH;
+                        World.RegionInfos[i].UseableSlots = 4;
+                    }
                 }
                 else if (World.topology[i].height <= World.hillsHeight)
                 {
                     World.topology[i].type = (int)blockType.HILLS;
+                    World.RegionInfos[i].UseableSlots = 4;
                     World.topology[i].rainfall = 20;
                     if (World.topology[i].variance < 2)
                     {
                         World.topology[i].type = (int)blockType.HIGHLANDS;
+                        World.RegionInfos[i].UseableSlots = 8;
                         World.topology[i].rainfall = 10;
                     }
                 }
                 else
                 {
                     World.topology[i].type = (int)blockType.MOUNTAINS;
+                    World.RegionInfos[i].UseableSlots = 2;
                     World.topology[i].rainfall = 30;
                     if (World.topology[i].variance < 3)
                     {
                         World.topology[i].type = (int)blockType.PLATEAU;
+                        World.RegionInfos[i].UseableSlots = 9;
                         World.topology[i].rainfall = 10;
                     }
                 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Pixel_Engine;
 using System.ComponentModel;
 
+/*
 namespace Models.WorldGen
 {
     class stringTable
@@ -687,3 +688,4 @@ namespace Models.WorldGen
         }
     }
 }
+*/
