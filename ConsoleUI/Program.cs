@@ -8,6 +8,7 @@ using System.ComponentModel;
 
 namespace UI
 {
+
     class Test : Engine
     {
         public Test()
@@ -32,7 +33,7 @@ namespace UI
             {
                 while (true)
                 {
-                    world.history.RunYear(world.World, ref world.rng);
+                    //world.history.RunYear(world.World, ref world.rng);
                     pass = false;
                 }
             });
@@ -67,6 +68,7 @@ namespace UI
                         Draw(it2.x, it2.y, Pixel.BLUE);
                     }
                 }
+                /*
                 foreach (var item in world.World.civs.regionInfo)
                 {
                     try
@@ -76,6 +78,7 @@ namespace UI
                     }
                     catch { }
                 }
+                */
                 pass = true;
             }
             return true;
@@ -300,18 +303,227 @@ namespace UI
         }
         */
     }
+    
 
     //1.3 0.3999996 6
     //1.7 0.4 6
+
+    class AStarTest : Engine
+    {
+        Node[] nodes;
+        int MapWidth = 10;
+        int MapHeight = 10;
+        Node Start;
+        Node End;
+        public override bool OnUserCreate()
+        {
+            nodes = new Node[MapHeight * MapWidth];
+            for (int x = 0; x < MapWidth; x++)
+            {
+                for (int y = 0; y < MapHeight; y++)
+                {
+                    nodes[y * MapWidth + x] = new Node();
+                    nodes[y * MapWidth + x].x = x;
+                    nodes[y * MapWidth + x].y = y;
+                    nodes[y * MapWidth + x].Obstacle = false;
+                    nodes[y * MapWidth + x].Parent = null;
+                    nodes[y * MapWidth + x].Visited = false;
+                }
+            }
+            for (int x = 0; x < MapWidth; x++)
+                for (int y = 0; y < MapHeight; y++)
+                {
+                    if (y > 0)
+                    {
+                        if (x > 0)
+                        {
+                            nodes[y * MapWidth + x].Neighbours.Add(nodes[(y-1) * MapWidth + (x - 1)]);
+                        }
+                        if (x < MapWidth - 1)
+                        {
+                            nodes[y * MapWidth + x].Neighbours.Add(nodes[(y - 1) * MapWidth + (x + 1)]);
+                        }
+                        nodes[y * MapWidth + x].Neighbours.Add(nodes[(y - 1) * MapWidth + x]);
+                    }
+                    if (y < MapHeight - 1)
+                    {
+                        if (x > 0)
+                        {
+                            nodes[y * MapWidth + x].Neighbours.Add(nodes[(y + 1) * MapWidth + (x - 1)]);
+                        }
+                        if (x < MapWidth - 1)
+                        {
+                            nodes[y * MapWidth + x].Neighbours.Add(nodes[(y + 1) * MapWidth + (x + 1)]);
+                        }
+                        nodes[y * MapWidth + x].Neighbours.Add(nodes[(y + 1) * MapWidth + x]);
+                    }
+                    if (x > 0)
+                    {
+                        nodes[y * MapWidth + x].Neighbours.Add(nodes[y * MapWidth + (x - 1)]);
+                    }
+                    if (x < MapWidth - 1)
+                    {
+                        nodes[y * MapWidth + x].Neighbours.Add(nodes[y * MapWidth + (x + 1)]);
+                    }
+                }
+
+            Start = nodes[(MapHeight / 2) * MapWidth + 1];
+            End = nodes[(MapHeight / 2) * MapWidth + MapWidth - 2];
+            return true;
+        }
+
+        public override bool onUserUpdate(float fElapsedTime)
+        {
+            int NodeSize = 9;
+            int NodeBorder = 2;
+            Clear(Pixel.BLACK);
+
+            if (GetMouse(0).bReleased)
+            {
+                int SelectedX = GetMouseX() / (NodeSize + NodeBorder);
+                int SelectedY = GetMouseY() / (NodeSize + NodeBorder);
+                if(SelectedX >=0 && SelectedX<MapWidth && SelectedY>=0 && SelectedY < MapHeight)
+                {
+                    if (GetKey(Key.SHIFT).bHeld)
+                        Start = nodes[SelectedY * MapWidth + SelectedX];
+                    else if(GetKey(Key.CTRL).bHeld)
+                        End = nodes[SelectedY * MapWidth + SelectedX];
+                    else
+                        nodes[SelectedY * MapWidth + SelectedX].Obstacle ^= true;
+                    SolveAStar();
+                }
+            }
+            
+            for (int x = 0; x < MapWidth; x++)
+            {
+                for (int y = 0; y < MapHeight; y++)
+                {
+                    FillRect(x * (NodeSize + NodeBorder), y * (NodeSize + NodeBorder), NodeSize, NodeSize, nodes[y*MapWidth+x].Obstacle? Pixel.WHITE : Pixel.BLUE);
+                    if (nodes[y * MapWidth + x] == Start)
+                    {
+                        FillRect(x * (NodeSize + NodeBorder), y * (NodeSize + NodeBorder), NodeSize, NodeSize, Pixel.GREEN);
+                    }
+                    else if (nodes[y * MapWidth + x] == End)
+                    {
+                        FillRect(x * (NodeSize + NodeBorder), y * (NodeSize + NodeBorder), NodeSize, NodeSize, Pixel.RED);
+                    }
+                    else if (nodes[y * MapWidth + x].Visited)
+                    {
+                        FillRect(x * (NodeSize + NodeBorder), y * (NodeSize + NodeBorder), NodeSize, NodeSize, Pixel.DARK_BLUE);
+                    }
+                }
+            }
+
+            if(End != null)
+            {
+                Node target = End;
+                while(target.Parent != null)
+                {
+                    DrawLine(target.x * (NodeSize + NodeBorder) / 2, target.y * (NodeSize + NodeBorder) / 2,
+                            target.Parent.x * (NodeSize + NodeBorder) / 2, target.Parent.y * (NodeSize + NodeBorder) / 2, Pixel.YELLOW);
+                    target = target.Parent;
+                }
+            }
+            
+            return true;
+        }
+
+        void SolveAStar()
+        {
+            for (int x = 0; x < MapWidth; x++)
+            {
+                for (int y = 0; y < MapHeight; y++)
+                {
+                    nodes[y * MapWidth + x].Visited = false;
+                    nodes[y * MapWidth + x].GlobalGoal = float.PositiveInfinity;
+                    nodes[y * MapWidth + x].LocalGoal = float.PositiveInfinity;
+                    nodes[y * MapWidth + x].Parent = null;
+                }
+            }
+
+            Func<Node, Node, float> distance = new Func<Node, Node, float>((a, b) =>
+            {
+                return (float)Math.Sqrt((a.x + b.x) * (a.x + b.x) + (a.y + b.y) * (a.y + b.y));
+            });
+
+            Func<Node, Node, float> heuristic = new Func<Node, Node, float>((a, b) =>
+            {
+                return distance(a, b);
+            });
+
+            Node Current = Start;
+            Start.LocalGoal = 0f;
+            Start.GlobalGoal = heuristic(Start, End);
+
+            List<Node> ToBeTested = new List<Node>();
+            ToBeTested.Add(Start);
+
+            while(ToBeTested.Count != 0 && Current != End)
+            {
+                ToBeTested.Sort(new Comparison<Node>((lhs, rhs) =>
+                {
+                    return lhs.GlobalGoal < rhs.GlobalGoal?1:-1;
+                }));
+
+                ToBeTested.RemoveAll(new Predicate<Node>((node) =>
+                {
+                    return node.Visited;
+                }));
+
+                if(ToBeTested.Count == 0)
+                    break;
+
+                Current = ToBeTested.First();
+                Current.Visited = true;;
+
+                foreach(Node Neighbour in Current.Neighbours)
+                {
+                    if(!Neighbour.Visited && !Neighbour.Obstacle)
+                    {
+                        ToBeTested.Add(Neighbour);
+                    }
+                    float PossiblyLowerGoal = Current.LocalGoal + distance(Current, Neighbour);
+
+                    if (PossiblyLowerGoal < Neighbour.LocalGoal)
+                    {
+                        Neighbour.Parent = Current;
+                        Neighbour.LocalGoal = PossiblyLowerGoal;
+                        Neighbour.GlobalGoal = Neighbour.LocalGoal + heuristic(Neighbour, End);
+                    }
+                }
+
+                
+            }
+        }
+    }
+
+    class Node
+    {
+        public bool Obstacle = false;
+        public bool Visited = false;
+        public float GlobalGoal;
+        public float LocalGoal;
+        public int x;
+        public int y;
+        public List<Node> Neighbours = new List<Node>();
+        public Node Parent;
+    }
 
     class Start
     {
         static void Main()
         {
+            /*
             Test demo = new Test();
             if (demo.Construct(128, 128, 4, 4, false, true))
             {
                 demo.Start();
+            }
+            */
+            AStarTest test = new AStarTest();
+            if (test.Construct(160, 160, 6, 6))
+            {
+                test.Start();
             }
         }
 

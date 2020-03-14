@@ -28,8 +28,8 @@ namespace Models.WorldGen
         public List<Biome> biomes = new List<Biome>();
         public List<River> rivers = new List<River>();
         public int idx(int x, int y) { return y * Constants.WORLD_WIDTH + x; }
-        public civHolder civs = new civHolder();
-        public History history = new History();
+        //public civHolder civs = new civHolder();
+        //public History history = new History();
         public RegionInfo[] RegionInfos;
     }
 

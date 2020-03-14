@@ -267,7 +267,7 @@ namespace Models.WorldGen
                     int WorldX = rng.Next(Constants.WORLD_WIDTH);
                     int WorldY = rng.Next(Constants.WORLD_HEIGHT);
                     int Idx = World.idx(WorldX, WorldY);
-                    if (World.topology[Idx].type == (int)blockType.WATER || World.civs.regionInfo[Idx].ownerCiv != 0) goto retry;
+                    if (World.topology[Idx].type == (int)blockType.WATER || World.RegionInfos[Idx].OwnerCiv != 0) goto retry;
 
                 civ.Capital = new Position(WorldX, WorldY);
                 World.RegionInfos[Idx].OwnerCiv = i;
@@ -278,5 +278,15 @@ namespace Models.WorldGen
 
             }
         }
+        public void RunYear(World World, ref Random rng)
+        {
+            /*
+            foreach (Civilization civ in CivDef)
+            {
+                
+            }
+            */
+        }
+
     }
 }
