@@ -419,8 +419,8 @@ namespace UI
                 Node target = End;
                 while(target.Parent != null)
                 {
-                    DrawLine(target.x * (NodeSize + NodeBorder) + NodeSize/2, target.y * (NodeSize + NodeBorder) + NodeSize / 2,
-                            target.Parent.x * (NodeSize + NodeBorder) + NodeSize / 2, target.Parent.y * (NodeSize + NodeBorder) + NodeSize / 2, Pixel.YELLOW);
+                    DrawLine(target.x * (NodeSize + NodeBorder), target.y * (NodeSize + NodeBorder),
+                            target.Parent.x * (NodeSize + NodeBorder), target.Parent.y * (NodeSize + NodeBorder), Pixel.YELLOW);
                     target = target.Parent;
                 }
             }
@@ -443,7 +443,7 @@ namespace UI
 
             Func<Node, Node, float> distance = new Func<Node, Node, float>((a, b) =>
             {
-                return (float)Math.Sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+                return (float)Math.Sqrt((a.x + b.x) * (a.x + b.x) + (a.y + b.y) * (a.y + b.y));
             });
 
             Func<Node, Node, float> heuristic = new Func<Node, Node, float>((a, b) =>
@@ -462,7 +462,7 @@ namespace UI
             {
                 ToBeTested.Sort(new Comparison<Node>((lhs, rhs) =>
                 {
-                    return lhs.GlobalGoal < rhs.GlobalGoal?-1:1;
+                    return lhs.GlobalGoal > rhs.GlobalGoal?1:-1;
                 }));
 
                 ToBeTested.RemoveAll(new Predicate<Node>((node) =>
@@ -474,7 +474,7 @@ namespace UI
                     break;
 
                 Current = ToBeTested.First();
-                Current.Visited = true;
+                Current.Visited = true;;
 
                 foreach(Node Neighbour in Current.Neighbours)
                 {

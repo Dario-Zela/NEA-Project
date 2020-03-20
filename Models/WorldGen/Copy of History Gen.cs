@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Pixel_Engine;
 using System.IO;
 using Newtonsoft.Json;
+using Models.Algorithms;
 
 namespace Models.WorldGen
 {
@@ -11,6 +12,7 @@ namespace Models.WorldGen
         public int OwnerCiv;
         public List<Structure> Buildings;
         public int UseableSlots;
+        public List<Tuple<int, string>> History = new List<Tuple<int, string>>();
     }
 
     class StringTable
@@ -22,11 +24,6 @@ namespace Models.WorldGen
             int Position = rng.Next(0, strings.Count);
             return strings[Position];
         }
-    }
-
-    class History
-    {
-        public List<Tuple<Position, int, string>> HistoryRecord = new List<Tuple<Position, int, string>>();
     }
 
     class RegionModifier
@@ -49,7 +46,6 @@ namespace Models.WorldGen
         public int DefenciveBonus;
         public int OffenciveBonus;
         public int BaseMobility;
-        public bool OutDated;
         public int Cost;
         public bool CanSwim;
 
@@ -59,8 +55,7 @@ namespace Models.WorldGen
             this.DefenciveBonus = DefenciveBonus;
             this.OffenciveBonus = OffenciveBonus;
             this.Cost = Cost;
-            OutDated = false;
-            this.CanSwim = true;
+            this.CanSwim = CanSwim;
         }
     }
 
@@ -166,12 +161,13 @@ namespace Models.WorldGen
         public List<Unit> Army;
         public List<UnitType> PossibleDivisions;
         public List<Structure> PossibleBuildings;
-        public int ResourcesPerTurn;
+        public int ResourceGen;
         public int SupplyGen;
         public List<Civilization> Allies;
         public Position Capital;
-        public Pixel flag;
-        public History History;
+        public Pixel Flag;
+        public List<Tuple<Position, int, string>> History;
+        public int Tag;
 
         public Civilization()
         {
@@ -183,18 +179,18 @@ namespace Models.WorldGen
             Ai = new int[3];
             Army = new List<Unit>();
             PossibleBuildings = new List<Structure>();
-            ResourcesPerTurn = 0;
+            ResourceGen = 0;
             SupplyGen = 0;
             Capital = new Position();
-            flag = new Pixel(new Random().Next(int.MaxValue));
-            flag.A = 255;
-            History = new History();
+            Flag = new Pixel(new Random().Next(int.MaxValue));
+            Flag.A = 255;
+            History = new List<Tuple<Position, int, string>>();
         }
 
         public void AddStructure(Structure s)
         {
             SupplyGen += s.SupplyGen;
-            ResourcesPerTurn += s.ResourceGrowth;
+            ResourceGen += s.ResourceGrowth;
         }
     }
 
@@ -258,6 +254,7 @@ namespace Models.WorldGen
             TownHall.DefenceMod = 20;
             TownHall.ResourceGrowth = 100;
             TownHall.SupplyGen = 50;
+            UnitType DefaultUnitType = new UnitType(10, 10, 1, 10, false);
 
             for (int i = 0; i < Constants.WORLD_WIDTH; i++)
             {
@@ -273,19 +270,92 @@ namespace Models.WorldGen
                 World.RegionInfos[Idx].OwnerCiv = i;
                 World.RegionInfos[Idx].Buildings.Add(TownHall);
                 civ.AddStructure(TownHall);
-                civ.Ai = new[] { civ.Race.BaseAggressiveness, civ.Race.BaseResearchFocus, civ.Race.BaseResourceFoucus };
-                civ.TechLevel = new[] { civ.Race.BaseMilitaryTechGrowth, civ.Race.BaseCivilianTechGrowth, civ.Race.BaseAgricolturalTechGrowth };
-
+                civ.Ai = new[] { civ.Race.BaseAggressiveness + World.topology[Idx].savagery, civ.Race.BaseResearchFocus - World.topology[Idx].savagery, civ.Race.BaseResourceFoucus - World.topology[Idx].temperature };
+                civ.TechGrowth = new[] { civ.Race.BaseMilitaryTechGrowth + World.topology[Idx].savagery, civ.Race.BaseCivilianTechGrowth - World.topology[Idx].savagery, civ.Race.BaseAgricolturalTechGrowth - World.topology[Idx].temperature };
+                civ.Tag = i;
             }
         }
         public void RunYear(World World, ref Random rng)
         {
-            /*
-            foreach (Civilization civ in CivDef)
+            foreach (Civilization civ in CivDef.Values)
             {
-                
+                int Supplies = civ.SupplyGen;
+                int Resources = civ.ResourceGen;
+
+                Func<RegionInfo[], Node[]> Conv = new Func<RegionInfo[], Node[]>((regions) =>
+                {
+                    int MapWidth = Constants.WORLD_WIDTH;
+                    int MapHeight = Constants.WORLD_HEIGHT;
+                    Node[] nodes = new Node[regions.Length];
+                    for (int i = 0; i < regions.Length; i++)
+                    {
+                        RegionInfo region = regions[i];
+                        nodes[i] = new Node()
+                        {
+                            x = i / MapWidth,
+                            y = i % MapWidth,
+                            Obstacle = region.OwnerCiv != civ.Tag,
+                        };
+                    }
+
+                    for (int x = 0; x < MapWidth; x++)
+                        for (int y = 0; y < MapHeight; y++)
+                        {
+                            if (y > 0)
+                            {
+                                if (x > 0)
+                                {
+                                    nodes[y * MapWidth + x].Neighbours.Add(nodes[(y - 1) * MapWidth + (x - 1)]);
+                                }
+                                if (x < MapWidth - 1)
+                                {
+                                    nodes[y * MapWidth + x].Neighbours.Add(nodes[(y - 1) * MapWidth + (x + 1)]);
+                                }
+                                nodes[y * MapWidth + x].Neighbours.Add(nodes[(y - 1) * MapWidth + x]);
+                            }
+                            if (y < MapHeight - 1)
+                            {
+                                if (x > 0)
+                                {
+                                    nodes[y * MapWidth + x].Neighbours.Add(nodes[(y + 1) * MapWidth + (x - 1)]);
+                                }
+                                if (x < MapWidth - 1)
+                                {
+                                    nodes[y * MapWidth + x].Neighbours.Add(nodes[(y + 1) * MapWidth + (x + 1)]);
+                                }
+                                nodes[y * MapWidth + x].Neighbours.Add(nodes[(y + 1) * MapWidth + x]);
+                            }
+                            if (x > 0)
+                            {
+                                nodes[y * MapWidth + x].Neighbours.Add(nodes[y * MapWidth + (x - 1)]);
+                            }
+                            if (x < MapWidth - 1)
+                            {
+                                nodes[y * MapWidth + x].Neighbours.Add(nodes[y * MapWidth + (x + 1)]);
+                            }
+                        }
+                    return nodes;
+                });
+                AStar<RegionInfo> PathFinder = new AStar<RegionInfo>(World.RegionInfos, Constants.WORLD_WIDTH, Constants.WORLD_HEIGHT, Conv,
+                    World.idx(civ.Capital.x, civ.Capital.y), 0);
+                int SupplyDefecit = 0;
+                foreach (Unit unit in civ.Army)
+                {
+                    int EndLoc = World.idx(unit.Position.x, unit.Position.y);
+                    PathFinder.EditEnd(EndLoc);
+                    float Distance = PathFinder.BestDistance;
+                    unit.Resupply((int)(Supplies / civ.Army.Count / Distance));
+                    SupplyDefecit = (int)(Supplies / civ.Army.Count / Distance);
+                }
+                Supplies -= SupplyDefecit;
+                if(rng.Next(0,100) < SupplyDefecit / civ.SupplyGen * 100 * civ.Ai[0])
+                {
+                    UnitType chosen = civ.PossibleDivisions[rng.Next(0, civ.PossibleDivisions.Count - 1)];
+                    civ.Army.Add(new Unit(chosen, civ.Capital));
+                    Resources -= civ.PossibleDivisions[rng.Next(0, civ.PossibleDivisions.Count - 1)].Cost;
+                }
+
             }
-            */
         }
 
     }

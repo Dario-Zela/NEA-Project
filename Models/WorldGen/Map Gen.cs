@@ -11,7 +11,7 @@ namespace Models.WorldGen
 {
     public class Terrain
     {
-        public int height = 0, variance = 0, type = 0;
+        public int height = 0, variance = 0, type = 0, savagery = 0;
         public int temperature = 0, rainfall = 0, biomeIdx = -1;
     }
 
@@ -146,7 +146,7 @@ namespace Models.WorldGen
 
             for (int y = 0; y < Constants.WORLD_HEIGHT; y++)
             {
-                int distanceFromEquator = (int)(halfHeight / 2) - y;
+                int distanceFromEquator = (int)halfHeight - y;
                 float tempRangePct = 1.0f - (distanceFromEquator / halfHeight);
                 float baseTempByLatitulde = (tempRangePct * temperatureRange) + minTemperature;
                 for (int x = 0; x < Constants.WORLD_WIDTH; x++)
@@ -158,6 +158,7 @@ namespace Models.WorldGen
                     World.topology[World.idx(x, y)].temperature = (byte)(baseTempByLatitulde - altitudeDeduction);
                     if (World.topology[World.idx(x, y)].temperature < -55) World.topology[World.idx(x, y)].temperature = -55;
                     if (World.topology[World.idx(x, y)].temperature > 55) World.topology[World.idx(x, y)].temperature = 55;
+                    World.topology[World.idx(x, y)].savagery = (int)halfHeight - distanceFromEquator;
                 }
             }
         }
