@@ -4,7 +4,6 @@ using Pixel_Engine;
 using System.IO;
 using Newtonsoft.Json;
 using Models.Algorithms;
-using System.Linq;
 
 namespace Models.WorldGen
 {
@@ -26,8 +25,35 @@ namespace Models.WorldGen
                 return ToReturn;
             }
         }
+        public int DefenceMod
+        {
+            get
+            {
+                int DefenceMod = 0;
+                foreach (Structure structure in Buildings)
+                {
+                    DefenceMod += structure.DefenceMod;
+                }
+                return DefenceMod;
+            }
+        }
         public int CityLevel = 0;
         public int UseableSlots;
+        public List<Unit> UnitsInTheCity = new List<Unit>();
+        public bool FullControl
+        {
+            get
+            {
+                foreach (Unit unit in UnitsInTheCity)
+                {
+                    if(unit.CivTag != CityLevel)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
         public Tuple<int,Structure> Upgrade(Structure[] Upgrades, int[] CurrentTechLevel)
         {
             foreach (Structure structure in MilitaryBuildings)
@@ -82,7 +108,7 @@ namespace Models.WorldGen
         }
     }
 
-    class TerrainModifier
+    public class TerrainModifier
     {
         public int Modifier;
 
@@ -92,7 +118,7 @@ namespace Models.WorldGen
         }
     }
 
-    class UnitType
+    public class UnitType
     {
         public int DefenciveBonus;
         public int OffenciveBonus;
@@ -131,13 +157,13 @@ namespace Models.WorldGen
         }
     }
 
-    class Unit
+    public class Unit
     {
         public Position Position;
         public TerrainModifier CurrentPosition;
-        private int DefenciveBonus;
+        private int BaseDefenciveBonus;
         private int OffenciveBonus;
-        private int BaseMobility;
+        public int BaseMobility;
         private int Supplies;
         private int Experience;
         private int RemainingUnits;
@@ -145,20 +171,24 @@ namespace Models.WorldGen
         public bool CanSwim;
         private int SupplyCost;
         public int UnitClass;
+        public int LastResupply;
+        public int DefenciveBonus;
+        public int CivTag;
 
-        public Unit(UnitType Division, Position Pos, Terrain CurPos)
+        public Unit(UnitType Division, Position Pos, Terrain CurPos, RegionInfo region, int CivTag)
         {
-            Position = Pos;
-            CurrentPosition = (TerrainModifier)CurPos;
-            DefenciveBonus = Division.DefenciveBonus;
+            BaseDefenciveBonus = Division.DefenciveBonus;
             OffenciveBonus = Division.OffenciveBonus;
             BaseMobility = Division.BaseMobility;
             CanSwim = Division.CanSwim;
+            Moved(CurPos, Pos, region);
             RemainingUnits = 100;
             Supplies = 100;
             Experience = 0;
             SupplyCost = Division.SupplyCost;
             UnitClass = Division.UnitClass;
+            LastResupply = 100;
+            this.CivTag = CivTag;
         }
 
         public bool NeedUnits()
@@ -168,7 +198,7 @@ namespace Models.WorldGen
 
         public void Upgrade(UnitType Division)
         {
-            DefenciveBonus = Division.DefenciveBonus;
+            BaseDefenciveBonus = Division.DefenciveBonus;
             OffenciveBonus = Division.OffenciveBonus;
             BaseMobility = Division.BaseMobility;
             CanSwim = Division.CanSwim;
@@ -184,6 +214,7 @@ namespace Models.WorldGen
         public void Resupply(int Supplies)
         {
             this.Supplies += Supplies;
+            LastResupply = Supplies;
         }
 
         public void AddUnits(int Manpower)
@@ -199,15 +230,21 @@ namespace Models.WorldGen
             Defender.Supplies -= BaseDamage / 10 + Defender.SupplyCost;
             Attacker.RemainingUnits -= (int)(BaseDamage - (float)(Attacker.Supplies + Attacker.Experience - Defender.CurrentPosition.Modifier) / 100);
             Attacker.Supplies -= BaseDamage / 10 + Attacker.SupplyCost;
-            return Attacker.OffenciveBonus > Defender.DefenciveBonus;
+            return true;
         }
 
-        public void Moved(Terrain NewPosition, Position NewPos)
+        public void Moved(Terrain NewPosition, Position NewPos, RegionInfo region)
         {
             Position = NewPos;
             CurrentPosition = (TerrainModifier)NewPosition;
             Mobility = BaseMobility - CurrentPosition.Modifier;
+            DefenciveBonus = BaseDefenciveBonus + region.DefenceMod;
         }
+
+        static public Predicate<Unit> isDefeated = new Predicate<Unit>((unit) =>
+        {
+            return unit.RemainingUnits <= 0;
+        });
     }
 
     public class Structure
@@ -284,7 +321,7 @@ namespace Models.WorldGen
         }
     }
 
-    struct Position
+    public struct Position
     {
         Tuple<int,int> Pos;
 
@@ -408,6 +445,11 @@ namespace Models.WorldGen
             }
             ManpowerGrowth += 100;
         }
+
+        static public Predicate<Civilization> isExtinct = new Predicate<Civilization>((civ) =>
+        {
+            return civ.Land.Count == 0;
+        });
     }
 
     class Specie
@@ -428,7 +470,7 @@ namespace Models.WorldGen
         #region Loader
         List<Specie> Species;
         Dictionary<int, StringTable> StringTables = new Dictionary<int, StringTable>();
-        Dictionary<string, Civilization> CivDef = new Dictionary<string, Civilization>();
+        List<Civilization> CivDef = new List<Civilization>();
         public HistoryGen()
         {
             loader();
@@ -474,7 +516,7 @@ namespace Models.WorldGen
             TownHall.ManpowerGrowth = 100;
             TownHall.TechLevel = -1;
 
-            for (int i = 0; i < Constants.WORLD_WIDTH; i++)
+            for (int i = 0; i < Constants.WORLD_WIDTH / 2; i++)
             {
                 Civilization civ = new Civilization();
 
@@ -493,16 +535,16 @@ namespace Models.WorldGen
                 civ.TechGrowth = new[] { civ.Race.BaseMilitaryTechGrowth + World.topology[Idx].savagery, civ.Race.BaseResearchTechGrowth - World.topology[Idx].savagery, civ.Race.BaseEconomicalTechGrowth - World.topology[Idx].temperature };
                 civ.Tag = i;
                 civ.AddLand(ref World.RegionInfos[Idx]);
+                CivDef.Add(civ);
             }
         }
         public void RunYear(World World, ref Random rng)
         {
             List<RegionInfo> RegionsOfConflict = new List<RegionInfo>();
-            foreach (Civilization civ in CivDef.Values)
+            foreach (Civilization civ in CivDef)
             {
                 int Supplies = civ.SupplyGen;
                 int Resources = civ.ResourceGen;
-
                 Func<RegionInfo[], Node[]> Conv = new Func<RegionInfo[], Node[]>((regions) =>
                 {
                     int MapWidth = Constants.WORLD_WIDTH;
@@ -627,7 +669,8 @@ namespace Models.WorldGen
                 if(rng.Next(0,100) < (SupplyDefecit / (float)civ.SupplyGen + 1f/ civ.Army.Count) * 5 * civ.Ai[0] * 0.05f)
                 {
                     UnitType chosen = civ.PossibleDivisions[rng.Next(0, civ.PossibleDivisions.Length - 1)];
-                    civ.Army.Add(new Unit(chosen, civ.Capital, World.topology[World.idx(civ.Capital.x, civ.Capital.y)]));
+                    civ.Army.Add(new Unit(chosen, civ.Capital, World.topology[World.idx(civ.Capital.x, civ.Capital.y)],
+                        World.RegionInfos[World.idx(civ.Capital.x, civ.Capital.y)], civ.Tag));
                     Resources -= chosen.Cost;
                 }
                 foreach (RegionInfo region in civ.RequestedDefence)
@@ -702,7 +745,63 @@ namespace Models.WorldGen
                         region.UseableSlots += region.Buildings.Count / 2;
                     }
                 }
+                foreach (Unit unit in civ.Army)
+                {
+                    if (World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].UnitsInTheCity.Count != 1 &&
+                        !World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].FullControl)
+                    {
+                        foreach (Unit unit1 in World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].UnitsInTheCity)
+                        {
+                            if (unit1.CivTag != civ.Tag)
+                            {
+                                _ = unit + unit1;
+                            }
+                        }
+                    }
+                    else if (unit.LastResupply / 100f * civ.Ai[0] / 2 > 2)
+                    {
+                        if(World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].UnitsInTheCity.Count == 1)
+                        {
+                            World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].OwnerCiv = civ.Tag;
+                        }
+                        int yDis = rng.Next(-unit.BaseMobility / 10, unit.BaseMobility / 10);
+                        int xDis = rng.Next(-unit.BaseMobility / 10, unit.BaseMobility / 10);
+                        Position NewPos = new Position(unit.Position.x + xDis, unit.Position.y + yDis);
+                        Terrain NewPosTer = World.topology[World.idx(NewPos.x, NewPos.y)];
+                        RegionInfo region = World.RegionInfos[World.idx(NewPos.x, NewPos.y)];
+                        unit.Moved(NewPosTer, NewPos, region);
+                        if (region.UnitsInTheCity.Count != 0)
+                        {
+                            region.UnitsInTheCity.Add(unit);
+                            if(region.OwnerCiv != civ.Tag)
+                            {
+                                region.OwnerCiv = civ.Tag;
+                                civ.Land.Add(region);
+                            }
+                        }
+                        else
+                        {
+                            foreach (Unit unit1 in region.UnitsInTheCity)
+                            {
+                                if(unit1.CivTag != civ.Tag)
+                                {
+                                    _ = unit + unit1;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].UnitsInTheCity.Count == 1)
+                        {
+                            World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].OwnerCiv = civ.Tag;
+                        }
+                        unit.Train();
+                    }
+                }
+                civ.Army.RemoveAll(Unit.isDefeated);
             }
+            CivDef.RemoveAll(Civilization.isExtinct);
         }
     }
 }
