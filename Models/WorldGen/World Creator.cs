@@ -10,9 +10,8 @@ namespace Models.WorldGen
 {
     public class WorldCreator
     {
-        //public GetBiome biomeMap;
         public World World;
-        //public HistoryMaker history;
+        public HistoryGen history;
         public Random rng;
         private Sprite[] BiomeMap = TileSet.Instance.GetSprites("BiomeMap");
         public WorldCreator(int seed, float Persistance = 0.5f, float Lacunarity=2f, int Octaves=5)
@@ -21,7 +20,7 @@ namespace Models.WorldGen
             BiomeMap biomes = new BiomeMap();
             RiverGen rivers = new RiverGen();
             World = new World();
-            //history = new HistoryMaker();
+            history = new HistoryGen();
             rng = new Random(seed);
 
             gen.startMap(World);
@@ -32,7 +31,7 @@ namespace Models.WorldGen
 
             biomes.buildBiomes(World, ref rng);
             rivers.buildRivers(World, ref rng);
-            //history.buildInitialCivs(World, ref rng);
+            history.BuildInitialCivs(World, ref rng);
             //history.buildInitialHistory(World, ref rng);
         }
 

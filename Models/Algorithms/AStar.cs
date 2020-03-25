@@ -27,6 +27,8 @@ namespace Models.Algorithms
         {
             get
             {
+                if (Start == End) return 1;
+                else if (End.Parent == null) return float.PositiveInfinity;
                 float Distance = 0;
                 Node Current = End;
                 Func<Node, Node, float> distance = new Func<Node, Node, float>((a, b) =>
@@ -38,7 +40,7 @@ namespace Models.Algorithms
                     Distance += distance(Current.Parent, Current);
                     Current = Current.Parent;
                 }
-                while (Current.Parent != Start);
+                while (Current.Parent != null);
                 return Distance;
             }
         }
@@ -46,6 +48,7 @@ namespace Models.Algorithms
         {
             get
             {
+                if (Start == End) return null;
                 List<int> Path = new List<int>();
                 Node Current = End;
                 do
@@ -53,7 +56,7 @@ namespace Models.Algorithms
                     Path.Add(Current.y * MapWidth + Current.x);
                     Current = Current.Parent;
                 }
-                while (Current.Parent != Start);
+                while (Current.Parent != null);
                 return Path;
             }
         }
@@ -141,7 +144,7 @@ namespace Models.Algorithms
         }
         public void EditEnd(int EndLoc)
         {
-            Start = nodes[EndLoc];
+            End = nodes[EndLoc];
             SolveAStar();
         }
     }

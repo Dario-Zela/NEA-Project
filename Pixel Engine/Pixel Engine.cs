@@ -1103,8 +1103,8 @@ namespace Pixel_Engine
 
         private void EngineThread(BackgroundWorker worker)
         {
-            try
-            {
+            //try
+            //{
                 OpenGLCreate();
 
                 Form1 window = (Form1)Control.FromHandle(HWnd);
@@ -1226,10 +1226,10 @@ namespace Pixel_Engine
                     }
                 }
                 Win32.wglDeleteContext(glRenderContext);
-            }
-            catch 
-            {
-            };
+            //}
+            //catch 
+            //{
+            //};
         }
 
         static IntPtr HWnd = new IntPtr();

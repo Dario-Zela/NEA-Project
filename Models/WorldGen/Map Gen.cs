@@ -28,7 +28,7 @@ namespace Models.WorldGen
         public List<Biome> biomes = new List<Biome>();
         public List<River> rivers = new List<River>();
         public int idx(int x, int y) { return y * Constants.WORLD_WIDTH + x; }
-        //public civHolder civs = new civHolder();
+        public List<Civilization> civs = new List<Civilization>();
         //public History history = new History();
         public RegionInfo[] RegionInfos;
     }
@@ -130,6 +130,11 @@ namespace Models.WorldGen
             }
             World.remainingSettlers = 200;
             World.RegionInfos = new RegionInfo[Constants.WORLD_WIDTH * Constants.WORLD_HEIGHT];
+            for (int i = 0; i < World.RegionInfos.Length; i++)
+            {
+                World.RegionInfos[i] = new RegionInfo();
+                World.RegionInfos[i].pos = new Position(i % Constants.WORLD_WIDTH, i / Constants.WORLD_WIDTH);
+            }
         }
 
         public void noiseMap(World World, int seed, int octaves, float persistence, float lacunarity)

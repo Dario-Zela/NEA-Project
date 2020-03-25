@@ -1,3 +1,32 @@
-{
+[
+  {
+    "Name": "Human",
+    "BaseMilitaryTechGrowth": 20,
+    "BaseEconomicalTechGrowth": 10,
+    "BaseResearchTechGrowth": 15,
 
-}
+    "BaseAggressiveness": 20,
+    "BaseResearchFocus": 5,
+    "BaseEconomicFoucus": 10
+  },
+  {
+    "Name": "Elf",
+    "BaseMilitaryTechGrowth": 10,
+    "BaseEconomicalTechGrowth": 20,
+    "BaseResearchTechGrowth": 5,
+
+    "BaseAggressiveness": 10,
+    "BaseResearchFocus": 5,
+    "BaseEconomicFoucus": 20
+  },
+  {
+    "Name": "Orc",
+    "BaseMilitaryTechGrowth": 30,
+    "BaseEconomicalTechGrowth": 5,
+    "BaseResearchTechGrowth": 5,
+
+    "BaseAggressiveness": 40,
+    "BaseResearchFocus": 5,
+    "BaseEconomicFoucus": 5
+  }
+]
