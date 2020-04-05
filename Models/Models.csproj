@@ -75,6 +75,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Sprites\TileSetMapGen.bmp" />
+    <Content Include="WorldGen\WorldGenAssets\CityNames.txt" />
+    <Content Include="WorldGen\WorldGenAssets\EmpireNames.txt" />
     <Content Include="WorldGen\WorldGenAssets\firstNamesFemale.txt" />
     <Content Include="WorldGen\WorldGenAssets\firstNamesMale.txt" />
     <Content Include="WorldGen\WorldGenAssets\lastNames.txt" />
