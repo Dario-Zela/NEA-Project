@@ -4,6 +4,7 @@ using Pixel_Engine;
 using System.IO;
 using Newtonsoft.Json;
 using Models.Algorithms;
+using System.Threading.Tasks;
 
 namespace Models.WorldGen
 {
@@ -96,6 +97,7 @@ namespace Models.WorldGen
         }
         public List<Tuple<int, string>> History = new List<Tuple<int, string>>();
         public Position pos;
+        public string Name = "";
         public void DestroyBuilding(ref Random rng)
         {
             Structure ToRemove = Buildings[rng.Next(0, Buildings.Count - 1)];
@@ -347,6 +349,7 @@ namespace Models.WorldGen
 
     public class Civilization
     {
+        public string Name;
         public int[] TechLevel;
         public int[] TechGrowth;
         public string CivName;
@@ -488,6 +491,8 @@ namespace Models.WorldGen
             loadNames(1, @"WorldGenAssets\firstNamesMale.txt");
             loadNames(2, @"WorldGenAssets\firstNamesFemale.txt");
             loadNames(3, @"WorldGenAssets\lastNames.txt");
+            loadNames(4, @"WorldGenAssets\EmpireNames.txt");
+            loadNames(5, @"WorldGenAssets\CityNames.txt");
         }
         private void LoadSpecies()
         {
@@ -546,16 +551,17 @@ namespace Models.WorldGen
                 civ.Ai = new[] { civ.Race.BaseAggressiveness + World.topology[Idx].savagery, civ.Race.BaseResearchFocus - World.topology[Idx].savagery, civ.Race.BaseEconomicFoucus - World.topology[Idx].temperature };
                 civ.TechGrowth = new[] { civ.Race.BaseMilitaryTechGrowth + World.topology[Idx].savagery, civ.Race.BaseResearchTechGrowth - World.topology[Idx].savagery, civ.Race.BaseEconomicalTechGrowth - World.topology[Idx].temperature };
                 civ.Tag = i;
+                civ.Name = CreateEmpireName(ref rng, civ, World.topology[Idx]);
                 civ.PossibleBuildings = new[] { StarterMilitaryBuilding, StarterResearchBuilding, StarterEconomicBuilding, StarterDefenceBuilding };
                 civ.PossibleDivisions = new[] { StarterAttackUnit, StarterDefenceUnit, StarterMobileUnit };
                 civ.AddLand(ref World.RegionInfos[Idx]);
                 World.civs.Add(civ);
             }
         }
-        public void RunYear(World World, ref Random rng)
+        public void RunYear(World World, Random rng)
         {
             List<RegionInfo> RegionsOfConflict = new List<RegionInfo>();
-            foreach (Civilization civ in World.civs)
+            Parallel.ForEach(World.civs, (civ) =>
             {
                 int Supplies = civ.SupplyGen;
                 int Resources = civ.ResourceGen;
@@ -616,7 +622,7 @@ namespace Models.WorldGen
                 AStar<RegionInfo> PathFinder = new AStar<RegionInfo>(World.RegionInfos, Constants.WORLD_WIDTH, Constants.WORLD_HEIGHT, Conv,
                     World.idx(civ.Capital.x, civ.Capital.y), 0);
                 int SupplyDefecit = 0;
-                
+
                 for (int i = 0; i < 3; i++)
                 {
                     int TechGrowth = civ.TechGrowth[i];
@@ -628,14 +634,14 @@ namespace Models.WorldGen
                         switch (i)
                         {
                             case 0:
-                                switch (rng.Next(0,2))
+                                switch (rng.Next(0, 2))
                                 {
                                     case 0:
                                         int Class = rng.Next(0, 3);
                                         civ.PossibleDivisions[Class] = UnitType.CreateNewUnit(civ.PossibleDivisions[Class], Class, civ.TechLevel[i], ref rng);
                                         foreach (Unit unit in civ.Army)
                                         {
-                                            if(unit.UnitClass == Class)
+                                            if (unit.UnitClass == Class)
                                             {
                                                 civ.UnitsToUpgrade.Add(unit);
                                             }
@@ -682,7 +688,7 @@ namespace Models.WorldGen
                     SupplyDefecit = (int)(Supplies / civ.Army.Count / Distance);
                 }
                 Supplies -= SupplyDefecit;
-                if(rng.Next(0,100) < (SupplyDefecit / (float)civ.SupplyGen + 1f/ civ.Army.Count) * 5 * civ.Ai[0] * 0.05f)
+                if (rng.Next(0, 100) < (SupplyDefecit / (float)civ.SupplyGen + 1f / civ.Army.Count) * 5 * civ.Ai[0] * 0.05f)
                 {
                     UnitType chosen = civ.PossibleDivisions[rng.Next(0, civ.PossibleDivisions.Length - 1)];
                     civ.Army.Add(new Unit(chosen, civ.Capital, World.topology[World.idx(civ.Capital.x, civ.Capital.y)],
@@ -691,7 +697,7 @@ namespace Models.WorldGen
                 }
                 foreach (RegionInfo region in civ.RequestedDefence)
                 {
-                    if(Resources > civ.ResourceGen * 3 / 4)
+                    if (Resources > civ.ResourceGen * 3 / 4)
                     {
                         region.DefenceBuildings.Add(civ.PossibleBuildings[3]);
                         region.UseableSlots--;
@@ -705,7 +711,7 @@ namespace Models.WorldGen
                     if (Resources > civ.ResourceGen / 2)
                     {
                         var temp = region.Upgrade(civ.PossibleBuildings, civ.TechLevel);
-                        if(temp.Item1 == 0)
+                        if (temp.Item1 == 0)
                         {
                             Upgraded.Add(region);
                             break;
@@ -721,7 +727,7 @@ namespace Models.WorldGen
                 List<Unit> UgradedUnits = new List<Unit>();
                 foreach (Unit unit in civ.UnitsToUpgrade)
                 {
-                    if(Resources > civ.ResourceGen / 4)
+                    if (Resources > civ.ResourceGen / 4)
                     {
                         unit.Upgrade(civ.PossibleDivisions[unit.UnitClass]);
                         Resources -= civ.PossibleDivisions[unit.UnitClass].Cost;
@@ -729,9 +735,9 @@ namespace Models.WorldGen
                 }
                 while (Resources < civ.LeastCost)
                 {
-                    retry:
-                        RegionInfo r = civ.Land[rng.Next(0, civ.Land.Count-1)];
-                        if (r.UseableSlots == 0 && rng.Next(0,civ.MaxDevelopment) <= r.CityLevel) goto retry;
+                retry:
+                    RegionInfo r = civ.Land[rng.Next(0, civ.Land.Count - 1)];
+                    if (r.UseableSlots == 0 && rng.Next(0, civ.MaxDevelopment) <= r.CityLevel) goto retry;
                     if (rng.Next(0, 100) < civ.Ai[0] && civ.PossibleBuildings[0].Cost < Resources)
                     {
                         Structure NewBuilding = civ.PossibleBuildings[0];
@@ -756,7 +762,11 @@ namespace Models.WorldGen
                 }
                 foreach (RegionInfo region in civ.Land)
                 {
-                    if(region.UseableSlots ==0 && region.CityLevel < 4)
+                    if(region.CityLevel == 2 && region.Name == "")
+                    {
+                        region.Name = StringTables[5].randomEntry(ref rng);
+                    }
+                    if (region.UseableSlots == 0 && region.CityLevel < 4)
                     {
                         region.UseableSlots += region.Buildings.Count / 2;
                     }
@@ -777,16 +787,17 @@ namespace Models.WorldGen
                     else if (unit.LastResupply / 100f * civ.Ai[0] / 2 > 2)
                     {
                         int Counter = 0;
-                        retry:
-                        if(World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].UnitsInTheCity.Count == 1 &&
+                    retry:
+                        if (World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].UnitsInTheCity.Count == 1 &&
                             World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].OwnerCiv == civ.Tag)
                         {
                             World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].OwnerCiv = civ.Tag;
                         }
                         int yDis = 0;
                         int xDis = 0;
-                        Position NewPos = new Position(-1,-1);
-                        do {
+                        Position NewPos = new Position(-1, -1);
+                        do
+                        {
                             yDis = rng.Next(-1, 2);
                             xDis = rng.Next(-1, 2);
                             NewPos = new Position(unit.Position.x + xDis, unit.Position.y + yDis);
@@ -796,13 +807,13 @@ namespace Models.WorldGen
                                 NewPos.x > 0 && (xDis != 0 || yDis != 0)));
                         Terrain NewPosTer = NewPosTer = World.topology[World.idx(NewPos.x, NewPos.y)];
                         RegionInfo region = World.RegionInfos[World.idx(NewPos.x, NewPos.y)];
-                        
+
                         if (NewPosTer.type == (int)blockType.WATER && unit.CanSwim) goto retry;
                         unit.Moved(NewPosTer, NewPos, region);
                         if (region.UnitsInTheCity.Count == 0)
                         {
                             region.UnitsInTheCity.Add(unit);
-                            if(region.OwnerCiv != civ.Tag)
+                            if (region.OwnerCiv != civ.Tag)
                             {
                                 region.OwnerCiv = civ.Tag;
                                 civ.Land.Add(region);
@@ -814,7 +825,7 @@ namespace Models.WorldGen
                         {
                             foreach (Unit unit1 in region.UnitsInTheCity)
                             {
-                                if(unit1.CivTag != civ.Tag)
+                                if (unit1.CivTag != civ.Tag)
                                 {
                                     _ = unit + unit1;
                                     if (unit.OffenciveBonus + unit1.DefenciveBonus > 30) region.DestroyBuilding(ref rng);
@@ -832,8 +843,58 @@ namespace Models.WorldGen
                     }
                 }
                 civ.Army.RemoveAll(Unit.isDefeated);
-            }
+            });
             World.civs.RemoveAll(Civilization.isExtinct);
+        }
+        private string CreateEmpireName(ref Random rng, Civilization civ, Terrain terrain)
+        {
+            string Class = "";
+        retry:
+            switch (rng.Next(0, 4))
+            {
+                case 0:
+                    if (terrain.savagery > 30)
+                    {
+                        Class = "Tribal Collective";
+                        civ.Ai[0] += 20;
+                        civ.Ai[1] -= 10;
+                        civ.Ai[2] -= 10;
+                    }
+                    else goto retry;
+                    break;
+                case 1:
+                    if (terrain.savagery < 30)
+                    {
+                        Class = "Republic";
+                        civ.Ai[0] -= 20;
+                        civ.Ai[1] += 10;
+                        civ.Ai[2] += 10;
+                    }
+                    else goto retry;
+                    break;
+                case 2:
+                    Class = "Monarchy";
+                    civ.Ai[0] += 10;
+                    civ.Ai[1] -= 5;
+                    civ.Ai[2] += 5;
+                    break;
+                case 3:
+                    Class = "Empire";
+                    civ.Ai[0] += 15;
+                    civ.Ai[1] += 5;
+                    civ.Ai[2] -= 5;
+                    break;
+            }
+            return "The " + StringTables[4].randomEntry(ref rng) + " " + Class;
+        }
+        public void BuildHistory(World World, ref Random rng)
+        {
+            BuildInitialCivs(World, ref rng);
+            for (int i = 0; i < 100; i++)
+            {
+                Console.WriteLine(i);
+                RunYear(World, rng);
+            }
         }
     }
 }

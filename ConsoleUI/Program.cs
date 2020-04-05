@@ -20,22 +20,20 @@ namespace UI
         public override bool OnUserCreate()
         {
             world = new WorldCreator(978120, 1.3f, 0.4f, 6);
-            BackgroundWorker b = new BackgroundWorker();
-            b.DoWork += new DoWorkEventHandler((sender, e) =>
-            {
-                while (true)
-                {
-                    world.history.RunYear(world.World, ref world.rng);
-                    pass = false;
-                }
-            });
-            b.RunWorkerAsync();
             return true;
         }
 
         bool pass = false;
+        bool pass2 = false;
         public override bool onUserUpdate(float fElapsedTime)
         {
+            if(pass2== false)
+            {
+                pass2 = true;
+                return true;
+            }
+
+            world.history.BuildHistory(world.World, ref world.rng);
             if (GetKey(Key.ENTER).bPressed)
             {
                 world = new WorldCreator(new Random().Next(100000), 1.3f, 0.4f, 6);
