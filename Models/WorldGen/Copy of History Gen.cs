@@ -4,7 +4,7 @@ using Pixel_Engine;
 using System.IO;
 using Newtonsoft.Json;
 using Models.Algorithms;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Models.WorldGen
 {
@@ -100,6 +100,7 @@ namespace Models.WorldGen
         public string Name = "";
         public void DestroyBuilding(ref Random rng)
         {
+            if (Buildings.Count == 0) return;
             Structure ToRemove = Buildings[rng.Next(0, Buildings.Count - 1)];
             if (MilitaryBuildings.Remove(ToRemove)) return;
             if (EconomicBuildings.Remove(ToRemove)) return;
@@ -365,6 +366,21 @@ namespace Models.WorldGen
         public List<Tuple<Position, int, string>> History;
         public int Tag;
         public List<RegionInfo> Land;
+        public List<RegionInfo> BuildableLand
+        {
+            get
+            {
+                List<RegionInfo> toRet = new List<RegionInfo>();
+                foreach (RegionInfo region in Land)
+                {
+                    if (region.UseableSlots != 0)
+                    {
+                        toRet.Add(region);
+                    }
+                }
+                return toRet;
+            }
+        }
         public int ManpowerGrowth;
         public int LeastCost
         {
@@ -390,7 +406,7 @@ namespace Models.WorldGen
                 int Development = -1;
                 foreach (RegionInfo region in Land)
                 {
-                    if(region.CityLevel < Development)
+                    if(region.CityLevel > Development)
                     {
                         Development = region.CityLevel;
                     }
@@ -517,7 +533,6 @@ namespace Models.WorldGen
             StringTables.Add(index, target);
         }
         #endregion
-
         public void BuildInitialCivs(World World, ref Random rng)
         {
             Structure TownHall = new Structure() { DefenceMod = 20, ResourceGrowth = 100, SupplyGen = 50, ResearchGrowth = new[] { 0, 0, 0 }, ManpowerGrowth = 100, TechLevel = -1};
@@ -530,7 +545,7 @@ namespace Models.WorldGen
             UnitType StarterDefenceUnit = new UnitType(15, 5, 5, 30, false, 10, 1);
             UnitType StarterMobileUnit = new UnitType(5, 5, 15, 30, false, 10, 2);
 
-            for (int i = 0; i < Constants.WORLD_WIDTH / 2; i++)
+            for (int i = 0; i < Constants.WORLD_WIDTH / 8; i++)
             {
                 Civilization civ = new Civilization();
 
@@ -561,7 +576,7 @@ namespace Models.WorldGen
         public void RunYear(World World, Random rng)
         {
             List<RegionInfo> RegionsOfConflict = new List<RegionInfo>();
-            Parallel.ForEach(World.civs, (civ) =>
+            foreach(Civilization civ in World.civs)
             {
                 int Supplies = civ.SupplyGen;
                 int Resources = civ.ResourceGen;
@@ -622,7 +637,6 @@ namespace Models.WorldGen
                 AStar<RegionInfo> PathFinder = new AStar<RegionInfo>(World.RegionInfos, Constants.WORLD_WIDTH, Constants.WORLD_HEIGHT, Conv,
                     World.idx(civ.Capital.x, civ.Capital.y), 0);
                 int SupplyDefecit = 0;
-
                 for (int i = 0; i < 3; i++)
                 {
                     int TechGrowth = civ.TechGrowth[i];
@@ -733,29 +747,34 @@ namespace Models.WorldGen
                         Resources -= civ.PossibleDivisions[unit.UnitClass].Cost;
                     }
                 }
-                while (Resources < civ.LeastCost)
+                while (Resources > civ.LeastCost)
                 {
-                retry:
-                    RegionInfo r = civ.Land[rng.Next(0, civ.Land.Count - 1)];
-                    if (r.UseableSlots == 0 && rng.Next(0, civ.MaxDevelopment) <= r.CityLevel) goto retry;
+                    if (civ.BuildableLand.Count == 0) break;
+                    retry:
+                    RegionInfo r = civ.BuildableLand[rng.Next(0, civ.BuildableLand.Count - 1)];
+                    if (rng.Next(0, civ.MaxDevelopment) < r.CityLevel) goto retry;
                     if (rng.Next(0, 100) < civ.Ai[0] && civ.PossibleBuildings[0].Cost < Resources)
                     {
                         Structure NewBuilding = civ.PossibleBuildings[0];
                         civ.AddStructure(NewBuilding);
+                        Resources -= NewBuilding.Cost;
                         r.MilitaryBuildings.Add(NewBuilding);
                         r.UseableSlots--;
+
                     }
                     else if (rng.Next(0, 100) < civ.Ai[1] && civ.PossibleBuildings[1].Cost < Resources)
                     {
                         Structure NewBuilding = civ.PossibleBuildings[1];
                         civ.AddStructure(NewBuilding);
+                        Resources -= NewBuilding.Cost;
                         r.ResearchBuildings.Add(NewBuilding);
                         r.UseableSlots--;
                     }
-                    else if (rng.Next(0, 100) < civ.Ai[2] && civ.PossibleBuildings[2].Cost < Resources)
+                    else if (civ.PossibleBuildings[2].Cost < Resources)
                     {
                         Structure NewBuilding = civ.PossibleBuildings[2];
                         civ.AddStructure(NewBuilding);
+                        Resources -= NewBuilding.Cost;
                         r.EconomicBuildings.Add(NewBuilding);
                         r.UseableSlots--;
                     }
@@ -772,78 +791,78 @@ namespace Models.WorldGen
                     }
                 }
                 foreach (Unit unit in civ.Army)
-                {
-                    if (World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].UnitsInTheCity.Count != 1 &&
-                        !World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].FullControl)
                     {
-                        foreach (Unit unit1 in World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].UnitsInTheCity)
+                        if (World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].UnitsInTheCity.Count != 1 &&
+                            !World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].FullControl)
                         {
-                            if (unit1.CivTag != civ.Tag)
-                            {
-                                _ = unit + unit1;
-                            }
-                        }
-                    }
-                    else if (unit.LastResupply / 100f * civ.Ai[0] / 2 > 2)
-                    {
-                        int Counter = 0;
-                    retry:
-                        if (World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].UnitsInTheCity.Count == 1 &&
-                            World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].OwnerCiv == civ.Tag)
-                        {
-                            World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].OwnerCiv = civ.Tag;
-                        }
-                        int yDis = 0;
-                        int xDis = 0;
-                        Position NewPos = new Position(-1, -1);
-                        do
-                        {
-                            yDis = rng.Next(-1, 2);
-                            xDis = rng.Next(-1, 2);
-                            NewPos = new Position(unit.Position.x + xDis, unit.Position.y + yDis);
-                        }
-                        while (!(World.idx(NewPos.x, NewPos.y) > 0 &&
-                                World.idx(NewPos.x, NewPos.y) < World.topology.Count &&
-                                NewPos.x > 0 && (xDis != 0 || yDis != 0)));
-                        Terrain NewPosTer = NewPosTer = World.topology[World.idx(NewPos.x, NewPos.y)];
-                        RegionInfo region = World.RegionInfos[World.idx(NewPos.x, NewPos.y)];
-
-                        if (NewPosTer.type == (int)blockType.WATER && unit.CanSwim) goto retry;
-                        unit.Moved(NewPosTer, NewPos, region);
-                        if (region.UnitsInTheCity.Count == 0)
-                        {
-                            region.UnitsInTheCity.Add(unit);
-                            if (region.OwnerCiv != civ.Tag)
-                            {
-                                region.OwnerCiv = civ.Tag;
-                                civ.Land.Add(region);
-                            }
-                            Counter++;
-                            if (Counter < unit.BaseMobility / 10) goto retry;
-                        }
-                        else
-                        {
-                            foreach (Unit unit1 in region.UnitsInTheCity)
+                            foreach (Unit unit1 in World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].UnitsInTheCity)
                             {
                                 if (unit1.CivTag != civ.Tag)
                                 {
                                     _ = unit + unit1;
-                                    if (unit.OffenciveBonus + unit1.DefenciveBonus > 30) region.DestroyBuilding(ref rng);
                                 }
                             }
                         }
-                    }
-                    else
-                    {
-                        if (World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].UnitsInTheCity.Count == 1)
+                        else if (unit.LastResupply / 100f * civ.Ai[0] / 2 > 2)
                         {
-                            World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].OwnerCiv = civ.Tag;
+                            int Counter = 0;
+                        retry:
+                            if (World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].UnitsInTheCity.Count == 1 &&
+                                World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].OwnerCiv == civ.Tag)
+                            {
+                                World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].OwnerCiv = civ.Tag;
+                            }
+                            int yDis = 0;
+                            int xDis = 0;
+                            Position NewPos = new Position(-1, -1);
+                            do
+                            {
+                                yDis = rng.Next(-1, 2);
+                                xDis = rng.Next(-1, 2);
+                                NewPos = new Position(unit.Position.x + xDis, unit.Position.y + yDis);
+                            }
+                            while (!(World.idx(NewPos.x, NewPos.y) > 0 &&
+                                    World.idx(NewPos.x, NewPos.y) < World.topology.Count &&
+                                    NewPos.x > 0 && (xDis != 0 || yDis != 0)));
+                            Terrain NewPosTer = NewPosTer = World.topology[World.idx(NewPos.x, NewPos.y)];
+                            RegionInfo region = World.RegionInfos[World.idx(NewPos.x, NewPos.y)];
+
+                            if (NewPosTer.type == (int)blockType.WATER && unit.CanSwim) goto retry;
+                            unit.Moved(NewPosTer, NewPos, region);
+                            if (region.UnitsInTheCity.Count == 0)
+                            {
+                                region.UnitsInTheCity.Add(unit);
+                                if (region.OwnerCiv != civ.Tag)
+                                {
+                                    region.OwnerCiv = civ.Tag;
+                                    civ.Land.Add(region);
+                                }
+                                Counter++;
+                                if (Counter < unit.BaseMobility / 10) goto retry;
+                            }
+                            else
+                            {
+                                foreach (Unit unit1 in region.UnitsInTheCity)
+                                {
+                                    if (unit1.CivTag != civ.Tag)
+                                    {
+                                        _ = unit + unit1;
+                                        if (unit.OffenciveBonus + unit1.DefenciveBonus > 90) region.DestroyBuilding(ref rng);
+                                    }
+                                }
+                            }
                         }
-                        unit.Train();
+                        else
+                        {
+                            if (World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].UnitsInTheCity.Count == 1)
+                            {
+                                World.RegionInfos[World.idx(unit.Position.x, unit.Position.y)].OwnerCiv = civ.Tag;
+                            }
+                            unit.Train();
+                        }
                     }
-                }
                 civ.Army.RemoveAll(Unit.isDefeated);
-            });
+            }
             World.civs.RemoveAll(Civilization.isExtinct);
         }
         private string CreateEmpireName(ref Random rng, Civilization civ, Terrain terrain)
@@ -890,7 +909,7 @@ namespace Models.WorldGen
         public void BuildHistory(World World, ref Random rng)
         {
             BuildInitialCivs(World, ref rng);
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 50; i++)
             {
                 Console.WriteLine(i);
                 RunYear(World, rng);

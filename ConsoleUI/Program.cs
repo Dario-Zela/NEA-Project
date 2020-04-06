@@ -17,27 +17,42 @@ namespace UI
         }
 
         static WorldCreator world;
+        BackgroundWorker b;
         public override bool OnUserCreate()
         {
             world = new WorldCreator(978120, 1.3f, 0.4f, 6);
+            world.history.BuildHistory(world.World, ref world.rng);
             return true;
         }
 
         bool pass = false;
-        bool pass2 = false;
         public override bool onUserUpdate(float fElapsedTime)
-        {
-            if(pass2== false)
-            {
-                pass2 = true;
-                return true;
-            }
-
-            world.history.BuildHistory(world.World, ref world.rng);
+        {   
             if (GetKey(Key.ENTER).bPressed)
             {
                 world = new WorldCreator(new Random().Next(100000), 1.3f, 0.4f, 6);
+                if (b.IsBusy)
+                {
+                    b.CancelAsync();
+                    b.Dispose();
+                }
+                b.RunWorkerAsync();
                 pass = false;
+            }
+            if (GetMouse(0).bPressed)
+            {
+                foreach (var civ in world.World.civs)
+                {
+                    foreach (var region in civ.Land)
+                    {
+                        if(region.pos.x == GetMouseX() && region.pos.y == GetMouseY())
+                        {
+                            Console.WriteLine("Civ Name: " + civ.Name + "\n" +
+                                              "Civ TechLevel" + civ.TechLevel[0] + " "+civ.TechLevel[1] + " "+civ.TechLevel[2] + "\n"+
+                                              "Civ ArmyStrengh" + civ.Army.Count);
+                        }
+                    }
+                }
             }
 
             if (!pass)
