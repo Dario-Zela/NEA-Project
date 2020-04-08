@@ -382,19 +382,23 @@ namespace Models.WorldGen
             }
         }
         public int ManpowerGrowth;
-        public int LeastCost
+        public Tuple<int,int> LeastCost
         {
             get
             {
+                int pos = -1;
                 int Cost = int.MaxValue;
+                int Count = 0;
                 foreach (Structure structure in PossibleBuildings)
                 {
                     if (structure.Cost < Cost)
                     {
                         Cost = structure.Cost;
+                        pos = Count;
                     }
+                    Count++;
                 }
-                return Cost;
+                return new Tuple<int, int>(Cost, pos);
             }
         }
         public HashSet<RegionInfo> RequestedDefence;
@@ -747,7 +751,7 @@ namespace Models.WorldGen
                         Resources -= civ.PossibleDivisions[unit.UnitClass].Cost;
                     }
                 }
-                while (Resources > civ.LeastCost)
+                while (Resources > civ.LeastCost.Item1)
                 {
                     if (civ.BuildableLand.Count == 0) break;
                     retry:
@@ -776,6 +780,25 @@ namespace Models.WorldGen
                         civ.AddStructure(NewBuilding);
                         Resources -= NewBuilding.Cost;
                         r.EconomicBuildings.Add(NewBuilding);
+                        r.UseableSlots--;
+                    }
+                    else
+                    {
+                        Structure NewBuilding = civ.PossibleBuildings[civ.LeastCost.Item2];
+                        civ.AddStructure(NewBuilding);
+                        Resources -= NewBuilding.Cost;
+                        switch (civ.LeastCost.Item2)
+                        {
+                            case 0:
+                                r.MilitaryBuildings.Add(NewBuilding);
+                                break;
+                            case 1:
+                                r.ResearchBuildings.Add(NewBuilding);
+                                break;
+                            case 2:
+                                r.EconomicBuildings.Add(NewBuilding);
+                                break;
+                        }
                         r.UseableSlots--;
                     }
                 }
