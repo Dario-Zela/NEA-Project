@@ -18,8 +18,6 @@ namespace Models.WorldGen
     public class World
     {
         public string name = "Test World";
-
-        public int remainingSettlers;
         public int waterDivisor = 4, plainsDivisor = 3, startingSettlers = 10;
 
         public int waterHeight, plainsHeight, hillsHeight;
@@ -128,7 +126,7 @@ namespace Models.WorldGen
             {
                 World.topology.Add(new Terrain());
             }
-            World.remainingSettlers = 200;
+
             World.RegionInfos = new RegionInfo[Constants.WORLD_WIDTH * Constants.WORLD_HEIGHT];
             for (int i = 0; i < World.RegionInfos.Length; i++)
             {

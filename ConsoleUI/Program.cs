@@ -17,11 +17,23 @@ namespace UI
         }
 
         static WorldCreator world;
-        BackgroundWorker b;
+
         public override bool OnUserCreate()
         {
             world = new WorldCreator(978120, 1.3f, 0.4f, 6);
-            world.history.BuildHistory(world.World, ref world.rng);
+            BackgroundWorker b = new BackgroundWorker();
+            b.DoWork += new DoWorkEventHandler((sender, e) =>
+            {
+                int i = 0;
+                while (true)
+                {
+                    Console.WriteLine(i);
+                    world.history.RunYear(world.World, world.rng);
+                    pass = false;
+                    i++;
+                }
+            });
+            b.RunWorkerAsync();
             return true;
         }
 
@@ -31,13 +43,6 @@ namespace UI
             if (GetKey(Key.ENTER).bPressed)
             {
                 world = new WorldCreator(new Random().Next(100000), 1.3f, 0.4f, 6);
-                if (b.IsBusy)
-                {
-                    b.CancelAsync();
-                    b.Dispose();
-                }
-                b.RunWorkerAsync();
-                pass = false;
             }
             if (GetMouse(0).bPressed)
             {
