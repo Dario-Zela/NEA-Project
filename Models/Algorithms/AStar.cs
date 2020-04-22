@@ -57,6 +57,7 @@ namespace Models.Algorithms
                     Current = Current.Parent;
                 }
                 while (Current.Parent != null);
+                Path.Reverse();
                 return Path;
             }
         }

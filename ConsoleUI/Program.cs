@@ -8,7 +8,7 @@ using System.ComponentModel;
 
 namespace UI
 {
-
+    
     class Test : Engine
     {
         public Test()
@@ -20,7 +20,7 @@ namespace UI
 
         public override bool OnUserCreate()
         {
-            world = new WorldCreator(978120, 1.3f, 0.4f, 6);
+            world = new WorldCreator(9172919, 1.3f, 0.4f, 6);
             BackgroundWorker b = new BackgroundWorker();
             b.DoWork += new DoWorkEventHandler((sender, e) =>
             {
@@ -310,14 +310,58 @@ namespace UI
         }
         */
     }
-    
+
+    class Test2 : Engine
+    {
+        public Test2()
+        {
+            sAppName = "World";
+        }
+
+        Region region = new Region(50, ScreenWidth(), ScreenHeight(), 29120);
+        public override bool OnUserCreate()
+        {
+            region.RunRooms();
+            return true;
+        }
+
+        bool pass = false;
+        public override bool onUserUpdate(float fElapsedTime)
+        {
+            if (GetKey(Key.ENTER).bPressed)
+            {
+                region.RunRooms();
+                pass = false;
+            }
+            if (!pass)
+            {
+                Clear(Pixel.BLACK);
+                foreach (var leaf in region.leafs)
+                {
+
+                    if (leaf.leftChild == null && leaf.rightChild == null)
+                    {
+                        //DrawRect(leaf.x, leaf.y, leaf.width, leaf.height, Pixel.GREY);
+                        FillRect(leaf.room.x, leaf.room.y, leaf.room.width, leaf.room.height, Pixel.WHITE);
+                    }
+                    if (leaf.halls != null)
+                        foreach (var hall in leaf.halls)
+                        {
+                            FillRect(hall.x, hall.y, hall.width, hall.height, Pixel.BLUE);
+                        }
+                }
+                pass = true;
+            }
+            return true;
+        }
+    }
 
     class Start
     {
         static void Main()
         {
             
-            Test demo = new Test();
+            Test2 demo = new Test2();
             if (demo.Construct(128, 128, 4, 4, false, true))
             {
                 demo.Start();

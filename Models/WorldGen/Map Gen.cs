@@ -26,6 +26,7 @@ namespace Models.WorldGen
         public List<Biome> biomes = new List<Biome>();
         public List<River> rivers = new List<River>();
         public int idx(int x, int y) { return y * Constants.WORLD_WIDTH + x; }
+        public int idx(Position pos) { return idx(pos.x, pos.y); }
         public List<Civilization> civs = new List<Civilization>();
         //public History history = new History();
         public RegionInfo[] RegionInfos;

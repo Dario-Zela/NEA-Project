@@ -10,75 +10,260 @@ using Models.Items;
 
 namespace Models.WorldGen
 {
-    class bitSet
+    public class Rectangle
     {
-        TileFlag bits = 0;
-        public void Set(TileFlag Flag){ bits |= Flag; }
-        public void Reset(TileFlag Flag) { bits &= ~Flag; }
-        public bool Test(TileFlag Flag) { return (bits & Flag) != 0; }
+        public int x, y, width, height;
+        public Rectangle(int x, int y, int width, int height)
+        {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
     }
 
-    class Region
+    public class Leaf
     {
-        #region Init
-        List<TileType> TileType;
-        List<ushort> TileMaterial;
-        List<ushort> HitPoints;
-        List<byte> VegHitPoints;
-        List<uint> BuildingId;
-        List<uint> TreeId;
-        List<uint> BridgeId;
-        List<ushort> TileVegetationType;
-        List<ushort> TileVegetationTicker;
-        List<byte> TileVegetationLifecycle;
-        List<uint> StockpileId;
-        List<bitSet> TileFlags;
-        List<uint> WaterLevel;
-        int region_x = 0, region_y = 0, biome_idx = 0;
+        private const int MIN_LEAF_SIZE = 6;
 
-        public Region(int x, int y, int biome)
-        {
-            TileType = new List<TileType>(Constants.REGION_TILES_COUNT);
-            TileMaterial = new List<ushort>(Constants.REGION_TILES_COUNT);
-            HitPoints = new List<ushort>(Constants.REGION_TILES_COUNT);
-            VegHitPoints = new List<byte>(Constants.REGION_TILES_COUNT);
-            BuildingId = new List<uint>(Constants.REGION_TILES_COUNT);
-            TreeId = new List<uint>(Constants.REGION_TILES_COUNT);
-            BridgeId = new List<uint>(Constants.REGION_TILES_COUNT);
-            TileVegetationType = new List<ushort>(Constants.REGION_TILES_COUNT);
-            TileVegetationTicker = new List<ushort>(Constants.REGION_TILES_COUNT);
-            TileVegetationLifecycle = new List<byte>(Constants.REGION_TILES_COUNT);
-            StockpileId = new List<uint>(Constants.REGION_TILES_COUNT);
-            TileFlags = new List<bitSet>(Constants.REGION_TILES_COUNT);
-            WaterLevel = new List<uint>(Constants.REGION_TILES_COUNT);
-        }
-        #endregion
+        public int x, y, width, height;
+        public Leaf leftChild, rightChild;
+        public Rectangle room;
+        public List<Rectangle> halls;
+        public Random rng;
 
-        private int MapIdx(int x, int y, int z)
+        public Leaf(int X, int Y, int Width, int Height, Random rng)
         {
-            return (z* Constants.REGION_HEIGHT * Constants.REGION_WIDTH) + (y* Constants.REGION_WIDTH) + x;
+            x = X;
+            y = Y;
+            width = Width;
+            height = Height;
+            this.rng = rng;
         }
-        private bool Flag(int idx, TileFlag flag)
+
+        public bool split()
         {
-            return TileFlags[idx].Test(flag);
-        }
-        private int GroundZ(int x, int y)
-        {
-            int z = Constants.REGION_DEPTH - 1;
-            bool hitGround = false;
-            while (!hitGround)
+            if (leftChild != null || rightChild != null)
+                return false;
+
+            bool splitH = rng.NextDouble() > 0.5;
+            if (width > height && width / height >= 1.25)
+                splitH = false;
+            else if (height > width && height / width >= 1.25)
+                splitH = true;
+
+            int max = (splitH ? height : width) - MIN_LEAF_SIZE;
+            if (max <= MIN_LEAF_SIZE)
+                return false;
+
+            int split = rng.Next(MIN_LEAF_SIZE, max);
+
+            if (splitH)
             {
-                int idx = mapidx(x, y, z);
-                if (TileType[idx] == WorldGen.TileType.SOLID)
-                {
-                    hitGround = true;
-                    z++;
-                }
-                else z--;
-                if (z == 1) hitGround = true;
+                leftChild = new Leaf(x, y, width, split, rng);
+                rightChild = new Leaf(x, y + split, width, height - split, rng);
             }
-            return z;
+            else
+            {
+                leftChild = new Leaf(x, y, split, height, rng);
+                rightChild = new Leaf(x + split, y, width - split, height, rng);
+            }
+            return true;
         }
 
+        public Rectangle getRoom()
+        {
+            if (room != null)
+                return room;
+            else
+            {
+                Rectangle lRoom = null;
+                Rectangle rRoom = null;
+                if (leftChild != null)
+                {
+                    lRoom = leftChild.getRoom();
+                }
+                if (rightChild != null)
+                {
+                    rRoom = rightChild.getRoom();
+                }
+                if (lRoom == null && rRoom == null)
+                    return null;
+                else if (rRoom == null)
+                    return lRoom;
+                else if (lRoom == null)
+                    return rRoom;
+                else if (rng.NextDouble() > 0.5)
+                    return lRoom;
+                else
+                    return rRoom;
+            }
+        }
+
+        public void createRoom()
+        {
+            if (leftChild != null || rightChild != null)
+            {
+                // this leaf has been split, so go into the children leafs
+                if (leftChild != null)
+                {
+                    leftChild.createRoom();
+                }
+                if (rightChild != null)
+                {
+                    rightChild.createRoom();
+                }
+
+                // if there are both left and right children in this Leaf, create a hallway between them
+                if (leftChild != null && rightChild != null)
+                {
+                    createHall(leftChild.getRoom(), rightChild.getRoom());
+                }
+
+            }
+            else
+            {
+                int roomWidth = rng.Next(width / 2, width - 2);
+                int roomHeight = rng.Next(height / 2, height - 2);
+                int roomX = rng.Next(x + 1, x + width - roomWidth - 1);
+                int roomY = rng.Next(y + 1, y + height - roomHeight - 1);
+                room = new Rectangle(roomX, roomY, roomWidth, roomHeight);
+            }
+        }
+
+        public void createHall(Rectangle l, Rectangle r)
+        {
+            halls = new List<Rectangle>();
+
+            var point1 = new Position(rng.Next(l.x + 1, l.x + l.width - 2), rng.Next(l.y + 1, l.y + l.height - 2));
+            var point2 = new Position(rng.Next(r.x + 1, r.x + r.width - 2), rng.Next(r.y + 1, r.y + r.height - 2));
+ 
+            var w = point2.x - point1.x;
+            var h = point2.y - point1.y;
+ 
+            if (w< 0)
+            {
+                if (h< 0)
+                {
+                    if (rng.NextDouble() < 0.5)
+                    {
+                        halls.Add(new Rectangle(point2.x, point1.y, Math.Abs(w), 1));
+                        halls.Add(new Rectangle(point2.x, point2.y, 1, Math.Abs(h)));
+                    }
+                    else
+                    {
+                        halls.Add(new Rectangle(point2.x, point2.y, Math.Abs(w), 1));
+                        halls.Add(new Rectangle(point1.x, point2.y, 1, Math.Abs(h)));
+                    }
+                }
+                else if (h > 0)
+                {
+                    if (rng.NextDouble() < 0.5)
+                    {
+                        halls.Add(new Rectangle(point2.x, point1.y, Math.Abs(w), 1));
+                        halls.Add(new Rectangle(point2.x, point1.y, 1, Math.Abs(h)));
+                    }
+                    else
+                    {
+                        halls.Add(new Rectangle(point2.x, point2.y, Math.Abs(w), 1));
+                        halls.Add(new Rectangle(point1.x, point1.y, 1, Math.Abs(h)));
+                    }
+                }
+                else // if (h == 0)
+                {
+                    halls.Add(new Rectangle(point2.x, point2.y, Math.Abs(w), 1));
+                }
+            }
+            else if (w > 0)
+            {
+                if (h< 0)
+                {
+                    if (rng.NextDouble() < 0.5)
+                    {
+                        halls.Add(new Rectangle(point1.x, point2.y, Math.Abs(w), 1));
+                        halls.Add(new Rectangle(point1.x, point2.y, 1, Math.Abs(h)));
+                    }
+                    else
+                    {
+                        halls.Add(new Rectangle(point1.x, point1.y, Math.Abs(w), 1));
+                        halls.Add(new Rectangle(point2.x, point2.y, 1, Math.Abs(h)));
+                    }
+                }
+                else if (h > 0)
+                {
+                    if (rng.NextDouble() < 0.5)
+                    {
+                        halls.Add(new Rectangle(point1.x, point1.y, Math.Abs(w), 1));
+                        halls.Add(new Rectangle(point2.x, point1.y, 1, Math.Abs(h)));
+                    }
+                    else
+                    {
+                        halls.Add(new Rectangle(point1.x, point2.y, Math.Abs(w), 1));
+                        halls.Add(new Rectangle(point1.x, point1.y, 1, Math.Abs(h)));
+                    }
+                }
+                else // if (h == 0)
+                {
+                    halls.Add(new Rectangle(point1.x, point1.y, Math.Abs(w), 1));
+                }
+            }
+            else // if (w == 0)
+            {
+                if (h< 0)
+                {
+                    halls.Add(new Rectangle(point2.x, point2.y, 1, Math.Abs(h)));
+                }
+                else if (h > 0)
+                {
+                    halls.Add(new Rectangle(point1.x, point1.y, 1, Math.Abs(h)));
+                }
+            }
+        }
+    }
+
+    public class Region
+    {
+        int MAX_LEAF_SIZE;
+        public List<Leaf> leafs;
+        int mapWidth, mapHeight;
+        Random rng;
+
+        public Region(int maxSize, int mapWidth, int mapHeight, int seed)
+        {
+            MAX_LEAF_SIZE = maxSize;
+            this.mapHeight = mapHeight;
+            this.mapWidth = mapWidth;
+            rng = new Random(seed);
+        }
+
+        public void RunRooms()
+        {
+            leafs = new List<Leaf>();
+            Leaf l = new Leaf(0, 0, mapWidth, mapHeight, rng);
+            leafs.Add(l);
+            bool didSplit = true;
+            while (didSplit)
+            {
+                didSplit = false;
+                List<Leaf> leafsCopy = new List<Leaf>(leafs);
+                foreach (var leaf in leafs)
+                {
+                    if (leaf.leftChild == null && leaf.rightChild == null)
+                    {
+                        if (leaf.width > MAX_LEAF_SIZE || leaf.height > MAX_LEAF_SIZE || new Random().NextDouble() > 0.25)
+                        {
+                            if (leaf.split())
+                            {
+                                leafsCopy.Add(leaf.leftChild);
+                                leafsCopy.Add(leaf.rightChild);
+                                didSplit = true;
+                            }
+                        }
+                    }
+                }
+                leafs = leafsCopy;
+            }
+            l.createRoom();
+        }
     }
 }
