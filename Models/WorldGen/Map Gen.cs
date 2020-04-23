@@ -263,6 +263,7 @@ namespace Models.WorldGen
                         World.topology[i].rainfall = 10;
                     }
                 }
+                World.RegionInfos[i].OrgUsableSlots = World.RegionInfos[i].UseableSlots;
             }
         }
 

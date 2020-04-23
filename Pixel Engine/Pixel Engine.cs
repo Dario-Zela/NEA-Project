@@ -46,6 +46,11 @@ namespace Pixel_Engine
 
         public enum Mode { NORMAL, MASK, ALPHA, CUSTOM }
 
+        public static Pixel operator +(Pixel pixel1, Pixel pixel2)
+        {
+            return new Pixel((byte)(pixel1.R + pixel2.R), (byte)(pixel1.G + pixel2.G), (byte)(pixel1.B + pixel2.B), (byte)(pixel1.A + pixel2.A));
+        }
+
         public static bool operator ==(Pixel pixel1, Pixel pixel2)
         {
             return pixel1.IntValue == pixel2.IntValue;

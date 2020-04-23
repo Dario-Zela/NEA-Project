@@ -40,6 +40,7 @@ namespace Models.WorldGen
         }
         public int CityLevel = 0;
         public int UseableSlots;
+        public int OrgUsableSlots;
         public List<Unit> UnitsInTheCity = new List<Unit>();
         public bool FullControl
         {
@@ -577,7 +578,7 @@ namespace Models.WorldGen
                 World.civs.Add(civ);
             }
         }
-        public void RunYear(World World, Random rng)
+        public void RunYear(World World, ref Random rng)
         {
             List<RegionInfo> RegionsOfConflict = new List<RegionInfo>();
             foreach(Civilization civ in World.civs)
@@ -643,8 +644,7 @@ namespace Models.WorldGen
                 int SupplyDefecit = 0;
                 for (int i = 0; i < 3; i++)
                 {
-                    int TechGrowth = civ.TechGrowth[i];
-                    civ.TechProgress[i] += TechGrowth;
+                    civ.TechProgress[i] += civ.TechGrowth[i];
                     if (civ.TechProgress[i] > (civ.TechLevel[i] + 1) * 1000)
                     {
                         civ.TechProgress[i] = 0;
@@ -706,7 +706,7 @@ namespace Models.WorldGen
                     SupplyDefecit = (int)(Supplies / civ.Army.Count / Distance);
                 }
                 Supplies -= SupplyDefecit;
-                if (rng.Next(0, 100) < (SupplyDefecit / (float)civ.SupplyGen + 1f / civ.Army.Count) * 5 * civ.Ai[0] * 0.05f)
+                if (rng.Next(0, 100) < (SupplyDefecit / (float)civ.SupplyGen + 1f / civ.Army.Count) * 5 * civ.Ai[0] * 0.5f)
                 {
                     UnitType chosen = civ.PossibleDivisions[rng.Next(0, civ.PossibleDivisions.Length - 1)];
                     civ.Army.Add(new Unit(chosen, World.topology[World.idx(civ.Capital)],
@@ -756,14 +756,21 @@ namespace Models.WorldGen
                     if (civ.BuildableLand.Count == 0) break;
                     retry:
                     RegionInfo r = civ.BuildableLand[rng.Next(0, civ.BuildableLand.Count - 1)];
-                    if (rng.Next(0, civ.MaxDevelopment) < r.CityLevel) goto retry;
-                    if (rng.Next(0, 100) < civ.Ai[0] && civ.PossibleBuildings[0].Cost < Resources)
+                    if (rng.Next(0, civ.MaxDevelopment) > r.CityLevel && civ.BuildableLand.Count != 1) goto retry;
+                    if (civ.PossibleBuildings[2].Cost < Resources && (SupplyDefecit / (float)civ.SupplyGen > 0.7 || civ.LeastCost.Item1/(float)Resources >0.8))
+                    {
+                        Structure NewBuilding = civ.PossibleBuildings[2];
+                        civ.AddStructure(NewBuilding);
+                        Resources -= NewBuilding.Cost;
+                        r.EconomicBuildings.Add(NewBuilding);
+                    }
+                    else if (rng.Next(0, 100) < civ.Ai[0] && civ.PossibleBuildings[0].Cost < Resources)
                     {
                         Structure NewBuilding = civ.PossibleBuildings[0];
                         civ.AddStructure(NewBuilding);
                         Resources -= NewBuilding.Cost;
                         r.MilitaryBuildings.Add(NewBuilding);
-                        r.UseableSlots--;
+                        
 
                     }
                     else if (rng.Next(0, 100) < civ.Ai[1] && civ.PossibleBuildings[1].Cost < Resources)
@@ -772,7 +779,7 @@ namespace Models.WorldGen
                         civ.AddStructure(NewBuilding);
                         Resources -= NewBuilding.Cost;
                         r.ResearchBuildings.Add(NewBuilding);
-                        r.UseableSlots--;
+                        
                     }
                     else if (civ.PossibleBuildings[2].Cost < Resources)
                     {
@@ -780,7 +787,7 @@ namespace Models.WorldGen
                         civ.AddStructure(NewBuilding);
                         Resources -= NewBuilding.Cost;
                         r.EconomicBuildings.Add(NewBuilding);
-                        r.UseableSlots--;
+                        
                     }
                     else
                     {
@@ -799,18 +806,17 @@ namespace Models.WorldGen
                                 r.EconomicBuildings.Add(NewBuilding);
                                 break;
                         }
-                        r.UseableSlots--;
+                        
                     }
-                }
-                foreach (RegionInfo region in civ.Land)
-                {
-                    if(region.CityLevel == 2 && region.Name == "")
+                    r.UseableSlots = r.OrgUsableSlots - r.Buildings.Count;
+                    if (r.CityLevel == 2 && r.Name == "")
                     {
-                        region.Name = StringTables[5].randomEntry(ref rng);
+                        r.Name = StringTables[5].randomEntry(ref rng);
                     }
-                    if (region.UseableSlots == 0 && region.CityLevel < 4)
+                    if (r.UseableSlots <= 0 && r.CityLevel < 10)
                     {
-                        region.UseableSlots += region.Buildings.Count / 2;
+                        r.CityLevel++;
+                        r.UseableSlots += r.Buildings.Count / 2;
                     }
                 }
                 foreach (Unit unit in civ.Army)
@@ -1004,7 +1010,7 @@ namespace Models.WorldGen
             for (int i = 0; i < 50; i++)
             {
                 Console.WriteLine(i);
-                RunYear(World, rng);
+                RunYear(World, ref rng);
             }
         }
     }

@@ -17,6 +17,7 @@ namespace UI
         }
 
         static WorldCreator world;
+        IDraw draw = new Regular();
 
         public override bool OnUserCreate()
         {
@@ -27,8 +28,12 @@ namespace UI
                 int i = 0;
                 while (true)
                 {
+                    if (i == 40)
+                    {
+                        Console.WriteLine("H");
+                    }
                     Console.WriteLine(i);
-                    world.history.RunYear(world.World, world.rng);
+                    world.history.RunYear(world.World, ref world.rng);
                     pass = false;
                     i++;
                 }
@@ -53,14 +58,43 @@ namespace UI
                         if(region.pos.x == GetMouseX() && region.pos.y == GetMouseY())
                         {
                             Console.WriteLine("Civ Name: " + civ.Name + "\n" +
-                                              "Civ TechLevel" + civ.TechLevel[0] + " "+civ.TechLevel[1] + " "+civ.TechLevel[2] + "\n"+
-                                              "Civ ArmyStrengh" + civ.Army.Count);
+                                              "Civ TechLevel: " + civ.TechLevel[0] + " "+civ.TechLevel[1] + " "+civ.TechLevel[2] + "\n"+
+                                              "Civ ArmyStrengh: " + civ.Army.Count+ "\n"+
+                                              "Tech Growth" + civ.TechGrowth[0] + " " + civ.TechGrowth[1] + " " + civ.TechGrowth[2] + "\n" +
+                                              "Max City Level: " + civ.MaxDevelopment);
                         }
                     }
                 }
             }
-
+            if (GetKey(Key.TAB).bPressed)
+            {
+                if (draw.GetName() == "reg")
+                {
+                    draw = new Thermal();
+                }
+                else
+                {
+                    draw = new Regular();
+                }
+            }
             if (!pass)
+            {
+                draw.Drawing();
+                pass = true;
+            }
+            return true;
+        }
+
+        interface IDraw
+        {
+            string GetName();
+            void Drawing();
+        }
+
+        internal class Regular : IDraw
+        {
+            string name = "reg";
+            public void Drawing()
             {
                 Parallel.For(0, ScreenWidth(), (x) =>
                 {
@@ -78,19 +112,45 @@ namespace UI
                         Draw(it2.x, it2.y, Pixel.BLUE);
                     }
                 }
-                
+
                 foreach (var civ in world.World.civs)
                 {
                     foreach (var land in civ.Land)
                     {
                         Draw(land.pos.x, land.pos.y, civ.Flag);
                     }
+                    foreach (var Unit in civ.Army)
+                    {
+                        Draw(Unit.Position.x, Unit.Position.y, civ.Flag+new Pixel(30,30,30));
+                    }
                 }
-                pass = true;
             }
-            return true;
+
+            public string GetName()
+            {
+                return name;
+            }
         }
 
+        internal class Thermal : IDraw
+        {
+            string name = "ther";
+            public void Drawing()
+            {
+                foreach (var civ in world.World.civs)
+                {
+                    foreach (var land in civ.Land)
+                    {
+                        Draw(land.pos.x, land.pos.y, new Pixel((byte)(land.Buildings.Count*4),0,0));
+                    }
+                }
+            }
+
+            public string GetName()
+            {
+                return name;
+            }
+        }
 
         /*
         bool pass = false;
@@ -311,6 +371,7 @@ namespace UI
         */
     }
 
+    /*
     class Test2 : Engine
     {
         public Test2()
@@ -355,13 +416,14 @@ namespace UI
             return true;
         }
     }
+    */
 
     class Start
     {
         static void Main()
         {
             
-            Test2 demo = new Test2();
+            Test demo = new Test();
             if (demo.Construct(128, 128, 4, 4, false, true))
             {
                 demo.Start();
