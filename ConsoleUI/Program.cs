@@ -8,7 +8,6 @@ using System.ComponentModel;
 
 namespace UI
 {
-    
     class Test : Engine
     {
         public Test()
@@ -21,28 +20,9 @@ namespace UI
 
         public override bool OnUserCreate()
         {
-            world = new WorldCreator(9172919, 1.3f, 0.4f, 6);
-            BackgroundWorker b = new BackgroundWorker();
-            b.DoWork += new DoWorkEventHandler((sender, e) =>
-            {
-                int i = 0;
-                while (true)
-                {
-                    if (i == 40)
-                    {
-                        Console.WriteLine("H");
-                    }
-                    Console.WriteLine(i);
-                    world.history.RunYear(world.World, ref world.rng);
-                    pass = false;
-                    i++;
-                }
-            });
-            b.RunWorkerAsync();
+            world = new WorldCreator(78217192, 1.3f, 0.4f, 6);
             return true;
         }
-
-        bool pass = false;
         public override bool onUserUpdate(float fElapsedTime)
         {   
             if (GetKey(Key.ENTER).bPressed)
@@ -51,6 +31,7 @@ namespace UI
             }
             if (GetMouse(0).bPressed)
             {
+                /*
                 foreach (var civ in world.World.civs)
                 {
                     foreach (var region in civ.Land)
@@ -65,6 +46,28 @@ namespace UI
                         }
                     }
                 }
+                */
+                if (draw.GetName() == "Terra")
+                {
+                    draw = new Regular();
+                }
+                else
+                {
+                    RegionInfo region = new RegionInfo();
+                    foreach (var item in world.World.civs)
+                    {
+                        foreach (var land in item.Land)
+                        {
+                            if(region.Buildings.Count < land.Buildings.Count)
+                            {
+                                region = land;
+                            }
+                        }
+                    }
+                    Console.WriteLine(region.Buildings.Count);
+                    draw = new Terra(region);
+                    
+                }
             }
             if (GetKey(Key.TAB).bPressed)
             {
@@ -77,11 +80,7 @@ namespace UI
                     draw = new Regular();
                 }
             }
-            if (!pass)
-            {
-                draw.Drawing();
-                pass = true;
-            }
+            draw.Drawing();
             return true;
         }
 
@@ -96,9 +95,9 @@ namespace UI
             string name = "reg";
             public void Drawing()
             {
-                Parallel.For(0, ScreenWidth(), (x) =>
+                Parallel.For(0, Constants.WORLD_WIDTH, (x) =>
                 {
-                    Parallel.For(0, ScreenHeight(), (y) =>
+                    Parallel.For(0, Constants.WORLD_HEIGHT, (y) =>
                     {
                         DrawPartialSprite(x, y, world.GetBiomeSprite(x, y), 0, 0, 1, 1);
                     });
@@ -143,6 +142,43 @@ namespace UI
                     {
                         Draw(land.pos.x, land.pos.y, new Pixel((byte)(land.Buildings.Count*4),0,0));
                     }
+                }
+            }
+
+            public string GetName()
+            {
+                return name;
+            }
+        }
+
+        internal class Terra : IDraw
+        {
+            RegionInfo regionInfo;
+            Region region;
+            public Terra(RegionInfo r)
+            {
+                regionInfo = r;
+                region = new Region(40, ScreenWidth() - 1, ScreenHeight() - 1, 92012);
+                region.RunRooms(r.Buildings.Count * 3);
+            }
+
+            string name = "Terra";
+
+            public void Drawing()
+            {
+                foreach (var leaf in region.leafs)
+                {
+                    Clear(Pixel.BLACK);
+                    if (leaf.leftChild == null && leaf.rightChild == null)
+                    {
+                        //DrawRect(leaf.x, leaf.y, leaf.width, leaf.height, Pixel.GREY);
+                        FillRect(leaf.room.x, leaf.room.y, leaf.room.width, leaf.room.height, Pixel.WHITE);
+                    }
+                    if (leaf.halls != null)
+                        foreach (var hall in leaf.halls)
+                        {
+                            FillRect(hall.x, hall.y, hall.width, hall.height, Pixel.BLUE);
+                        }
                 }
             }
 
@@ -371,7 +407,6 @@ namespace UI
         */
     }
 
-    /*
     class Test2 : Engine
     {
         public Test2()
@@ -379,19 +414,24 @@ namespace UI
             sAppName = "World";
         }
 
-        Region region = new Region(50, ScreenWidth(), ScreenHeight(), 29120);
-        public override bool OnUserCreate()
-        {
-            region.RunRooms();
+        Region region;
+        public override bool OnUserCreate() {
+
+            region = new Region(50, ScreenWidth() - 1, ScreenHeight() - 1, 29120);
+            region.RunRooms(10);
             return true;
         }
 
         bool pass = false;
         public override bool onUserUpdate(float fElapsedTime)
         {
+            if (GetMouse(0).bPressed)
+            {
+                Console.WriteLine(GetMouseX() + " " + GetMouseY());
+            }
             if (GetKey(Key.ENTER).bPressed)
             {
-                region.RunRooms();
+                region.RunRooms(10);
                 pass = false;
             }
             if (!pass)
@@ -399,7 +439,6 @@ namespace UI
                 Clear(Pixel.BLACK);
                 foreach (var leaf in region.leafs)
                 {
-
                     if (leaf.leftChild == null && leaf.rightChild == null)
                     {
                         //DrawRect(leaf.x, leaf.y, leaf.width, leaf.height, Pixel.GREY);
@@ -416,15 +455,13 @@ namespace UI
             return true;
         }
     }
-    */
-
+    
     class Start
     {
         static void Main()
         {
-            
-            Test demo = new Test();
-            if (demo.Construct(128, 128, 4, 4, false, true))
+            Engine demo = new Test();
+            if (demo.Construct(Constants.WORLD_WIDTH - 1, Constants.WORLD_HEIGHT - 1, 4, 4, false, true))
             {
                 demo.Start();
             }

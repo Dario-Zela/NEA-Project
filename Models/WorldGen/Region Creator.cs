@@ -1,12 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using Newtonsoft.Json;
-using System.Threading.Tasks;
-using Pixel_Engine;
-using System.ComponentModel;
-using Models.NPCs;
-using Models.Items;
 
 namespace Models.WorldGen
 {
@@ -24,7 +17,7 @@ namespace Models.WorldGen
 
     public class Leaf
     {
-        private const int MIN_LEAF_SIZE = 6;
+        private const int MIN_LEAF_SIZE = 20;
 
         public int x, y, width, height;
         public Leaf leftChild, rightChild;
@@ -225,6 +218,21 @@ namespace Models.WorldGen
     {
         int MAX_LEAF_SIZE;
         public List<Leaf> leafs;
+        List<Leaf> rooms
+        {
+            get
+            {
+                List<Leaf> leaves = new List<Leaf>();
+                foreach (var leaf in leafs)
+                {
+                    if(leaf.leftChild == null && leaf.rightChild == null)
+                    {
+                        leaves.Add(leaf);
+                    }
+                }
+                return leaves;
+            }
+        }
         int mapWidth, mapHeight;
         Random rng;
 
@@ -234,6 +242,9 @@ namespace Models.WorldGen
             this.mapHeight = mapHeight;
             this.mapWidth = mapWidth;
             rng = new Random(seed);
+            leafs = new List<Leaf>();
+            Leaf l = new Leaf(0, 0, mapWidth, mapHeight, rng);
+            leafs.Add(l);
         }
 
         public void RunRooms()
@@ -257,6 +268,33 @@ namespace Models.WorldGen
                                 leafsCopy.Add(leaf.leftChild);
                                 leafsCopy.Add(leaf.rightChild);
                                 didSplit = true;
+                            }
+                        }
+                    }
+                }
+                leafs = leafsCopy;
+            }
+            l.createRoom();
+        }
+
+        public void RunRooms(int minNumRooms)
+        {
+            leafs = new List<Leaf>();
+            Leaf l = new Leaf(0, 0, mapWidth, mapHeight, rng);
+            leafs.Add(l);
+            while (rooms.Count < minNumRooms)
+            {
+                List<Leaf> leafsCopy = new List<Leaf>(leafs);
+                foreach (var leaf in leafs)
+                {
+                    if (leaf.leftChild == null && leaf.rightChild == null)
+                    {
+                        if (leaf.width > MAX_LEAF_SIZE || leaf.height > MAX_LEAF_SIZE || new Random().NextDouble() > 0.25)
+                        {
+                            if (leaf.split())
+                            {
+                                leafsCopy.Add(leaf.leftChild);
+                                leafsCopy.Add(leaf.rightChild);
                             }
                         }
                     }

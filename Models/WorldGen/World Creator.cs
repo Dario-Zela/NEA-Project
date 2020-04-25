@@ -31,8 +31,7 @@ namespace Models.WorldGen
 
             biomes.buildBiomes(World, ref rng);
             rivers.buildRivers(World, ref rng);
-            history.BuildInitialCivs(World, ref rng);
-            //history.buildInitialHistory(World, ref rng);
+            history.BuildHistory(World, ref rng);
         }
 
         public Sprite GetBiomeSprite(int x, int y)

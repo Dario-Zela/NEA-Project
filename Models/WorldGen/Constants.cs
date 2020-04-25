@@ -1,6 +1,6 @@
 namespace Models.WorldGen
 {
-    static class Constants
+    public static class Constants
     {
         public const int WORLD_HEIGHT = 128;
         public const int WORLD_WIDTH = 128;

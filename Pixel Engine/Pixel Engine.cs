@@ -1,6 +1,5 @@
 using System;
 using System.Runtime.InteropServices;
-using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
@@ -8,7 +7,6 @@ using System.Drawing;
 using System.Diagnostics;
 using SharpGL;
 using System.Threading.Tasks;
-using System.Threading;
 using System.Linq;
 
 namespace Pixel_Engine
@@ -306,8 +304,8 @@ namespace Pixel_Engine
 
         public bool Construct(int screenW, int screenH, int pixelW, int pixelH, bool fullScreen = false, bool showFPS = false)
         {
-            nScreenWidth = screenW;
-            nScreenHeight = screenH;
+            nScreenWidth = screenW + 1;
+            nScreenHeight = screenH + 1;
             nPixelWidth = pixelW;
             nPixelHeight = pixelH;
             bFullScreen = fullScreen;
@@ -391,11 +389,11 @@ namespace Pixel_Engine
 
         public static int ScreenWidth()
         {
-            return nScreenWidth;
+            return nScreenWidth - 1;
         }
         public static int ScreenHeight()
         {
-            return nScreenHeight;
+            return nScreenHeight - 1;
         }
         public static int GetDrawTargetWidth()
         {
@@ -615,8 +613,9 @@ namespace Pixel_Engine
             DrawLine(x + w, y, x + w, y + h, p);
             DrawLine(x, y + h, x + w, y + h, p);
             DrawLine(x, y, x, y + h, p);
+            Draw(x + w, y + h, p);
         }
-        public void FillRect(int x, int y, int w, int h, Pixel p)
+        public static void FillRect(int x, int y, int w, int h, Pixel p)
         {
             int x2 = x + w;
             int y2 = y + h;
@@ -916,7 +915,6 @@ namespace Pixel_Engine
             GL.Clear(OpenGL.GL_COLOR_BUFFER_BIT);
             Win32.SwapBuffers(glDeviceContext);
             GL.Clear(OpenGL.GL_COLOR_BUFFER_BIT);
-            UpdateViewport();
         }
         public static char ReadKey()
         {
@@ -977,10 +975,6 @@ namespace Pixel_Engine
         static int nMouseWheelDeltaCache = 0;
         static int nWindowWidth = 0;
         static int nWindowHeight = 0;
-        static int nViewX = 0;
-        static int nViewY = 0;
-        static int nViewW = 0;
-        static int nViewH = 0;
         static bool bFullScreen = false;
         static float fPixelX = 1.0f;
         static float fPixelY = 1.0f;
@@ -1006,11 +1000,11 @@ namespace Pixel_Engine
         #endregion
         static void UpdateMouse(int x, int y)
         {
-            x -= nViewX;
-            y -= nViewY;
+            x -= nScreenWidth;
+            y -= nScreenHeight;
 
-            nMousePosXcache = (int)(((float)x / (float)(nWindowWidth - (nViewX * 2)) * (float)nScreenWidth));
-            nMousePosYcache = (int)(((float)y / (float)(nWindowHeight - (nViewY * 2)) * (float)nScreenHeight));
+            nMousePosXcache = (int)(((float)x / (float)(nWindowWidth - (nScreenWidth * 2)) * (float)nScreenWidth));
+            nMousePosYcache = (int)(((float)y / (float)(nWindowHeight - (nScreenHeight * 2)) * (float)nScreenHeight));
 
             if (nMousePosXcache >= nScreenWidth)
                 nMousePosXcache = nScreenWidth - 1;
@@ -1030,31 +1024,11 @@ namespace Pixel_Engine
         {
             nWindowWidth = x;
             nWindowHeight = y;
-            UpdateViewport();
-        }
-        static void UpdateViewport()
-        {
-            int ww = nScreenWidth * nPixelWidth;
-            int wh = nScreenHeight * nPixelHeight;
-            float wasp = ww / (float)wh;
-
-            nViewW = nWindowWidth;
-            nViewH = (int)(nViewW / wasp);
-
-            if (nViewH > nWindowHeight)
-            {
-                nViewH = nWindowHeight;
-                nViewW = (int)(nViewH * wasp);
-            }
-
-            nViewX = (nWindowWidth - nViewW) / 2;
-            nViewY = (nWindowHeight - nViewH) / 2;
         }
 
         static bool OpenGLCreate()
         {
             OpenGLControl GLControl = ((Form1)Control.FromHandle(HWnd)).GetGLControl();
-            OpenGL GL = GLControl.OpenGL;
 
             glDeviceContext = Graphics.FromHwnd(HWnd).GetHdc();
 
@@ -1095,8 +1069,6 @@ namespace Pixel_Engine
             glRenderContext = Win32.wglCreateContext(glDeviceContext);
             if (glRenderContext == IntPtr.Zero) return false;
             Win32.wglMakeCurrent(glDeviceContext, glRenderContext);
-
-            GL.Viewport(nViewX, nViewY, nViewW, nViewH);
 
             return true;
         }
@@ -1188,9 +1160,7 @@ namespace Pixel_Engine
                         if (!onUserUpdate(elapsedTime))
                             bAtomActive = false;
 
-                        GL.Viewport(nViewX, nViewY, nViewW, nViewH);
-
-                        GL.TexSubImage2D(OpenGL.GL_TEXTURE_2D, 0, 0, 0, nScreenWidth, nScreenHeight, OpenGL.GL_RGBA, OpenGL.GL_UNSIGNED_BYTE, pDefaultDrawTarget.GetIntData());
+                        GL.TexSubImage2D(OpenGL.GL_TEXTURE_2D, 0, 0, 0, nScreenWidth, nScreenWidth, OpenGL.GL_RGBA, OpenGL.GL_UNSIGNED_BYTE, pDefaultDrawTarget.GetIntData());
 
                         GL.Begin(OpenGL.GL_QUADS);
                         GL.TexCoord(0.0, 1.0); GL.Vertex(-1.0f + (fSubPixelOffsetX), -1.0f + (fSubPixelOffsetY), 0.0f);
@@ -1253,11 +1223,6 @@ namespace Pixel_Engine
             nWindowHeight = Window.Height;
             nWindowWidth = Window.Width;
 
-            nViewW = nWindowWidth;
-            nViewH = nWindowHeight;
-
-            UpdateViewport();
-
             HWnd = Window.Handle;
 
             Window.MouseMove += new MouseEventHandler((sender, e) =>
@@ -1267,6 +1232,7 @@ namespace Pixel_Engine
             Window.SizeChanged += new EventHandler((sender, e) =>
             {
                 UpdateWindowSize(Window.Width, Window.Height - 39);
+                OpenGL GL = Window.GetGLControl().OpenGL;
             });
             Window.MouseWheel += new MouseEventHandler((sender, e) =>
             {
