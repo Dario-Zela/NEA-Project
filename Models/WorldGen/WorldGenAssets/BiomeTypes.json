@@ -13,10 +13,6 @@
     "TextureIndex": 0,
     "plants": [
       {
-        "Item1": "none",
-        "Item2": 20
-      },
-      {
         "Item1": "grass",
         "Item2": 20
       },
@@ -51,10 +47,6 @@
     "occurs": [ 1, 8 ],
     "TextureIndex": 1,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 10
-      },
       {
         "Item1": "grass",
         "Item2": 20
@@ -102,10 +94,6 @@
     "occurs": [ 1, 8 ],
     "TextureIndex": 2,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 5
-      },
       {
         "Item1": "grass",
         "Item2": 20
@@ -205,10 +193,6 @@
     "occurs": [ 1, 8 ],
     "TextureIndex": 3,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 5
-      },
       {
         "Item1": "grass",
         "Item2": 20
@@ -317,10 +301,6 @@
     "TextureIndex": 4,
     "plants": [
       {
-        "Item1": "none",
-        "Item2": 20
-      },
-      {
         "Item1": "grass",
         "Item2": 20
       },
@@ -359,10 +339,6 @@
     "occurs": [ 8 ],
     "TextureIndex": 5,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 10
-      },
       {
         "Item1": "grass",
         "Item2": 20
@@ -442,10 +418,6 @@
     "occurs": [ 8 ],
     "TextureIndex": 6,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 5
-      },
       {
         "Item1": "grass",
         "Item2": 20
@@ -554,14 +526,6 @@
     "TextureIndex": 7,
     "plants": [
       {
-        "Item1": "none",
-        "Item2": 5
-      },
-      {
-        "Item1": "grass",
-        "Item2": 20
-      },
-      {
         "Item1": "reeds_paper",
         "Item2": 2
       },
@@ -665,10 +629,6 @@
     "TextureIndex": 8,
     "plants": [
       {
-        "Item1": "none",
-        "Item2": 20
-      },
-      {
         "Item1": "grass",
         "Item2": 20
       },
@@ -703,10 +663,6 @@
     "occurs": [ 9 ],
     "TextureIndex": 9,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 10
-      },
       {
         "Item1": "grass",
         "Item2": 20
@@ -787,10 +743,6 @@
     "TextureIndex": 12,
     "plants": [
       {
-        "Item1": "none",
-        "Item2": 20
-      },
-      {
         "Item1": "grass",
         "Item2": 20
       },
@@ -829,10 +781,6 @@
     "occurs": [ 2, 8, 5 ],
     "TextureIndex": 13,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 25
-      },
       {
         "Item1": "grass",
         "Item2": 20
@@ -880,10 +828,6 @@
     "occurs": [ 2, 8, 5 ],
     "TextureIndex": 14,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 3
-      },
       {
         "Item1": "grass",
         "Item2": 20
@@ -1035,10 +979,6 @@
     "occurs": [ 2, 8, 5 ],
     "TextureIndex": 15,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 3
-      },
       {
         "Item1": "grass",
         "Item2": 25
@@ -1215,10 +1155,6 @@
     "TextureIndex": 16,
     "plants": [
       {
-        "Item1": "none",
-        "Item2": 20
-      },
-      {
         "Item1": "grass",
         "Item2": 20
       },
@@ -1257,10 +1193,6 @@
     "occurs": [ 3, 7 ],
     "TextureIndex": 17,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 30
-      },
       {
         "Item1": "grass",
         "Item2": 20
@@ -1312,10 +1244,6 @@
     "occurs": [ 3, 7 ],
     "TextureIndex": 18,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 5
-      },
       {
         "Item1": "grass",
         "Item2": 20
@@ -1440,10 +1368,6 @@
     "TextureIndex": 19,
     "plants": [
       {
-        "Item1": "none",
-        "Item2": 5
-      },
-      {
         "Item1": "grass",
         "Item2": 20
       },
@@ -1543,10 +1467,6 @@
     "TextureIndex": 20,
     "plants": [
       {
-        "Item1": "none",
-        "Item2": 20
-      },
-      {
         "Item1": "grass",
         "Item2": 20
       },
@@ -1585,10 +1505,6 @@
     "occurs": [ 6 ],
     "TextureIndex": 21,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 15
-      },
       {
         "Item1": "grass",
         "Item2": 20
@@ -1632,10 +1548,6 @@
     "occurs": [ 6 ],
     "TextureIndex": 22,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 5
-      },
       {
         "Item1": "grass",
         "Item2": 20
@@ -1735,10 +1647,6 @@
     "occurs": [ 6 ],
     "TextureIndex": 23,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 2
-      },
       {
         "Item1": "grass",
         "Item2": 20
@@ -1869,10 +1777,6 @@
     "TextureIndex": 25,
     "plants": [
       {
-        "Item1": "none",
-        "Item2": 20
-      },
-      {
         "Item1": "grass",
         "Item2": 10
       },
@@ -1912,10 +1816,6 @@
     "TextureIndex": 26,
     "plants": [
       {
-        "Item1": "none",
-        "Item2": 25
-      },
-      {
         "Item1": "grass",
         "Item2": 10
       },
@@ -1954,10 +1854,6 @@
     "occurs": [ 7 ],
     "TextureIndex": 27,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 5
-      },
       {
         "Item1": "grass",
         "Item2": 20
@@ -2017,10 +1913,6 @@
     "occurs": [ 7 ],
     "TextureIndex": 28,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 2
-      },
       {
         "Item1": "grass",
         "Item2": 20
@@ -2095,10 +1987,6 @@
     "TextureIndex": 30,
     "plants": [
       {
-        "Item1": "none",
-        "Item2": 40
-      },
-      {
         "Item1": "grass",
         "Item2": 20
       },
@@ -2138,10 +2026,6 @@
     "TextureIndex": 31,
     "plants": [
       {
-        "Item1": "none",
-        "Item2": 25
-      },
-      {
         "Item1": "grass",
         "Item2": 20
       },
@@ -2176,10 +2060,6 @@
     "occurs": [ 4 ],
     "TextureIndex": 32,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 5
-      },
       {
         "Item1": "grass",
         "Item2": 20
@@ -2219,10 +2099,6 @@
     "occurs": [ 4 ],
     "TextureIndex": 33,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 2
-      },
       {
         "Item1": "grass",
         "Item2": 20
@@ -2285,10 +2161,6 @@
     "TextureIndex": 35,
     "plants": [
       {
-        "Item1": "none",
-        "Item2": 40
-      },
-      {
         "Item1": "grass",
         "Item2": 20
       },
@@ -2327,10 +2199,6 @@
     "occurs": [ 2, 3, 7, 6, 8 ],
     "TextureIndex": 36,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 40
-      },
       {
         "Item1": "grass",
         "Item2": 20
@@ -2407,10 +2275,6 @@
     "TextureIndex": 39,
     "plants": [
       {
-        "Item1": "none",
-        "Item2": 5
-      },
-      {
         "Item1": "grass",
         "Item2": 20
       },
@@ -2478,10 +2342,6 @@
     "TextureIndex": 40,
     "plants": [
       {
-        "Item1": "none",
-        "Item2": 5
-      },
-      {
         "Item1": "grass",
         "Item2": 20
       },
@@ -2537,10 +2397,6 @@
     "TextureIndex": 41,
     "plants": [
       {
-        "Item1": "none",
-        "Item2": 5
-      },
-      {
         "Item1": "grass",
         "Item2": 20
       },
@@ -2583,10 +2439,6 @@
     "occurs": [ 7, 4, 6 ],
     "TextureIndex": 42,
     "plants": [
-      {
-        "Item1": "none",
-        "Item2": 5
-      },
       {
         "Item1": "grass",
         "Item2": 20

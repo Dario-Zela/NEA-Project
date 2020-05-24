@@ -1,7 +1,12 @@
 {
   "BiomeMap": {
-      "src": "TileSetMapGen.bmp",
+    "src": "TileSetMapGen.bmp",
     "tileWidth": 32,
-    "value":  []
-    }
+    "value": []
+  },
+  "TerrainMap": {
+    "src": "Terrain.bmp",
+    "tileWidth": 32,
+    "value": []
+  }
 }

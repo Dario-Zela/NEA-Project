@@ -31,7 +31,8 @@ namespace Models.WorldGen
 
             biomes.buildBiomes(World, ref rng);
             rivers.buildRivers(World, ref rng);
-            history.BuildHistory(World, ref rng);
+            //history.BuildHistory(World, ref rng);
+            //TerrainGen terrain = new TerrainGen(World, seed);
         }
 
         public Sprite GetBiomeSprite(int x, int y)

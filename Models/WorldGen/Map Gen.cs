@@ -22,6 +22,7 @@ namespace Models.WorldGen
 
         public int waterHeight, plainsHeight, hillsHeight;
 
+        public List<biomeType> BiomeTypes = new List<biomeType>();
         public List<Terrain> topology = new List<Terrain>();
         public List<Biome> biomes = new List<Biome>();
         public List<River> rivers = new List<River>();

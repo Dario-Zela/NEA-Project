@@ -40,6 +40,7 @@ namespace Models.WorldGen
             }
         }
         public int CityLevel = 0;
+        public bool isCity = false;
         public int UseableSlots;
         public int OrgUsableSlots;
         public List<Unit> UnitsInTheCity = new List<Unit>();
@@ -237,14 +238,13 @@ namespace Models.WorldGen
             Experience = Experience < 20 ? 0 : Experience - 20;
         }
 
-        static public bool operator +(Unit Attacker, Unit Defender)
+        public void Attack(Unit Defender)
         {
-            int BaseDamage = (Attacker.OffenciveBonus - Defender.DefenciveBonus) * new Random().Next(8);
+            int BaseDamage = (OffenciveBonus - Defender.DefenciveBonus) * new Random().Next(8);
             Defender.RemainingUnits -= (int)(BaseDamage - (float)(Defender.Mobility + Defender.Supplies + Defender.Experience + Defender.CurrentPosition.Modifier) / 100);
             Defender.Supplies -= BaseDamage / 10 + Defender.SupplyCost;
-            Attacker.RemainingUnits -= (int)(BaseDamage - (float)(Attacker.Supplies + Attacker.Experience - Defender.CurrentPosition.Modifier) / 100);
-            Attacker.Supplies -= BaseDamage / 10 + Attacker.SupplyCost;
-            return true;
+            RemainingUnits -= (int)(BaseDamage - (float)(Supplies + Experience - Defender.CurrentPosition.Modifier) / 100);
+            Supplies -= BaseDamage / 10 + SupplyCost;
         }
 
         public void Moved(Terrain NewPosition, RegionInfo region)
@@ -490,6 +490,25 @@ namespace Models.WorldGen
         {
             return civ.Land.Count == 0;
         });
+
+        public void AssignCities()
+        {
+            int NumCities = Land.Count / 10 + 1;
+            List<RegionInfo> LandCopy = new List<RegionInfo>(Land);
+            for (int i = 0; i < NumCities; i++)
+            {
+                RegionInfo temp = new RegionInfo();
+                foreach (RegionInfo region in LandCopy)
+                {
+                    if(region.Buildings.Count > temp.Buildings.Count)
+                    {
+                        temp = region;
+                    }
+                }
+                temp.isCity = true;
+                LandCopy.Remove(temp);
+            }
+        }
     }
 
     public class Specie
@@ -507,6 +526,8 @@ namespace Models.WorldGen
 
     public class HistoryGen
     {
+        public bool finished = false;
+
         #region Loader
         List<Specie> Species = new List<Specie>();
         Dictionary<int, StringTable> StringTables = new Dictionary<int, StringTable>();
@@ -863,11 +884,11 @@ namespace Models.WorldGen
                         {
                             if (unit1.CivTag != civ.Tag)
                             {
-                                _ = unit + unit1;
+                                unit.Attack(unit1);
                             }
                         }
                     }
-                    else if (unit.LastResupply / 100f * civ.Ai[0] / 2 > 2)
+                    else if (unit.LastResupply / 100f * civ.Ai[0] / 4 > 2)
                     {
                         int Counter = 0, CounterRet = 0;
                     retry:
@@ -911,7 +932,7 @@ namespace Models.WorldGen
                             {
                                 if (unit1.CivTag != civ.Tag)
                                 {
-                                    _ = unit + unit1;
+                                    unit.Attack(unit1);
                                     if (unit.OffenciveBonus + unit1.DefenciveBonus > 90) region.DestroyBuilding(ref rng);
                                 }
                             }
@@ -1041,17 +1062,17 @@ namespace Models.WorldGen
         public void BuildHistory(World World, ref Random rng)
         {
             BuildInitialCivs(World, ref rng);
-            Random rngCopy = rng;
-            BackgroundWorker worker = new BackgroundWorker();
-            worker.DoWork += new DoWorkEventHandler((sender, e) =>
+            for (int i = 0; i < 150; i++)
             {
-                for (int i = 0; i < 150; i++)
-                {
-                    Console.WriteLine(i);
-                    RunYear(World, ref rngCopy);
-                }
-            });
-            worker.RunWorkerAsync();
+                Console.WriteLine(i);
+                RunYear(World, ref rng);
+            }
+            /*
+            foreach (Civilization civilization in World.civs)
+            {
+                civilization.AssignCities();
+            }
+            */
         }
     }
 }

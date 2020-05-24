@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Fast Bitmap, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Fast-Bitmap.1.1.2\lib\Fast Bitmap.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -59,6 +62,7 @@
     <Compile Include="WorldGen\Map Gen.cs" />
     <Compile Include="WorldGen\Region Creator.cs" />
     <Compile Include="WorldGen\River Gen.cs" />
+    <Compile Include="WorldGen\Terrain Generator.cs" />
     <Compile Include="WorldGen\World Creator.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -74,6 +78,7 @@
     <None Include="WorldGen\WorldGenAssets\Species.json" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Sprites\Terrain.bmp" />
     <Content Include="Sprites\TileSetMapGen.bmp" />
     <Content Include="WorldGen\WorldGenAssets\CityNames.txt" />
     <Content Include="WorldGen\WorldGenAssets\EmpireNames.txt" />

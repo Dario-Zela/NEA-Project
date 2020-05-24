@@ -14,7 +14,7 @@ namespace Models.WorldGen
         public int centerX = 0, centerY = 0;
     }
 
-    class biomeType
+    public class biomeType
     {
         public string name = "";
         public int minRain = 0, maxRain = 100, minTemp = -100, maxTemp = 100;
@@ -209,7 +209,7 @@ namespace Models.WorldGen
                 }
                 count++;
             }
-
+            World.BiomeTypes = BiomeTypes;
         }
 
         private List<Tuple<double,int>> findPossibleBiomes(ref Dictionary<int, double> percents, List<Biome> biomes, int index)

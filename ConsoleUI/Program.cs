@@ -1,10 +1,17 @@
 using System;
 using System.Collections.Generic;
 using Models.WorldGen;
+using Models.Sprites;
 using Pixel_Engine;
 using System.Linq;
 using System.Threading.Tasks;
-using System.ComponentModel;
+using System.IO;
+
+/*
+ * Make Civs create large cities
+ * Fix Region Creator
+ * Start NPC creation
+*/
 
 namespace UI
 {
@@ -17,7 +24,6 @@ namespace UI
 
         static WorldCreator world;
         IDraw draw = new Regular();
-
         public override bool OnUserCreate()
         {
             world = new WorldCreator(78217192, 1.3f, 0.4f, 6);
@@ -28,46 +34,6 @@ namespace UI
             if (GetKey(Key.ENTER).bPressed)
             {
                 world = new WorldCreator(new Random().Next(100000), 1.3f, 0.4f, 6);
-            }
-            if (GetMouse(0).bPressed)
-            {
-                /*
-                foreach (var civ in world.World.civs)
-                {
-                    foreach (var region in civ.Land)
-                    {
-                        if(region.pos.x == GetMouseX() && region.pos.y == GetMouseY())
-                        {
-                            Console.WriteLine("Civ Name: " + civ.Name + "\n" +
-                                              "Civ TechLevel: " + civ.TechLevel[0] + " "+civ.TechLevel[1] + " "+civ.TechLevel[2] + "\n"+
-                                              "Civ ArmyStrengh: " + civ.Army.Count+ "\n"+
-                                              "Tech Growth" + civ.TechGrowth[0] + " " + civ.TechGrowth[1] + " " + civ.TechGrowth[2] + "\n" +
-                                              "Max City Level: " + civ.MaxDevelopment);
-                        }
-                    }
-                }
-                */
-                if (draw.GetName() == "Terra")
-                {
-                    draw = new Regular();
-                }
-                else
-                {
-                    RegionInfo region = new RegionInfo();
-                    foreach (var item in world.World.civs)
-                    {
-                        foreach (var land in item.Land)
-                        {
-                            if(region.Buildings.Count < land.Buildings.Count)
-                            {
-                                region = land;
-                            }
-                        }
-                    }
-                    Console.WriteLine(region.Buildings.Count);
-                    draw = new Terra(region);
-                    
-                }
             }
             if (GetKey(Key.TAB).bPressed)
             {
@@ -456,16 +422,120 @@ namespace UI
         }
     }
     
+    class Test3 : Engine
+    {
+        public Test3()
+        {
+            sAppName = "World";
+        }
+        Sprite[] Sprites;
+        WorldCreator world;
+        Chunk c;
+        public override bool OnUserCreate()
+        {
+            world = new WorldCreator(78217192, 1.3f, 0.4f, 6);
+            Sprites = TileSet.Instance.GetSprites("TerrainMap");
+            return true;
+        }
+
+        int x = 0;
+        int y = 0;
+        bool pass = true;
+        bool pass1 = true;
+        public override bool onUserUpdate(float fElapsedTime)
+        {
+            if (pass1)
+            {
+                c = new Chunk(Constants.REGION_HEIGHT, Constants.REGION_WIDTH, world.World.BiomeTypes
+                            [world.World.topology[0 + 0 * Constants.WORLD_WIDTH].type],
+                            //world.World.RegionInfos[0 + 0 * Constants.WORLD_WIDTH].isCity,
+                            true, 78217192 * y + x);
+                pass1 = false;
+            }
+            if (GetKey(Key.LEFT).bPressed)
+            {
+                x = x-- < 0 ? 0 : x;
+                pass = true;
+            }
+            else if (GetKey(Key.RIGHT).bPressed)
+            {
+                x = x++ > Constants.WORLD_WIDTH - 1 ? Constants.WORLD_WIDTH - 1 : x;
+                pass = true;
+            }
+            else if (GetKey(Key.UP).bPressed)
+            {
+                y = y-- < 0 ? 0 : y;
+                pass = true;
+            }
+            else if (GetKey(Key.DOWN).bPressed)
+            {
+                y = y++ > Constants.WORLD_HEIGHT - 1 ? Constants.WORLD_HEIGHT - 1 : y;
+                pass = true;
+            }
+
+            if (pass)
+            {
+                for (int i = 0; i < ScreenWidth() / 32; i++)
+                {
+                    for (int j = 0; j < ScreenHeight() / 32; j++)
+                    {
+                        DrawSprite(i * 32, j * 32, Sprites[c.Assets[i + x + (j + y) * Constants.REGION_WIDTH]]);
+                    }
+                }
+                pass = false;
+            }
+            return true;
+        }
+    }
+
     class Start
     {
         static void Main()
         {
-            Engine demo = new Test();
-            if (demo.Construct(Constants.WORLD_WIDTH - 1, Constants.WORLD_HEIGHT - 1, 4, 4, false, true))
+            Engine demo = new Test3();
+            if (demo.Construct(Constants.REGION_WIDTH / 16 * 32, Constants.REGION_HEIGHT / 16 * 32, 1, 1, false, true))
             {
                 demo.Start();
             }
-          
+            
+            /*
+            int x = 0;
+            int y = 0;
+            while (true)
+            {
+                Console.Clear();
+                if (Console.KeyAvailable)
+                {
+                    if(Console.ReadKey().Key == ConsoleKey.LeftArrow)
+                    {
+                        x--;
+                    }
+                    else if(Console.ReadKey().Key == ConsoleKey.RightArrow)
+                    {
+                        x++;
+                    }
+                    else if (Console.ReadKey().Key == ConsoleKey.UpArrow)
+                    {
+                        y--;
+                    }
+                    else if (Console.ReadKey().Key == ConsoleKey.DownArrow)
+                    {
+                        y++;
+                    }
+
+                }
+                for (int i = 0; i < 10; i++)
+                {
+                    for (int j = 0; j < 10; j++)
+                    {
+                        Console.CursorLeft = i*3;
+                        Console.CursorTop = j;
+                        Console.Write(i + x + (j + y) * 10);
+                    }
+                }
+                Console.ReadKey();
+            }
+            */
         }
 
     }
