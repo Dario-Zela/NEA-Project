@@ -872,30 +872,38 @@ namespace Pixel_Engine
                 });
             }
         }
-        public static void DrawString(int x, int y, string sText, Pixel col, int Size, int font)
+        public static void DrawText(int x, int y, string sText, Pixel col, int Size, int font)
         {
-            if (sText.Length == 0) return;
-            string[] strings = sText.Split(new[] { '\n' });
-            if (strings[strings.Length - 1].Length == 0)
-            {
-                strings = strings.Take(strings.Length - 1).ToArray();
-            }
-            Parallel.For(0, strings.Length, (i) =>
-            {
-                Bitmap bitmap = new Bitmap(9 * strings[i].Length, 11);
-                Graphics g = Graphics.FromImage(bitmap);
-                g.Clear(Pixel.BLACK);
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
-                TextRenderer.DrawText(g, strings[i], new Font(FontFamily.Families[font], 9, GraphicsUnit.Pixel), Point.Empty, Pixel.WHITE);
-                Pixel.Mode a = GetPixelMode();
-                SetPixelMode(Pixel.Mode.MASK);
-                DrawSprite(x, y + i * Size * 11, new Sprite(bitmap), Size);
-                SetPixelMode(a);
-                bitmap.Dispose();
-            });
+            Bitmap bitmap = new Bitmap(Size * sText.Length, (int)(Size * 1.2));
+            Graphics g = Graphics.FromImage(bitmap);
+            g.Clear(Pixel.BLANK);
+            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+            TextRenderer.DrawText(g, sText, new Font(FontFamily.Families[font], Size, GraphicsUnit.Pixel), Point.Empty, col);
+            Pixel.Mode a = GetPixelMode();
+            SetPixelMode(Pixel.Mode.MASK);
+            DrawSprite(x, y, new Sprite(bitmap));
+            SetPixelMode(a);
+            bitmap.Dispose();
         }
+
+        public static void DrawText(int x, int y, string sText, Pixel col, int Size, int font, Pixel backCol)
+        {
+            Bitmap bitmap = new Bitmap(Size * sText.Length, (int)(Size * 1.2));
+            Graphics g = Graphics.FromImage(bitmap);
+            g.Clear(Pixel.BLANK);
+            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+            TextRenderer.DrawText(g, sText, new Font(FontFamily.Families[font], Size, GraphicsUnit.Pixel), Point.Empty, col,backCol);
+            Pixel.Mode a = GetPixelMode();
+            SetPixelMode(Pixel.Mode.MASK);
+            DrawSprite(x, y, new Sprite(bitmap));
+            SetPixelMode(a);
+            bitmap.Dispose();
+        }
+
         public static void Clear(Pixel p)
         {
             int pixels = GetDrawTargetWidth() * GetDrawTargetHeight();

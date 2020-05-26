@@ -15,6 +15,33 @@ using System.IO;
 
 namespace UI
 {
+    interface IGameElement
+    {
+        void Draw();
+    }
+
+    partial class Game : Engine
+    {
+        public Game()
+        {
+            sAppName = "demo";
+        }
+
+        IGameElement CurrentElement;
+        public override bool OnUserCreate()
+        {
+            CurrentElement = new MainMenu();
+            return true;
+        }
+
+        public override bool onUserUpdate(float fElapsedTime)
+        {
+            CurrentElement.Draw();
+            return true;
+        }
+    }
+
+
     class Test : Engine
     {
         public Test()
@@ -487,13 +514,14 @@ namespace UI
             return true;
         }
     }
+    
 
     class Start
     {
         static void Main()
         {
-            Engine demo = new Test3();
-            if (demo.Construct(Constants.REGION_WIDTH / 16 * 32, Constants.REGION_HEIGHT / 16 * 32, 1, 1, false, true))
+            Engine demo = new Game();
+            if (demo.Construct(700, 700, 1, 1, false, true))
             {
                 demo.Start();
             }
