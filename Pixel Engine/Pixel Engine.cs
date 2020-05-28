@@ -291,6 +291,9 @@ namespace Pixel_Engine
         BACKSPACE, ESCAPE, RETURN, ENTER, PAUSE, SCROLL,
         NP0, NP1, NP2, NP3, NP4, NP5, NP6, NP7, NP8, NP9,
         NP_MUL, NP_DIV, NP_ADD, NP_SUB, NP_DECIMAL,
+        COMMA, BACKWARD_SLASH, FORWARD_SLASH, EQUAL,
+        HASH, APOSTHROPHE, MINUS, SINGLE_QUOTE, SEMICOLON,
+        SQUARE_BRAKET_OPEN, SQUARE_BRAKET_CLOSE, DOT
     };
 
     public class Engine
@@ -922,20 +925,25 @@ namespace Pixel_Engine
         {
             for (int i = 0; i < CharacterKeys.Length; i++)
             {
-                if ((GetKey(Key.SHIFT).bPressed || GetKey(Key.SHIFT).bHeld) && GetKey(CharacterKeys[i]).bPressed)
+                if (GetKey(CharacterKeys[i]).bPressed)
                 {
-                    return CharactersUpper[i];
-                }
-                else if (GetKey(CharacterKeys[i]).bPressed)
-                {
+                    if(isShifted) return CharactersUpper[i];
                     return CharactersLower[i];
                 }
             }
-            for (int i = 0; i < NumberKeys.Length; i++)
+            for (int i = 0; i < NumPadKeys.Length; i++)
             {
-                if (GetKey(NumberKeys[i]).bPressed)
+                if (GetKey(NumPadKeys[i]).bPressed)
                 {
-                    return Numbers[i];
+                    return NumPad[i];
+                }
+            }
+            for (int i = 0; i < SpecialCharacters.Length; i++)
+            {
+                if(GetKey(SpecialCharactersKeys[i]).bPressed)
+                {
+                    if(isShifted) return ShiftedSpecialCharacters[i];
+                    return SpecialCharacters[i];
                 }
             }
             return '\0';
@@ -944,23 +952,29 @@ namespace Pixel_Engine
         #region Declerations
         public static string sAppName;
 
+        static public bool isShifted = false;
         static readonly Key[] CharacterKeys = new[] {Key.A, Key.B, Key.C, Key.D, Key.E,
             Key.F, Key.G, Key.H, Key.I, Key.J, Key.K, Key.L, Key.M, Key.N,
             Key.O, Key.P, Key.Q, Key.R, Key.S, Key.T, Key.U, Key.V, Key.W,
-            Key.X, Key.Y, Key.Z};
-        static readonly Key[] NumberKeys = new[] {Key.NP1, Key.NP2, Key.NP3, Key.NP4, Key.NP5,
-            Key.NP6, Key.NP7, Key.NP8, Key.NP9, Key.NP0, Key.NP_ADD, Key.NP_DIV,
-            Key.NP_MUL, Key.NP_SUB, Key.NP_DECIMAL, Key.SPACE, Key.K1, Key.K2, Key.K3, Key.K4, Key.K5,
-            Key.K6, Key.K7, Key.K8, Key.K9, Key.K0};
-        static readonly char[] CharactersUpper = new[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G',
-            'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-            'U', 'V', 'W', 'X', 'Y', 'Z'};
-        static readonly char[] Numbers = new[]  {'1', '2', '3', '4', '5', '6', '7',
-            '8', '9', '0', '+', '/', '*', '-', '.', ' ', '1', '2', '3', '4',
-            '5', '6', '7', '8', '9', '0',};
+            Key.X, Key.Y, Key.Z, Key.SPACE};
         static readonly char[] CharactersLower = new[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g',
             'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
-            'u', 'v', 'w', 'x', 'y', 'z' };
+            'u', 'v', 'w', 'x', 'y', 'z', ' '};
+        static readonly char[] CharactersUpper = new[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G',
+            'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+            'U', 'V', 'W', 'X', 'Y', 'Z', ' '};
+        static readonly Key[] NumPadKeys = new[] {Key.NP1, Key.NP2, Key.NP3, Key.NP4, Key.NP5,
+            Key.NP6, Key.NP7, Key.NP8, Key.NP9, Key.NP0, Key.NP_ADD, Key.NP_DIV,
+            Key.NP_MUL, Key.NP_SUB, Key.NP_DECIMAL};
+        static readonly char[] NumPad = new[]  {'1', '2', '3', '4', '5', '6', '7',
+            '8', '9', '0', '+', '/', '*', '-', '.'};
+        static readonly Key[] SpecialCharactersKeys = new[] {Key.APOSTHROPHE, Key.K1, Key.K2, Key.K3, Key.K4, Key.K5,
+            Key.K6, Key.K7, Key.K8, Key.K9, Key.K0, Key.MINUS, Key.EQUAL, Key.SQUARE_BRAKET_OPEN,
+            Key.SQUARE_BRAKET_CLOSE, Key.SEMICOLON, Key.SINGLE_QUOTE, Key.HASH, Key.COMMA, Key.DOT,Key.FORWARD_SLASH, Key.BACKWARD_SLASH };
+        static readonly char[] SpecialCharacters = new[] { '`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '[', ']',
+            ';', '\'', '#', ',', '.', '/', '\\' };
+        static readonly char[] ShiftedSpecialCharacters = new[] { '¬', '!', '"', '£', '$', '&', '^', '&', '*', '(', ')', '_', '+', 
+            '{', '}', ':', '@', '~', '<', '>', '?', '|' };
         static Sprite pDefaultDrawTarget = null;
         static Sprite pDrawTarget = null;
         static Pixel.Mode nPixelMode = Pixel.Mode.NORMAL;
@@ -1238,7 +1252,8 @@ namespace Pixel_Engine
             Window.MouseEnter += new EventHandler((sender, e) => bHasMouseFocus = true);
             Window.GotFocus += new EventHandler((sender, e) => bHasInputFocus = true);
             Window.LostFocus += new EventHandler((sender, e) => bHasInputFocus = false);
-            Window.KeyDown += new KeyEventHandler((sender, e) => { try { pKeyNewState[mapKeys[(int)e.KeyCode]] = true; } catch { } });
+            Window.KeyDown += new KeyEventHandler((sender, e) => { try { pKeyNewState[mapKeys[(int)e.KeyCode]] = true; 
+                    isShifted = e.Shift; } catch { } });
             Window.KeyUp += new KeyEventHandler((sender, e) => { try { pKeyNewState[mapKeys[(int)e.KeyCode]] = false; } catch { } });
             Window.MouseDown += new MouseEventHandler((sender, e) =>
             {
@@ -1308,7 +1323,11 @@ namespace Pixel_Engine
 
             mapKeys[0x60] = (byte)Key.NP0; mapKeys[0x61] = (byte)Key.NP1; mapKeys[0x62] = (byte)Key.NP2; mapKeys[0x63] = (byte)Key.NP3; mapKeys[0x64] = (byte)Key.NP4;
             mapKeys[0x65] = (byte)Key.NP5; mapKeys[0x66] = (byte)Key.NP6; mapKeys[0x67] = (byte)Key.NP7; mapKeys[0x68] = (byte)Key.NP8; mapKeys[0x69] = (byte)Key.NP9;
-            mapKeys[0x6A] = (byte)Key.NP_MUL; mapKeys[0x6B] = (byte)Key.NP_ADD; mapKeys[0x6F] = (byte)Key.NP_DIV; mapKeys[0x6D] = (byte)Key.NP_SUB; mapKeys[0x6E] = (byte)Key.NP_DECIMAL;
+            mapKeys[0x6A] = (byte)Key.NP_MUL; mapKeys[0x6B] = (byte)Key.NP_ADD; mapKeys[0x6F] = (byte)Key.NP_DIV; mapKeys[0x6D] = (byte)Key.NP_SUB; mapKeys[0x2E] = (byte)Key.NP_DECIMAL;
+
+            mapKeys[0xBC] = (byte)Key.COMMA; mapKeys[0xDC] = (byte)Key.BACKWARD_SLASH; mapKeys[0xBF] = (byte)Key.FORWARD_SLASH; mapKeys[0xBB] = (byte)Key.EQUAL;
+            mapKeys[0xDE] = (byte)Key.HASH; mapKeys[0xDF] = (byte)Key.APOSTHROPHE; mapKeys[0xC0] = (byte)Key.SINGLE_QUOTE; mapKeys[0xBD] = (byte)Key.MINUS;
+            mapKeys[0xBA] = (byte)Key.SEMICOLON; mapKeys[0xDB] = (byte)Key.SQUARE_BRAKET_OPEN; mapKeys[0xDD] = (byte)Key.SQUARE_BRAKET_CLOSE; mapKeys[0xBE] = (byte)Key.DOT;
 
             for (int i = 0; i < 255; i++)
             {

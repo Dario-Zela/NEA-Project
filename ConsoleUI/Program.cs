@@ -31,7 +31,7 @@ namespace UI
         IGameElement CurrentElement;
         public override bool OnUserCreate()
         {
-            CurrentElement = new MainMenu();
+            CurrentElement = new WorldMenu();
             return true;
         }
 

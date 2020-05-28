@@ -85,6 +85,7 @@
     <Content Include="WorldGen\WorldGenAssets\firstNamesFemale.txt" />
     <Content Include="WorldGen\WorldGenAssets\firstNamesMale.txt" />
     <Content Include="WorldGen\WorldGenAssets\lastNames.txt" />
+    <Content Include="Saves\Worlds.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pixel Engine\Display.csproj">
