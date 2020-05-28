@@ -49,7 +49,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MainMenu.cs" />
+    <Compile Include="Menus\CharacterMenu.cs" />
+    <Compile Include="Menus\MainMenu.cs" />
+    <Compile Include="Menus\Options.cs" />
+    <Compile Include="Menus\WorldMenu.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

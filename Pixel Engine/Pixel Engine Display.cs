@@ -30,6 +30,7 @@ namespace Pixel_Engine
             BackgroundWorker worker = new BackgroundWorker();
             worker.DoWork += new DoWorkEventHandler((sender, e) => action(worker));
             worker.ProgressChanged += new ProgressChangedEventHandler((sender, e) => glControl.Refresh());
+            worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler((sender, e) => Close());
             worker.WorkerReportsProgress = true;
 
             worker.RunWorkerAsync();

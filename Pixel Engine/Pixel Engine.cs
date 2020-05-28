@@ -295,11 +295,9 @@ namespace Pixel_Engine
 
     public class Engine
     {
-
         public Engine()
         {
             sAppName = "Undefined";
-            PGEX.pge = this;
         }
 
         public bool Construct(int screenW, int screenH, int pixelW, int pixelH, bool fullScreen = false, bool showFPS = false)
@@ -326,7 +324,6 @@ namespace Pixel_Engine
             Init(pKeyboardState);
             Init(pMouseState);
 
-            AppName = sAppName;
             pDefaultDrawTarget = new Sprite(nScreenWidth, nScreenHeight);
             SetDrawTarget(ref pDefaultDrawTarget);
             Clear(Pixel.BLACK);
@@ -349,10 +346,7 @@ namespace Pixel_Engine
         {
             return false;
         }
-        public virtual bool OnUserDestroy()
-        {
-            return true;
-        }
+
         public virtual bool onUserUpdate(float fElapsedTime)
         {
             return false;
@@ -950,21 +944,21 @@ namespace Pixel_Engine
         #region Declerations
         public static string sAppName;
 
-        static Key[] CharacterKeys = new[] {Key.A, Key.B, Key.C, Key.D, Key.E,
+        static readonly Key[] CharacterKeys = new[] {Key.A, Key.B, Key.C, Key.D, Key.E,
             Key.F, Key.G, Key.H, Key.I, Key.J, Key.K, Key.L, Key.M, Key.N,
             Key.O, Key.P, Key.Q, Key.R, Key.S, Key.T, Key.U, Key.V, Key.W,
             Key.X, Key.Y, Key.Z};
-        static Key[] NumberKeys = new[] {Key.NP1, Key.NP2, Key.NP3, Key.NP4, Key.NP5,
+        static readonly Key[] NumberKeys = new[] {Key.NP1, Key.NP2, Key.NP3, Key.NP4, Key.NP5,
             Key.NP6, Key.NP7, Key.NP8, Key.NP9, Key.NP0, Key.NP_ADD, Key.NP_DIV,
             Key.NP_MUL, Key.NP_SUB, Key.NP_DECIMAL, Key.SPACE, Key.K1, Key.K2, Key.K3, Key.K4, Key.K5,
             Key.K6, Key.K7, Key.K8, Key.K9, Key.K0};
-        static char[] CharactersUpper = new[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G',
+        static readonly char[] CharactersUpper = new[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G',
             'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
             'U', 'V', 'W', 'X', 'Y', 'Z'};
-        static char[] Numbers = new[]  {'1', '2', '3', '4', '5', '6', '7',
+        static readonly char[] Numbers = new[]  {'1', '2', '3', '4', '5', '6', '7',
             '8', '9', '0', '+', '/', '*', '-', '.', ' ', '1', '2', '3', '4',
             '5', '6', '7', '8', '9', '0',};
-        static char[] CharactersLower = new[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g',
+        static readonly char[] CharactersLower = new[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g',
             'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
             'u', 'v', 'w', 'x', 'y', 'z' };
         static Sprite pDefaultDrawTarget = null;
@@ -995,14 +989,14 @@ namespace Pixel_Engine
         static int nFrameCount = 0;
         static Func<int, int, Pixel, Pixel, Pixel> funcPixelMode;
 
-        static Dictionary<int, byte> mapKeys = new Dictionary<int, byte>();
-        static bool[] pKeyNewState = new bool[256];
-        static bool[] pKeyOldState = new bool[256];
-        static HWButton[] pKeyboardState = new HWButton[256];
+        static readonly Dictionary<int, byte> mapKeys = new Dictionary<int, byte>();
+        static readonly bool[] pKeyNewState = new bool[256];
+        static readonly bool[] pKeyOldState = new bool[256];
+        static readonly HWButton[] pKeyboardState = new HWButton[256];
 
-        static bool[] pMouseNewState = new bool[5];
-        static bool[] pMouseOldState = new bool[5];
-        static HWButton[] pMouseState = new HWButton[5];
+        static readonly bool[] pMouseNewState = new bool[5];
+        static readonly bool[] pMouseOldState = new bool[5];
+        static readonly HWButton[] pMouseState = new HWButton[5];
 
         static bool bAtomActive;
         #endregion
@@ -1033,42 +1027,43 @@ namespace Pixel_Engine
             nWindowWidth = x;
             nWindowHeight = y;
         }
-
+        static public void Quit()
+        {
+            bAtomActive = false;
+        }
         static bool OpenGLCreate()
         {
-            OpenGLControl GLControl = ((Form1)Control.FromHandle(HWnd)).GetGLControl();
-
             glDeviceContext = Graphics.FromHwnd(HWnd).GetHdc();
 
-            #region PIXELFORMATDESCRIPTOR Construct
-            Win32.PIXELFORMATDESCRIPTOR pfd = new Win32.PIXELFORMATDESCRIPTOR();
-            pfd.nSize = 40;
-            pfd.nVersion = 1;
-            pfd.dwFlags = Win32.PFD_DRAW_TO_WINDOW | Win32.PFD_SUPPORT_OPENGL | Win32.PFD_DOUBLEBUFFER;
-            pfd.iPixelType = Win32.PFD_TYPE_RGBA;
-            pfd.cColorBits = 32;
-            pfd.cRedBits = 0;
-            pfd.cRedShift = 0;
-            pfd.cGreenBits = 0;
-            pfd.cGreenShift = 0;
-            pfd.cBlueBits = 0;
-            pfd.cBlueShift = 0;
-            pfd.cAlphaBits = 0;
-            pfd.cAlphaShift = 0;
-            pfd.cAccumBits = 0;
-            pfd.cAccumRedBits = 0;
-            pfd.cAccumGreenBits = 0;
-            pfd.cAccumBlueBits = 0;
-            pfd.cAccumAlphaBits = 0;
-            pfd.cDepthBits = 0;
-            pfd.cStencilBits = 0;
-            pfd.cAuxBuffers = 0;
-            pfd.iLayerType = Win32.PFD_MAIN_PLANE;
-            pfd.bReserved = 0;
-            pfd.dwLayerMask = 0;
-            pfd.dwVisibleMask = 0;
-            pfd.dwDamageMask = 0;
-            #endregion
+            Win32.PIXELFORMATDESCRIPTOR pfd = new Win32.PIXELFORMATDESCRIPTOR
+            {
+                nSize = 40,
+                nVersion = 1,
+                dwFlags = Win32.PFD_DRAW_TO_WINDOW | Win32.PFD_SUPPORT_OPENGL | Win32.PFD_DOUBLEBUFFER,
+                iPixelType = Win32.PFD_TYPE_RGBA,
+                cColorBits = 32,
+                cRedBits = 0,
+                cRedShift = 0,
+                cGreenBits = 0,
+                cGreenShift = 0,
+                cBlueBits = 0,
+                cBlueShift = 0,
+                cAlphaBits = 0,
+                cAlphaShift = 0,
+                cAccumBits = 0,
+                cAccumRedBits = 0,
+                cAccumGreenBits = 0,
+                cAccumBlueBits = 0,
+                cAccumAlphaBits = 0,
+                cDepthBits = 0,
+                cStencilBits = 0,
+                cAuxBuffers = 0,
+                iLayerType = Win32.PFD_MAIN_PLANE,
+                bReserved = 0,
+                dwLayerMask = 0,
+                dwVisibleMask = 0,
+                dwDamageMask = 0
+            };
 
             int pf = Win32.ChoosePixelFormat(glDeviceContext, pfd);
             if (pf == 0) return false;
@@ -1084,12 +1079,12 @@ namespace Pixel_Engine
         static IntPtr glDeviceContext;
         static IntPtr glRenderContext;
 
-        static uint glBuffer = 0;
+        static readonly uint glBuffer = 0;
 
         private void EngineThread(BackgroundWorker worker)
         {
-            //try
-            //{
+            try
+            {
                 OpenGLCreate();
 
                 Form1 window = (Form1)Control.FromHandle(HWnd);
@@ -1186,7 +1181,7 @@ namespace Pixel_Engine
                         if (fFrameTimer > 1.0f && bShowFPS)
                         {
                             fFrameTimer -= 1.0f;
-                            string sTitle = AppName + " - FPS: " + nFrameCount.ToString();
+                            string sTitle = sAppName + " - FPS: " + nFrameCount.ToString();
                             if (window.InvokeRequired)
                             {
                                 window.Invoke(new Action(() => window.Text = sTitle));
@@ -1199,20 +1194,13 @@ namespace Pixel_Engine
                         }
                         worker.ReportProgress(0);
                     }
-                    if (OnUserDestroy())
-                    {
-
-                    }
-                    else
-                    {
-                        bAtomActive = true;
-                    }
                 }
                 Win32.wglDeleteContext(glRenderContext);
-            //}
-            //catch 
-            //{
-            //};
+                worker.ReportProgress(100);
+            }
+            catch 
+            {
+            };
         }
 
         static IntPtr HWnd = new IntPtr();
@@ -1225,8 +1213,8 @@ namespace Pixel_Engine
                 Window.WindowState = FormWindowState.Maximized;
             }
 
-            Window.Height = nScreenHeight * nPixelWidth;
-            Window.Width = nScreenWidth * nPixelHeight;
+            Window.Height = nScreenHeight * nPixelHeight;
+            Window.Width = nScreenWidth * nPixelWidth;
 
             nWindowHeight = Window.Height;
             nWindowWidth = Window.Width;
@@ -1331,12 +1319,6 @@ namespace Pixel_Engine
             }
 
             return HWnd;
-        }
-        static string AppName;
-
-        internal class PGEX
-        {
-            public static Engine pge;
         }
     }
 }

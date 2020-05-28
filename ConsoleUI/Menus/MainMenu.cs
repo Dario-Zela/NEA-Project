@@ -3,17 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Pixel_Engine;
-using Models.Sprites;
 
 namespace UI
 {
     partial class Game
     {
-
         class MainMenu : IGameElement
         {
+            public MainMenu()
+            {
+
+            }
+            public MainMenu(int CurrentIdx)
+            {
+                this.CurrentIdx = CurrentIdx;
+            }
+
             bool draw = true;
             int CurrentIdx = 0;
+
             public void Draw()
             {
                 if (GetKey(Key.LEFT).bPressed)
@@ -29,6 +37,7 @@ namespace UI
                 if (draw)
                 {
                     Clear(Pixel.BLACK);
+                    DrawRect(10, 10, 680, 680, Pixel.WHITE);
                     DrawText(160, 130, "Welcome to", Pixel.GREEN, 60, 0);
                     DrawText(230, 210, "Game", Pixel.DARK_GREEN, 60, 0);
                     switch (CurrentIdx)
@@ -60,6 +69,28 @@ namespace UI
                     }
                     draw = false;
                 }
+            }
+
+            public IGameElement NewElement()
+            {
+                if (GetKey(Key.ENTER).bPressed || GetKey(Key.UP).bPressed)
+                {
+                    switch (CurrentIdx)
+                    {
+                        case 0:
+                            return new CharactersMenu();
+                        case 1:
+                            return new WorldMenu();
+                        case 2:
+                            return new OptionsMenu();
+                        case 3:
+                            Quit();
+                            return null;
+                        default:
+                            throw new Exception();
+                    }
+                }
+                else return this;
             }
         }
     }
