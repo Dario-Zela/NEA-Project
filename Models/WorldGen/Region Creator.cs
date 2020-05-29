@@ -130,13 +130,13 @@ namespace Models.WorldGen
 
             var point1 = new Position(rng.Next(l.x + 1, l.x + l.width - 2), rng.Next(l.y + 1, l.y + l.height - 2));
             var point2 = new Position(rng.Next(r.x + 1, r.x + r.width - 2), rng.Next(r.y + 1, r.y + r.height - 2));
- 
+
             var w = point2.x - point1.x;
             var h = point2.y - point1.y;
- 
-            if (w< 0)
+
+            if (w < 0)
             {
-                if (h< 0)
+                if (h < 0)
                 {
                     if (rng.NextDouble() < 0.5)
                     {
@@ -169,7 +169,7 @@ namespace Models.WorldGen
             }
             else if (w > 0)
             {
-                if (h< 0)
+                if (h < 0)
                 {
                     if (rng.NextDouble() < 0.5)
                     {
@@ -202,7 +202,7 @@ namespace Models.WorldGen
             }
             else // if (w == 0)
             {
-                if (h< 0)
+                if (h < 0)
                 {
                     halls.Add(new Rectangle(point2.x, point2.y, 1, Math.Abs(h)));
                 }
@@ -225,7 +225,7 @@ namespace Models.WorldGen
                 List<Leaf> leaves = new List<Leaf>();
                 foreach (var leaf in leafs)
                 {
-                    if(leaf.leftChild == null && leaf.rightChild == null)
+                    if (leaf.leftChild == null && leaf.rightChild == null)
                     {
                         leaves.Add(leaf);
                     }

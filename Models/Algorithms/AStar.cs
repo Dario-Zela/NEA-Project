@@ -6,7 +6,7 @@ namespace Models.Algorithms
 {
     class AStar<T>
     {
-        public AStar(T[] Map, int _MapWidth, int _MapHeight, Func<T[],Node[]> Converter, int StartLoc, int EndLoc)
+        public AStar(T[] Map, int _MapWidth, int _MapHeight, Func<T[], Node[]> Converter, int StartLoc, int EndLoc)
         {
             this.Converter = Converter;
             nodes = Converter(Map);

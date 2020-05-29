@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Pixel_Engine;
-using Models.Sprites;
-using FastBitmapLib;
+﻿using FastBitmapLib;
+using System;
 
 //  Load 1 row of chunks
 //  Generate the terrain
@@ -42,7 +39,7 @@ namespace Models.WorldGen
         {
             Assets[x + y * ChunkWidth] = Asset;
         }
-        private void DrawLine(int x1, int y1, int x2,int y2, byte Asset)
+        private void DrawLine(int x1, int y1, int x2, int y2, byte Asset)
         {
             uint pattern = 0xFFFFFFFF;
             int x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
@@ -158,13 +155,13 @@ namespace Models.WorldGen
         {
             if (isCity)
             {
-                Region region = new Region(10, ChunkWidth/2, ChunkHeight/2, Seed);
+                Region region = new Region(10, ChunkWidth / 2, ChunkHeight / 2, Seed);
                 region.RunRooms();
                 foreach (Leaf leaf in region.leafs)
                 {
-                    if(leaf.leftChild==null && leaf.rightChild == null)
+                    if (leaf.leftChild == null && leaf.rightChild == null)
                     {
-                        DrawRect(leaf.room.x+ ChunkWidth / 4, leaf.room.y + ChunkHeight / 4, leaf.room.width, leaf.room.height, 5);
+                        DrawRect(leaf.room.x + ChunkWidth / 4, leaf.room.y + ChunkHeight / 4, leaf.room.width, leaf.room.height, 5);
                         FillRect(leaf.room.x + 1 + ChunkWidth / 4, leaf.room.y + 1 + ChunkHeight / 4, leaf.room.width - 1, leaf.room.height - 1, 6);
                     }
                     if (leaf.halls != null)
@@ -185,15 +182,15 @@ namespace Models.WorldGen
                     {
                         Assets[i] = 3;
                     }
-                    else if(rng.Next(0, 100) < Biome.evergreenTreeChance)
+                    else if (rng.Next(0, 100) < Biome.evergreenTreeChance)
                     {
                         Assets[i] = 4;
                     }
                     else
                     {
-                        if(Biome.plants[0].Item1 == "grass")
+                        if (Biome.plants[0].Item1 == "grass")
                         {
-                            if(rng.Next(0,100) < Biome.plants[0].Item2)
+                            if (rng.Next(0, 100) < Biome.plants[0].Item2)
                             {
                                 Assets[i] = 1;
                             }
@@ -201,7 +198,7 @@ namespace Models.WorldGen
                             {
                                 for (int j = 1; j < Biome.plants.Count; j++)
                                 {
-                                    if(rng.Next(0, 100) < Biome.plants[j].Item2)
+                                    if (rng.Next(0, 100) < Biome.plants[j].Item2)
                                     {
                                         Assets[i] = 2;
                                     }
@@ -228,15 +225,15 @@ namespace Models.WorldGen
     {
         public TerrainGen(World world, int Seed)
         {
-            FastBitmap Image = new FastBitmap(Constants.REGION_WIDTH*32, Constants.REGION_HEIGHT*32);
+            FastBitmap Image = new FastBitmap(Constants.REGION_WIDTH * 32, Constants.REGION_HEIGHT * 32);
             for (int i = 0; i < 2; i++)
             {
                 for (int j = 0; j < 2; j++)
                 {
-                    Chunk chunk = new Chunk(Constants.REGION_HEIGHT/2, Constants.REGION_WIDTH/2,
+                    Chunk chunk = new Chunk(Constants.REGION_HEIGHT / 2, Constants.REGION_WIDTH / 2,
                         world.BiomeTypes[world.topology[i + j * Constants.WORLD_WIDTH].type], true
                         //world.RegionInfos[i + j * Constants.WORLD_WIDTH].isCity
-                        , Seed*j+i);
+                        , Seed * j + i);
                 }
             }
         }

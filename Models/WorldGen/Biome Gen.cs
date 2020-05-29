@@ -1,8 +1,7 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Newtonsoft.Json;
-using System.Threading.Tasks;
 
 namespace Models.WorldGen
 {
@@ -44,7 +43,8 @@ namespace Models.WorldGen
             reader.Close();
         }
 
-        private Dictionary<int, double> biomeMembership(World World, int idx) {
+        private Dictionary<int, double> biomeMembership(World World, int idx)
+        {
             Dictionary<int, double> percents = new Dictionary<int, double>();
             Dictionary<int, long> counts = new Dictionary<int, long>();
             int nCells = 0;
@@ -55,11 +55,14 @@ namespace Models.WorldGen
             int totalX = 0;
             int totalY = 0;
 
-            for (int y = 0; y < Constants.WORLD_HEIGHT; y++) {
-                for (int x = 0; x < Constants.WORLD_WIDTH; x++) {
+            for (int y = 0; y < Constants.WORLD_HEIGHT; y++)
+            {
+                for (int x = 0; x < Constants.WORLD_WIDTH; x++)
+                {
                     int blockIdx = World.idx(x, y);
 
-                    if (World.topology[blockIdx].biomeIdx == idx) {
+                    if (World.topology[blockIdx].biomeIdx == idx)
+                    {
                         // Increment total counters
                         nCells++;
                         totalTemperature += World.topology[blockIdx].temperature;
@@ -84,7 +87,8 @@ namespace Models.WorldGen
             }
 
             // Calculate the averages
-            if (nCells == 0) {
+            if (nCells == 0)
+            {
                 //std::unordered_map<uint8_t, double>();
                 nCells = 1;
             }
@@ -111,9 +115,11 @@ namespace Models.WorldGen
             }
             World.biomes[idx].savagery = Math.Min(100, distanceCenter);
 
-            for (int i = 0; i < (int)blockType.MAX_BLOCK_TYPE + 1; i++) {
+            for (int i = 0; i < (int)blockType.MAX_BLOCK_TYPE + 1; i++)
+            {
                 bool finder = counts.ContainsKey(i);
-                if (finder == false) {
+                if (finder == false)
+                {
                     percents.Add(i, 0.0);
                 }
                 else
@@ -137,10 +143,10 @@ namespace Models.WorldGen
         public void buildBiomes(World World, ref Random rng)
         {
             int nBiomes = Constants.WORLD_TILES_COUNT / (32 + rng.Next(1, 34));
-            List<Tuple<int,int>> centroids = new List<Tuple<int,int>>();
+            List<Tuple<int, int>> centroids = new List<Tuple<int, int>>();
             for (int i = 0; i < nBiomes; i++)
             {
-                centroids.Add(new Tuple<int,int>(rng.Next(1, Constants.WORLD_WIDTH), rng.Next(1, Constants.WORLD_HEIGHT)));
+                centroids.Add(new Tuple<int, int>(rng.Next(1, Constants.WORLD_WIDTH), rng.Next(1, Constants.WORLD_HEIGHT)));
                 World.biomes.Add(new Biome());
             }
 
@@ -173,7 +179,7 @@ namespace Models.WorldGen
             foreach (Biome biome in World.biomes)
             {
                 Dictionary<int, double> membershipCount = biomeMembership(World, count);
-                if(biome.centerX == 0 && biome.centerY == 0)
+                if (biome.centerX == 0 && biome.centerY == 0)
                 {
                     biome.centerX = -1;
                     biome.centerY = -1;
@@ -212,9 +218,9 @@ namespace Models.WorldGen
             World.BiomeTypes = BiomeTypes;
         }
 
-        private List<Tuple<double,int>> findPossibleBiomes(ref Dictionary<int, double> percents, List<Biome> biomes, int index)
+        private List<Tuple<double, int>> findPossibleBiomes(ref Dictionary<int, double> percents, List<Biome> biomes, int index)
         {
-            List<Tuple<double,int>> result = new List<Tuple<double,int>>();
+            List<Tuple<double, int>> result = new List<Tuple<double, int>>();
 
             int idx = 0;
             for (int i = 0; i < BiomeTypes.Count; i++)
@@ -242,149 +248,166 @@ namespace Models.WorldGen
 
         private string nameBiome(ref Random rng, Biome biome)
         {
-	        string name;
+            string name;
 
             List<string> adjectives = new List<string>();
 
-	        // Location-based adjective
-	        if (Math.Abs(biome.centerX - Constants.WORLD_WIDTH/2) < Constants.WORLD_WIDTH /5 && Math.Abs(biome.centerY - Constants.WORLD_HEIGHT /2) < Constants.WORLD_HEIGHT /5) {
-		        adjectives.Add("Central");
-	        } 
+            // Location-based adjective
+            if (Math.Abs(biome.centerX - Constants.WORLD_WIDTH / 2) < Constants.WORLD_WIDTH / 5 && Math.Abs(biome.centerY - Constants.WORLD_HEIGHT / 2) < Constants.WORLD_HEIGHT / 5)
+            {
+                adjectives.Add("Central");
+            }
             else
             {
-		        if (biome.centerX < Constants.WORLD_WIDTH / 2) adjectives.Add("Western");
-		        if (biome.centerX > Constants.WORLD_WIDTH / 2) adjectives.Add("Eastern");
-		        if (biome.centerY < Constants.WORLD_HEIGHT / 2) adjectives.Add("Northern");
-		        if (biome.centerY > Constants.WORLD_WIDTH / 2) adjectives.Add("Southern");
-	        }
+                if (biome.centerX < Constants.WORLD_WIDTH / 2) adjectives.Add("Western");
+                if (biome.centerX > Constants.WORLD_WIDTH / 2) adjectives.Add("Eastern");
+                if (biome.centerY < Constants.WORLD_HEIGHT / 2) adjectives.Add("Northern");
+                if (biome.centerY > Constants.WORLD_WIDTH / 2) adjectives.Add("Southern");
+            }
 
-	        // Water-based adjectives
-	        if (biome.meanRainfall< 10) {
-		        switch (rng.Next(1,5)) {
-			        case 1 :
-				        adjectives.Add("Dry");
-				        break;
-			        case 2 :
-				        adjectives.Add("Arid");
-				        break;
-			        case 3 :
-				        adjectives.Add("Parched");
-				        break;
-			        case 4 :
-				        adjectives.Add("Cracked");
-				        break;
-		        }
-	        } 
-            else if (biome.meanRainfall< 30) {
-		        switch (rng.Next(1,5)) {
-			        case 1 :
-				        adjectives.Add("Dusty");
-				        break;
-			        case 2 :
-				        adjectives.Add("Withered");
-				        break;
-			        case 3 :
-				        adjectives.Add("Droughty");
-				        break;
-			        case 4 :
-				        adjectives.Add("Dehydrated");
-				        break;
-		        }
-	        }
-            else if(biome.meanRainfall < 50) { }
-            else if (biome.meanRainfall< 70) {
-		        switch (rng.Next(1,5)) {
-			        case 1 :
-				        adjectives.Add("Damp");
-				        break;
-			        case 2 :
-				        adjectives.Add("Dank");
-				        break;
-			        case 3 :
-				        adjectives.Add("Moist");
-				        break;
-			        case 4 :
-				        adjectives.Add("Fresh");
-				        break;
-		        }
-	        } 
-            else {
-		        switch (rng.Next(1,3)) {
-			        case 1 :
-				        adjectives.Add("Wet");
-				        break;
-			        case 2 :
-				        adjectives.Add("Soaked");
-				        break;
-			        case 3 :
-				        adjectives.Add("Drenched");
-				        break;
-		        }
-	        }
+            // Water-based adjectives
+            if (biome.meanRainfall < 10)
+            {
+                switch (rng.Next(1, 5))
+                {
+                    case 1:
+                        adjectives.Add("Dry");
+                        break;
+                    case 2:
+                        adjectives.Add("Arid");
+                        break;
+                    case 3:
+                        adjectives.Add("Parched");
+                        break;
+                    case 4:
+                        adjectives.Add("Cracked");
+                        break;
+                }
+            }
+            else if (biome.meanRainfall < 30)
+            {
+                switch (rng.Next(1, 5))
+                {
+                    case 1:
+                        adjectives.Add("Dusty");
+                        break;
+                    case 2:
+                        adjectives.Add("Withered");
+                        break;
+                    case 3:
+                        adjectives.Add("Droughty");
+                        break;
+                    case 4:
+                        adjectives.Add("Dehydrated");
+                        break;
+                }
+            }
+            else if (biome.meanRainfall < 50) { }
+            else if (biome.meanRainfall < 70)
+            {
+                switch (rng.Next(1, 5))
+                {
+                    case 1:
+                        adjectives.Add("Damp");
+                        break;
+                    case 2:
+                        adjectives.Add("Dank");
+                        break;
+                    case 3:
+                        adjectives.Add("Moist");
+                        break;
+                    case 4:
+                        adjectives.Add("Fresh");
+                        break;
+                }
+            }
+            else
+            {
+                switch (rng.Next(1, 3))
+                {
+                    case 1:
+                        adjectives.Add("Wet");
+                        break;
+                    case 2:
+                        adjectives.Add("Soaked");
+                        break;
+                    case 3:
+                        adjectives.Add("Drenched");
+                        break;
+                }
+            }
 
-	        // Temperature based adjectives
-	        if (biome.meanTemperature< 10) {
-		        switch (rng.Next(1,5)) {
-			        case 1 :
-				        adjectives.Add("Frozen");
-				        break;
-			        case 2 :
-				        adjectives.Add("Cold");
-				        break;
-			        case 3 :
-				        adjectives.Add("Icy");
-				        break;
-			        case 4 :
-				        adjectives.Add("Biting");
-				        break;
-		        }
-	        } 
-            else if (biome.meanTemperature< 20) {
-		        switch (rng.Next(1,5)) {
-			        case 1 :
-				        adjectives.Add("Chilly");
-				        break;
-			        case 2 :
-				        adjectives.Add("Frigid");
-				        break;
-			        case 3 :
-				        adjectives.Add("Chilling");
-				        break;
-			        case 4 :
-				        adjectives.Add("Shivering");
-				        break;
-		        }
-	        } 
-            else if (biome.meanTemperature< 30) {
-		        switch (rng.Next(1,3)) {
-			        case 1 :
-				        adjectives.Add("Temperate");
-				        break;
-			        case 2 :
-				        adjectives.Add("Comfortable");
-				        break;
-		        }
-	        } 
-            else if (biome.meanTemperature< 40) { } 
-            else  {
-		        switch (rng.Next(1,5)) {
-			        case 1 :
-				        adjectives.Add("Hot");
-				        break;
-			        case 2 :
-				        adjectives.Add("Scorching");
-				        break;
-			        case 3 :
-				        adjectives.Add("Burning");
-				        break;
-			        case 4 :
-				        adjectives.Add("Fuming");
-				        break;
-		        }
-	        }
+            // Temperature based adjectives
+            if (biome.meanTemperature < 10)
+            {
+                switch (rng.Next(1, 5))
+                {
+                    case 1:
+                        adjectives.Add("Frozen");
+                        break;
+                    case 2:
+                        adjectives.Add("Cold");
+                        break;
+                    case 3:
+                        adjectives.Add("Icy");
+                        break;
+                    case 4:
+                        adjectives.Add("Biting");
+                        break;
+                }
+            }
+            else if (biome.meanTemperature < 20)
+            {
+                switch (rng.Next(1, 5))
+                {
+                    case 1:
+                        adjectives.Add("Chilly");
+                        break;
+                    case 2:
+                        adjectives.Add("Frigid");
+                        break;
+                    case 3:
+                        adjectives.Add("Chilling");
+                        break;
+                    case 4:
+                        adjectives.Add("Shivering");
+                        break;
+                }
+            }
+            else if (biome.meanTemperature < 30)
+            {
+                switch (rng.Next(1, 3))
+                {
+                    case 1:
+                        adjectives.Add("Temperate");
+                        break;
+                    case 2:
+                        adjectives.Add("Comfortable");
+                        break;
+                }
+            }
+            else if (biome.meanTemperature < 40) { }
+            else
+            {
+                switch (rng.Next(1, 5))
+                {
+                    case 1:
+                        adjectives.Add("Hot");
+                        break;
+                    case 2:
+                        adjectives.Add("Scorching");
+                        break;
+                    case 3:
+                        adjectives.Add("Burning");
+                        break;
+                    case 4:
+                        adjectives.Add("Fuming");
+                        break;
+                }
+            }
 
             //Savegry based adjectives
-            if(biome.savagery < 20)
+            if (biome.savagery < 20)
             {
                 if (rng.Next(1, 3) == 1)
                 {
@@ -395,7 +418,7 @@ namespace Models.WorldGen
                     adjectives.Add("Timid");
                 }
             }
-            else if(biome.savagery < 70) { }
+            else if (biome.savagery < 70) { }
             else
             {
                 if (rng.Next(1, 3) == 1)
@@ -408,30 +431,33 @@ namespace Models.WorldGen
                 }
             }
 
-	        string noun = "";
+            string noun = "";
             biomeType bt = BiomeTypes[biome.type];
-	        if (bt.nouns.Count == 0) {
-		        Console.WriteLine("No nouns defined for {0}", bt.name);
-	        }
+            if (bt.nouns.Count == 0)
+            {
+                Console.WriteLine("No nouns defined for {0}", bt.name);
+            }
             else
             {
-		        noun = bt.nouns[rng.Next(1, bt.nouns.Count) - 1];
-	        }
+                noun = bt.nouns[rng.Next(1, bt.nouns.Count) - 1];
+            }
 
-	        name = noun;
-	        if (!(adjectives.Count == 0))
+            name = noun;
+            if (!(adjectives.Count == 0))
             {
-		        int adj1 = rng.Next(0, adjectives.Count);
+                int adj1 = rng.Next(0, adjectives.Count);
                 name = adjectives[adj1] + " " + noun;
-		        if (adjectives.Count > 1 && rng.Next(1,7)>2) {
-			        int adj2 = rng.Next(0, adjectives.Count);
-			        while (adj1 == adj2) {
-				        adj2 = rng.Next(0, adjectives.Count);
-			        }
-			        name = adjectives[adj2] + " " + name;
-		        }
-	        }
-	        return name;
+                if (adjectives.Count > 1 && rng.Next(1, 7) > 2)
+                {
+                    int adj2 = rng.Next(0, adjectives.Count);
+                    while (adj1 == adj2)
+                    {
+                        adj2 = rng.Next(0, adjectives.Count);
+                    }
+                    name = adjectives[adj2] + " " + name;
+                }
+            }
+            return name;
         }
     }
 

@@ -1,9 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using Newtonsoft.Json;
 using Pixel_Engine;
+using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 
 namespace Models.Sprites
 {
@@ -16,7 +15,7 @@ namespace Models.Sprites
         {
             get
             {
-                if(instance == null)
+                if (instance == null)
                 {
                     instance = new TileSet();
                 }

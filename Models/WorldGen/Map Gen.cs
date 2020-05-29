@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using Models.Algorithms;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
-using Pixel_Engine;
-using Models.Sprites;
-using Models.Algorithms;
 
 namespace Models.WorldGen
 {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Pixel_Engine;
+﻿using Pixel_Engine;
 
 namespace UI
 {

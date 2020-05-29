@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Pixel_Engine;
+﻿using Pixel_Engine;
+using System;
 
 namespace UI
 {
@@ -21,6 +18,8 @@ namespace UI
 
             bool draw = true;
             int CurrentIdx = 0;
+            readonly string[] Settings = new[] { "[Character Menu]", "[World Menu]", "[Options]", "[Quit]" };
+            readonly int[] SettingX = new[] { 120, 290, 430, 525 };
 
             public void Draw()
             {
@@ -40,32 +39,10 @@ namespace UI
                     DrawRect(10, 10, 680, 680, Pixel.WHITE);
                     DrawText(160, 130, "Welcome to", Pixel.GREEN, 60, 0);
                     DrawText(230, 210, "Game", Pixel.DARK_GREEN, 60, 0);
-                    switch (CurrentIdx)
+                    for (int i = 0; i < Settings.Length; i++)
                     {
-                        case 0:
-                            DrawText(120, 550, "[Character Menu]", Pixel.WHITE, 20, 0, Pixel.DARK_BLUE);
-                            DrawText(290, 550, "[World Menu]", Pixel.WHITE, 20, 0);
-                            DrawText(430, 550, "[Options]", Pixel.WHITE, 20, 0);
-                            DrawText(525, 550, "[Quit]", Pixel.WHITE, 20, 0);
-                            break;
-                        case 1:
-                            DrawText(120, 550, "[Character Menu]", Pixel.WHITE, 20, 0);
-                            DrawText(290, 550, "[World Menu]", Pixel.WHITE, 20, 0, Pixel.DARK_BLUE);
-                            DrawText(430, 550, "[Options]", Pixel.WHITE, 20, 0);
-                            DrawText(525, 550, "[Quit]", Pixel.WHITE, 20, 0);
-                            break;
-                        case 2:
-                            DrawText(120, 550, "[Character Menu]", Pixel.WHITE, 20, 0);
-                            DrawText(290, 550, "[World Menu]", Pixel.WHITE, 20, 0);
-                            DrawText(430, 550, "[Options]", Pixel.WHITE, 20, 0, Pixel.DARK_BLUE);
-                            DrawText(525, 550, "[Quit]", Pixel.WHITE, 20, 0);
-                            break;
-                        case 3:
-                            DrawText(120, 550, "[Character Menu]", Pixel.WHITE, 20, 0);
-                            DrawText(290, 550, "[World Menu]", Pixel.WHITE, 20, 0);
-                            DrawText(430, 550, "[Options]", Pixel.WHITE, 20, 0);
-                            DrawText(525, 550, "[Quit]", Pixel.WHITE, 20, 0, Pixel.DARK_BLUE);
-                            break;
+                        if (i == CurrentIdx) DrawText(SettingX[i], 550, Settings[i], Pixel.WHITE, 20, 0, Pixel.DARK_BLUE);
+                        else DrawText(SettingX[i], 550, Settings[i], Pixel.WHITE, 20, 0);
                     }
                     draw = false;
                 }

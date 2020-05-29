@@ -1,10 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
-using Pixel_Engine;
 using Models.Sprites;
+using Pixel_Engine;
+using System;
 
 namespace Models.WorldGen
 {
@@ -14,7 +10,7 @@ namespace Models.WorldGen
         public HistoryGen history;
         public Random rng;
         private Sprite[] BiomeMap = TileSet.Instance.GetSprites("BiomeMap");
-        public WorldCreator(int seed, float Persistance = 0.5f, float Lacunarity=2f, int Octaves=5)
+        public WorldCreator(int seed, float Persistance = 0.5f, float Lacunarity = 2f, int Octaves = 5)
         {
             MapGen gen = new MapGen();
             BiomeMap biomes = new BiomeMap();
@@ -37,7 +33,7 @@ namespace Models.WorldGen
 
         public Sprite GetBiomeSprite(int x, int y)
         {
-            return BiomeMap[World.topology[World.idx(x,y)].type - 1];
+            return BiomeMap[World.topology[World.idx(x, y)].type - 1];
         }
     }
 }

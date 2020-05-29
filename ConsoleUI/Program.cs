@@ -1,11 +1,5 @@
-using System;
-using System.Collections.Generic;
-using Models.WorldGen;
-using Models.Sprites;
 using Pixel_Engine;
-using System.Linq;
-using System.Threading.Tasks;
-using System.IO;
+using System;
 
 /*
  * Make Civs create large cities
@@ -71,7 +65,7 @@ namespace UI
         static void Main()
         {
             Engine demo = new Game();
-            if (demo.Construct(700,700, 1, 1, true, true))
+            if (demo.Construct(700, 700, 1, 1, true, true))
             {
                 demo.Start();
             }

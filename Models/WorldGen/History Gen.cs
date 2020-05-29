@@ -1,11 +1,10 @@
+using Models.Algorithms;
+using Newtonsoft.Json;
+using Pixel_Engine;
 using System;
 using System.Collections.Generic;
-using Pixel_Engine;
 using System.IO;
-using Newtonsoft.Json;
-using Models.Algorithms;
 using System.Linq;
-using System.ComponentModel;
 
 namespace Models.WorldGen
 {
@@ -50,7 +49,7 @@ namespace Models.WorldGen
             {
                 foreach (Unit unit in UnitsInTheCity)
                 {
-                    if(unit.CivTag != CityLevel)
+                    if (unit.CivTag != CityLevel)
                     {
                         return false;
                     }
@@ -58,13 +57,13 @@ namespace Models.WorldGen
                 return true;
             }
         }
-        public Tuple<int,Structure> Upgrade(Structure[] Upgrades, int[] CurrentTechLevel)
+        public Tuple<int, Structure> Upgrade(Structure[] Upgrades, int[] CurrentTechLevel)
         {
             foreach (Structure structure in MilitaryBuildings)
             {
                 if (structure.TechLevel < CurrentTechLevel[0] && structure.TechLevel != -1)
                 {
-                    Tuple<int,Structure> value = new Tuple<int, Structure>(0, structure);
+                    Tuple<int, Structure> value = new Tuple<int, Structure>(0, structure);
                     structure.Upgrade(Upgrades[0]);
                     return value;
                 }
@@ -338,11 +337,11 @@ namespace Models.WorldGen
 
     public struct Position
     {
-        Tuple<int,int> Pos;
+        Tuple<int, int> Pos;
 
         public Position(int x, int y)
         {
-            Pos = new Tuple<int,int>(x,y);
+            Pos = new Tuple<int, int>(x, y);
         }
 
         public int x { get { return Pos.Item1; } }
@@ -391,7 +390,7 @@ namespace Models.WorldGen
             }
         }
         public int ManpowerGrowth;
-        public Tuple<int,int> LeastCost
+        public Tuple<int, int> LeastCost
         {
             get
             {
@@ -419,7 +418,7 @@ namespace Models.WorldGen
                 int Development = -1;
                 foreach (RegionInfo region in Land)
                 {
-                    if(region.CityLevel > Development)
+                    if (region.CityLevel > Development)
                     {
                         Development = region.CityLevel;
                     }
@@ -479,7 +478,7 @@ namespace Models.WorldGen
         public void AddLand(ref RegionInfo region)
         {
             Land.Add(region);
-            foreach(Structure stucture in region.Buildings)
+            foreach (Structure stucture in region.Buildings)
             {
                 AddStructure(stucture);
             }
@@ -500,7 +499,7 @@ namespace Models.WorldGen
                 RegionInfo temp = new RegionInfo();
                 foreach (RegionInfo region in LandCopy)
                 {
-                    if(region.Buildings.Count > temp.Buildings.Count)
+                    if (region.Buildings.Count > temp.Buildings.Count)
                     {
                         temp = region;
                     }
@@ -569,7 +568,7 @@ namespace Models.WorldGen
         #endregion
         private void BuildInitialCivs(World World, ref Random rng)
         {
-            Structure TownHall = new Structure() { DefenceMod = 20, ResourceGrowth = 100, SupplyGen = 50, ResearchGrowth = new[] { 0, 0, 0 }, ManpowerGrowth = 100, TechLevel = -1};
+            Structure TownHall = new Structure() { DefenceMod = 20, ResourceGrowth = 100, SupplyGen = 50, ResearchGrowth = new[] { 0, 0, 0 }, ManpowerGrowth = 100, TechLevel = -1 };
             Structure StarterEconomicBuilding = new Structure() { Cost = 20, DefenceMod = -3, ManpowerGrowth = 0, ResearchGrowth = new[] { 0, 1, 3 }, ResourceGrowth = 30, SupplyGen = 20, TechLevel = 0 };
             Structure StarterMilitaryBuilding = new Structure() { Cost = 30, DefenceMod = 4, ManpowerGrowth = 100, ResearchGrowth = new[] { 3, 1, 0 }, ResourceGrowth = -10, SupplyGen = -5, TechLevel = 0 };
             Structure StarterResearchBuilding = new Structure() { Cost = 20, DefenceMod = -3, ManpowerGrowth = 0, ResearchGrowth = new[] { 15, 20, 15 }, ResourceGrowth = -10, SupplyGen = 0, TechLevel = 0 };
@@ -583,11 +582,11 @@ namespace Models.WorldGen
             {
                 Civilization civ = new Civilization();
 
-                retry:
-                    int WorldX = rng.Next(Constants.WORLD_WIDTH);
-                    int WorldY = rng.Next(Constants.WORLD_HEIGHT);
-                    int Idx = World.idx(WorldX, WorldY);
-                    if (World.topology[Idx].type == (int)blockType.WATER || World.RegionInfos[Idx].OwnerCiv != 0) goto retry;
+            retry:
+                int WorldX = rng.Next(Constants.WORLD_WIDTH);
+                int WorldY = rng.Next(Constants.WORLD_HEIGHT);
+                int Idx = World.idx(WorldX, WorldY);
+                if (World.topology[Idx].type == (int)blockType.WATER || World.RegionInfos[Idx].OwnerCiv != 0) goto retry;
 
                 civ.Race = Species[rng.Next(0, Species.Count - 1)];
                 civ.Capital = new Position(WorldX, WorldY);
@@ -610,7 +609,7 @@ namespace Models.WorldGen
         private void RunYear(World World, ref Random rng)
         {
             List<RegionInfo> RegionsOfConflict = new List<RegionInfo>();
-            foreach(Civilization civ in World.civs)
+            foreach (Civilization civ in World.civs)
             {
                 int Supplies = civ.SupplyGen;
                 int Resources = civ.ResourceGen;
@@ -787,7 +786,7 @@ namespace Models.WorldGen
                     civ.UnitsToUpgrade.Remove(unit);
                 }
                 bool pass = true;
-                while(pass == true)
+                while (pass == true)
                 {
                     if (civ.BuildableLand.Count == 0) break;
                     pass = false;
@@ -841,7 +840,7 @@ namespace Models.WorldGen
                         civ.AddStructure(NewBuilding);
                         Resources -= NewBuilding.Cost;
                         r.EconomicBuildings.Add(NewBuilding);
-                        
+
                     }
                     else
                     {
@@ -860,7 +859,7 @@ namespace Models.WorldGen
                                 r.EconomicBuildings.Add(NewBuilding);
                                 break;
                         }
-                        
+
                     }
                     r.UseableSlots = r.OrgUsableSlots - r.Buildings.Count;
                     if (r.CityLevel == 2 && r.Name == "")
@@ -878,7 +877,7 @@ namespace Models.WorldGen
                     if (World.RegionInfos[World.idx(unit.Position)].UnitsInTheCity.Count != 1 &&
                         !World.RegionInfos[World.idx(unit.Position)].FullControl)
                     {
-                        if(civ.Tag == World.RegionInfos[World.idx(unit.Position)].OwnerCiv)
+                        if (civ.Tag == World.RegionInfos[World.idx(unit.Position)].OwnerCiv)
                             civ.RequestedDefence.Add(World.RegionInfos[World.idx(unit.Position)]);
                         foreach (Unit unit1 in World.RegionInfos[World.idx(unit.Position)].UnitsInTheCity)
                         {
@@ -899,7 +898,7 @@ namespace Models.WorldGen
                         }
 
                         int x, y;
-                        if (unit.Position.x == 0) x = unit.Position.x + rng.Next(0,2);
+                        if (unit.Position.x == 0) x = unit.Position.x + rng.Next(0, 2);
                         else if (unit.Position.x == Constants.WORLD_WIDTH - 1) x = unit.Position.x + rng.Next(-1, 1);
                         else x = unit.Position.x + rng.Next(-1, 2);
                         if (unit.Position.y == 0) y = unit.Position.y + rng.Next(0, 2);
@@ -912,7 +911,7 @@ namespace Models.WorldGen
                         if (NewPosTer.type == (int)blockType.WATER && !unit.CanSwim && CounterRet < 5)
                         {
                             CounterRet++;
-                            goto retry; 
+                            goto retry;
                         }
                         unit.Moved(NewPosTer, region);
                         if (region.UnitsInTheCity.Count == 0)
@@ -1008,7 +1007,7 @@ namespace Models.WorldGen
                                 unit.Moved(World.topology[PathFinder.BestPath[i]], World.RegionInfos[PathFinder.BestPath[i]]);
                             }
                         }
-                        else 
+                        else
                         {
                             unit.Train();
                         }

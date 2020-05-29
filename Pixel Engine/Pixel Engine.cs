@@ -1,13 +1,12 @@
+using SharpGL;
 using System;
-using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Windows.Forms;
-using System.Drawing;
 using System.Diagnostics;
-using SharpGL;
+using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Linq;
+using System.Windows.Forms;
 
 namespace Pixel_Engine
 {
@@ -108,7 +107,7 @@ namespace Pixel_Engine
 
         public override bool Equals(object o)
         {
-            if(o.GetType() == typeof(Pixel))
+            if (o.GetType() == typeof(Pixel))
             {
                 return (Pixel)o == this;
             }
@@ -893,7 +892,7 @@ namespace Pixel_Engine
             g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
-            TextRenderer.DrawText(g, sText, new Font(FontFamily.Families[font], Size, GraphicsUnit.Pixel), Point.Empty, col,backCol);
+            TextRenderer.DrawText(g, sText, new Font(FontFamily.Families[font], Size, GraphicsUnit.Pixel), Point.Empty, col, backCol);
             Pixel.Mode a = GetPixelMode();
             SetPixelMode(Pixel.Mode.MASK);
             DrawSprite(x, y, new Sprite(bitmap));
@@ -927,7 +926,7 @@ namespace Pixel_Engine
             {
                 if (GetKey(CharacterKeys[i]).bPressed)
                 {
-                    if(isShifted) return CharactersUpper[i];
+                    if (isShifted) return CharactersUpper[i];
                     return CharactersLower[i];
                 }
             }
@@ -940,9 +939,9 @@ namespace Pixel_Engine
             }
             for (int i = 0; i < SpecialCharacters.Length; i++)
             {
-                if(GetKey(SpecialCharactersKeys[i]).bPressed)
+                if (GetKey(SpecialCharactersKeys[i]).bPressed)
                 {
-                    if(isShifted) return ShiftedSpecialCharacters[i];
+                    if (isShifted) return ShiftedSpecialCharacters[i];
                     return SpecialCharacters[i];
                 }
             }
@@ -973,7 +972,7 @@ namespace Pixel_Engine
             Key.SQUARE_BRAKET_CLOSE, Key.SEMICOLON, Key.SINGLE_QUOTE, Key.HASH, Key.COMMA, Key.DOT,Key.FORWARD_SLASH, Key.BACKWARD_SLASH };
         static readonly char[] SpecialCharacters = new[] { '`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '[', ']',
             ';', '\'', '#', ',', '.', '/', '\\' };
-        static readonly char[] ShiftedSpecialCharacters = new[] { '¬', '!', '"', '£', '$', '&', '^', '&', '*', '(', ')', '_', '+', 
+        static readonly char[] ShiftedSpecialCharacters = new[] { '¬', '!', '"', '£', '$', '&', '^', '&', '*', '(', ')', '_', '+',
             '{', '}', ':', '@', '~', '<', '>', '?', '|' };
         static Sprite pDefaultDrawTarget = null;
         static Sprite pDrawTarget = null;
@@ -1212,7 +1211,7 @@ namespace Pixel_Engine
                 Win32.wglDeleteContext(glRenderContext);
                 worker.ReportProgress(100);
             }
-            catch 
+            catch
             {
             };
         }
@@ -1252,8 +1251,16 @@ namespace Pixel_Engine
             Window.MouseEnter += new EventHandler((sender, e) => bHasMouseFocus = true);
             Window.GotFocus += new EventHandler((sender, e) => bHasInputFocus = true);
             Window.LostFocus += new EventHandler((sender, e) => bHasInputFocus = false);
-            Window.KeyDown += new KeyEventHandler((sender, e) => { try { pKeyNewState[mapKeys[(int)e.KeyCode]] = true; 
-                    isShifted = e.Shift; } catch { } });
+            Window.KeyDown += new KeyEventHandler((sender, e) =>
+            {
+                try
+                {
+                    pKeyNewState[mapKeys[(int)e.KeyCode]] = true;
+                    isShifted = e.Shift;
+                    //Clear(Pixel.BLACK); DrawText(10, 10, e.KeyValue.ToString(), Pixel.WHITE, 20, 0);
+                }
+                catch { }
+            });
             Window.KeyUp += new KeyEventHandler((sender, e) => { try { pKeyNewState[mapKeys[(int)e.KeyCode]] = false; } catch { } });
             Window.MouseDown += new MouseEventHandler((sender, e) =>
             {
