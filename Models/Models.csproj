@@ -32,9 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Fast Bitmap, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Fast-Bitmap.1.1.2\lib\Fast Bitmap.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -71,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Saves\Worlds.dat" />
     <None Include="Sprites\TileSetSpec.json" />
     <None Include="WorldGen\WorldGenAssets\BiomeTypes.json" />
     <None Include="WorldGen\WorldGenAssets\CivTypes.json" />
@@ -85,7 +83,6 @@
     <Content Include="WorldGen\WorldGenAssets\firstNamesFemale.txt" />
     <Content Include="WorldGen\WorldGenAssets\firstNamesMale.txt" />
     <Content Include="WorldGen\WorldGenAssets\lastNames.txt" />
-    <Content Include="Saves\Worlds.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pixel Engine\Display.csproj">

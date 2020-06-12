@@ -1,11 +1,4 @@
-﻿using FastBitmapLib;
-using System;
-
-//  Load 1 row of chunks
-//  Generate the terrain
-//  Assign assets
-//  Draw them
-//  Repeat
+﻿using System;
 
 namespace Models.WorldGen
 {
@@ -216,24 +209,6 @@ namespace Models.WorldGen
                             }
                         }
                     }
-                }
-            }
-        }
-    }
-
-    class TerrainGen
-    {
-        public TerrainGen(World world, int Seed)
-        {
-            FastBitmap Image = new FastBitmap(Constants.REGION_WIDTH * 32, Constants.REGION_HEIGHT * 32);
-            for (int i = 0; i < 2; i++)
-            {
-                for (int j = 0; j < 2; j++)
-                {
-                    Chunk chunk = new Chunk(Constants.REGION_HEIGHT / 2, Constants.REGION_WIDTH / 2,
-                        world.BiomeTypes[world.topology[i + j * Constants.WORLD_WIDTH].type], true
-                        //world.RegionInfos[i + j * Constants.WORLD_WIDTH].isCity
-                        , Seed * j + i);
                 }
             }
         }

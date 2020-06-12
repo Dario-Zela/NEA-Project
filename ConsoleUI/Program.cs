@@ -1,4 +1,5 @@
 using Pixel_Engine;
+using Models.WorldGen;
 using System;
 
 /*
@@ -25,7 +26,7 @@ namespace UI
         IGameElement CurrentElement;
         public override bool OnUserCreate()
         {
-            CurrentElement = new WorldMenu();
+            CurrentElement = new MainMenu();
             return true;
         }
 
