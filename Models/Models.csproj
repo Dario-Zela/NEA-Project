@@ -84,11 +84,5 @@
     <Content Include="WorldGen\WorldGenAssets\firstNamesMale.txt" />
     <Content Include="WorldGen\WorldGenAssets\lastNames.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Pixel Engine\Display.csproj">
-      <Project>{e32d3e7d-535d-447c-8cb5-d9858d3c34d9}</Project>
-      <Name>Display</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

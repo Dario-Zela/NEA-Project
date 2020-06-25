@@ -68,10 +68,6 @@
       <Project>{7f53c956-72a8-4d7c-9c6d-c6e20bc350e8}</Project>
       <Name>Models</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Pixel Engine\Display.csproj">
-      <Project>{e32d3e7d-535d-447c-8cb5-d9858d3c34d9}</Project>
-      <Name>Display</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
