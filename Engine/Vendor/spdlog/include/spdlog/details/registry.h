@@ -16,7 +16,6 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <mutex>
 
 namespace spdlog {
 class logger;
@@ -76,8 +75,6 @@ public:
     // clean all resources and threads started by the registry
     void shutdown();
 
-    std::recursive_mutex &tp_mutex();
-
     void set_automatic_registration(bool automatic_registration);
 
     void update_levels(cfg::log_levels levels);
@@ -90,8 +87,6 @@ private:
 
     void throw_if_exists_(const std::string &logger_name);
     void register_logger_(std::shared_ptr<logger> new_logger);
-    std::mutex logger_map_mutex_, flusher_mutex_;
-    std::recursive_mutex tp_mutex_;
     std::unordered_map<std::string, std::shared_ptr<logger>> loggers_;
     cfg::log_levels levels_;
     std::unique_ptr<formatter> formatter_;

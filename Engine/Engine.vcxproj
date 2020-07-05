@@ -80,7 +80,7 @@
       <PrecompiledHeaderFile>ENPH.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;EN_BUILD_DLL;GLFW_INCLUDE_NONE;EN_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;Vendor\spdlog\include;vendor\GLFW\include;vendor\GLAD\include;vendor\ImGUI;vendor\glm;vendor\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;Vendor\fmt;vendor\GLFW\include;vendor\GLAD\include;vendor\ImGUI;vendor\glm;vendor\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -94,7 +94,7 @@
       <ImportLibrary>..\bin\Debug-x64\Engine\Engine.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST ..\bin\Debug-x64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin\Debug-x64\Engine\Engine.dll "..\bin\Debug-x64\Tester\" &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Debug-x64\Engine\Engine.dll "..\bin\Debug-x64\Tester\" &gt; nul)</Command>
+      <Command>IF EXIST ..\bin\Debug-x64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin\Debug-x64\Engine\Engine.dll "..\bin\Debug-x64\Tester\" &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Debug-x64\Engine\Engine.dll "..\bin\Debug-x64\EngineWrapper\" &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -103,7 +103,7 @@
       <PrecompiledHeaderFile>ENPH.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;EN_BUILD_DLL;GLFW_INCLUDE_NONE;EN_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;Vendor\spdlog\include;vendor\GLFW\include;vendor\GLAD\include;vendor\ImGUI;vendor\glm;vendor\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;Vendor\fmt;vendor\GLFW\include;vendor\GLAD\include;vendor\ImGUI;vendor\glm;vendor\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -121,7 +121,7 @@
       <ImportLibrary>..\bin\Release-x64\Engine\Engine.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST ..\bin\Release-x64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin\Release-x64\Engine\Engine.dll "..\bin\Release-x64\Tester\" &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Release-x64\Engine\Engine.dll "..\bin\Release-x64\Tester\" &gt; nul)</Command>
+      <Command>IF EXIST ..\bin\Release-x64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin\Release-x64\Engine\Engine.dll "..\bin\Release-x64\Tester\" &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Release-x64\Engine\Engine.dll "..\bin\Release-x64\EngineWrapper\" &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -130,7 +130,7 @@
       <PrecompiledHeaderFile>ENPH.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;EN_BUILD_DLL;GLFW_INCLUDE_NONE;EN_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;Vendor\spdlog\include;vendor\GLFW\include;vendor\GLAD\include;vendor\ImGUI;vendor\glm;vendor\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;Vendor\fmt;vendor\GLFW\include;vendor\GLAD\include;vendor\ImGUI;vendor\glm;vendor\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -146,9 +146,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>..\bin\Dist-x64\Engine\Engine.lib</ImportLibrary>
+      <AdditionalOptions>/wd4251; %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST ..\bin\Dist-x64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin\Dist-x64\Engine\Engine.dll "..\bin\Dist-x64\Tester\" &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Dist-x64\Engine\Engine.dll "..\bin\Dist-x64\Tester\" &gt; nul)</Command>
+      <Command>IF EXIST ..\bin\Dist-x64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin\Dist-x64\Engine\Engine.dll "..\bin\Dist-x64\Tester\" &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Dist-x64\Engine\Engine.dll "..\bin\Dist-x64\EngineWrapper\" &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

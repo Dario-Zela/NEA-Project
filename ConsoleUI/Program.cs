@@ -1,6 +1,6 @@
-using Pixel_Engine;
 using Models.WorldGen;
 using System;
+using ;
 
 /*
  * Make Civs create large cities
@@ -20,6 +20,8 @@ namespace UI
     {
         public Game()
         {
+            Tester tester = new Tester();
+            
             sAppName = "demo";
         }
 

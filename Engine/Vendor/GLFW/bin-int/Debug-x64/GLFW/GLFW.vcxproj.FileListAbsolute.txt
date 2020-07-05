@@ -1,0 +1,2 @@
+C:\dev\NEA\Engine\Vendor\GLFW\bin\Debug-x64\GLFW\GLFW.pdb
+C:\dev\NEA\Engine\Vendor\GLFW\bin-int\Debug-x64\GLFW\GLFW.pdb

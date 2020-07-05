@@ -31,7 +31,7 @@ namespace Engine
 		unsigned int QuadIndexCount = 0;
 		QuadVertex* QuadVertexBufferBase = nullptr;
 		QuadVertex* QuadVertexBufferPtr = nullptr;
-		std::array<Ref<Texture2D>, MaxTextureSlots> TextureSlots;
+		Ref<Texture2D> TextureSlots[MaxTextureSlots];
 		unsigned int TextureIndex = 1;//Where 0 is the WhiteTexture;
 	};
 

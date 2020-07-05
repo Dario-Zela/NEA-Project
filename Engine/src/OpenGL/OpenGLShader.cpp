@@ -148,7 +148,7 @@ namespace Engine
 		// Get a program object.
 		GLuint program = glCreateProgram();
 		EN_CORE_ASSERT(shaderSources.size() < 3, "Too many shaders being uploaded at once");
-		std::array<GLenum, 2> glShaderIds;
+		GLenum glShaderIds[2];
 		int shaderIndex = 0;
 		for (auto [key, value] : shaderSources)
 		{

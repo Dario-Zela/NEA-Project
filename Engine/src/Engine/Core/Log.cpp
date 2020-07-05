@@ -1,18 +1,22 @@
 #include "ENPH.h"
-#include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace Engine
 {
-	Ref<spdlog::logger> Log::mCoreLogger;
-	Ref<spdlog::logger> Log::mClientLogger;
-
 	void Log::Init() 
 	{
-		spdlog::set_pattern("%^[%T][%n] %v%$");
-		mCoreLogger = spdlog::stdout_color_mt("ENGINE");
-		mCoreLogger->set_level(spdlog::level::trace);
+		mLogFile = CreateRef<std::string>("../../../Log.txt");
+		std::ofstream file(*mLogFile, std::ofstream::app);
+		time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+		tm time = *std::localtime(&now);
+		file << "\n\n--------------------------------------------" + 
+			std::to_string(time.tm_mday) + "\\" + std::to_string(time.tm_mon + 1) + "\\" + std::to_string(time.tm_year + 1900) + "\n";
+		file.close();
+	}
 
-		mClientLogger = spdlog::stdout_color_mt("APP");
-		mClientLogger->set_level(spdlog::level::trace);
+	std::string Log::GetTime()
+	{
+		time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+		tm time = *std::localtime(&now);
+		return std::to_string(time.tm_hour) + ":" + std::to_string(time.tm_min) + ":" + std::to_string(time.tm_sec);
 	}
 }

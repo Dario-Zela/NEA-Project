@@ -1,33 +1,57 @@
 #pragma once
 #include "Core.h"
-#include <spdlog/spdlog.h>
-#include <spdlog/fmt/ostr.h>
+#include <chrono>
+#include <ctime>
+#include <fstream>
+#include <fmt.h>
+#include "bundled/color.h"
 
 namespace Engine 
 {
 	class ENGINE_API Log
 	{
 	public:
-		static void Init();
+		void Init();
 
-		inline static Ref<spdlog::logger>& GetCoreLogger() { return mCoreLogger; }
-		inline static Ref<spdlog::logger>& GetClientLogger() { return mClientLogger; }
+		template<typename ...Args>
+		void Add(int WarningLevel, std::string Name, const std::string& fmt, const Args& ...args)
+		{
+			fmt::color color;
+			switch (WarningLevel)
+			{
+			case 0: color = fmt::color::white; break;
+			case 1: color = fmt::color::green; break;
+			case 2: color = fmt::color::yellow; break;
+			case 3: color = fmt::color::red; break;
+			case 4: color = fmt::color::crimson; break;
+			}
+
+			std::string string = fmt::format(fg(color),
+				"[" + GetTime() + "]" + "[" + Name + "] " + fmt, args...);
+
+			std::ofstream file(*mLogFile, std::ofstream::app);
+			file << string + "\n";
+			file.close();
+		}
+
 	private:
-		static Ref<spdlog::logger> mCoreLogger;
-		static Ref<spdlog::logger> mClientLogger;
+		std::string GetTime();
+		Ref<std::string> mLogFile;
 	};
+
+	static Ref<Log> Logger = CreateRef<Log>();
 }
 
 //CoreLogger macros
-#define EN_CORE_CRITICAL(...)	::Engine::Log::GetCoreLogger()->critical(__VA_ARGS__);
-#define EN_CORE_ERROR(...)		::Engine::Log::GetCoreLogger()->error(__VA_ARGS__);
-#define EN_CORE_WARN(...)		::Engine::Log::GetCoreLogger()->warn(__VA_ARGS__);
-#define EN_CORE_INFO(...)		::Engine::Log::GetCoreLogger()->info(__VA_ARGS__);
-#define EN_CORE_TRACE(...)		::Engine::Log::GetCoreLogger()->trace(__VA_ARGS__);
-
-//ClientLogger Macros
-#define EN_CRITICAL(...)		::Engine::Log::GetClientLogger()->critical(__VA_ARGS__);
-#define EN_ERROR(...)			::Engine::Log::GetClientLogger()->error(__VA_ARGS__);
-#define EN_WARN(...)			::Engine::Log::GetClientLogger()->warn(__VA_ARGS__);
-#define EN_INFO(...)			::Engine::Log::GetClientLogger()->info(__VA_ARGS__);
-#define EN_TRACE(...)			::Engine::Log::GetClientLogger()->trace(__VA_ARGS__);
+#define EN_CORE_CRITICAL(...)	::Engine::Logger->Add(4, "ENGINE", __VA_ARGS__);
+#define EN_CORE_ERROR(...)		::Engine::Logger->Add(3, "ENGINE", __VA_ARGS__);
+#define EN_CORE_WARN(...)		::Engine::Logger->Add(2, "ENGINE", __VA_ARGS__);
+#define EN_CORE_INFO(...)		::Engine::Logger->Add(1, "ENGINE", __VA_ARGS__);
+#define EN_CORE_TRACE(...)		::Engine::Logger->Add(0, "ENGINE", __VA_ARGS__);
+										  		
+//ClientLogger Macros					  		
+#define EN_CRITICAL(...)		::Engine::Logger->Add(4, "APP", __VA_ARGS__);
+#define EN_ERROR(...)			::Engine::Logger->Add(3, "APP", __VA_ARGS__);
+#define EN_WARN(...)			::Engine::Logger->Add(2, "APP", __VA_ARGS__);
+#define EN_INFO(...)			::Engine::Logger->Add(1, "APP", __VA_ARGS__);
+#define EN_TRACE(...)			::Engine::Logger->Add(0, "APP", __VA_ARGS__);

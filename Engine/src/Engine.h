@@ -5,6 +5,7 @@
 #include "Engine/Core/Layer.h"
 #include "Engine/Core/Log.h"
 #include "Engine/Core/Core.h"
+#include "Engine/Core/EntryPoint.h"
 
 #include "Engine/Core/TimeStep.h"
 
@@ -12,7 +13,6 @@
 #include "Engine/Core/KeyCodes.h"
 #include "Engine/Core/MouseCodes.h"
 
-#include "Engine/ImGUI/ImGUILayer.h"
 #include "Engine/ImGUI/ImGUIWrapper.h"
 
 // ----------Renderer-------------

@@ -1,15 +1,22 @@
 #pragma once
 #include "Engine/Core/Core.h"
-extern Engine::Application* Engine::CreateApplication();
 
-int main(int argc, char** argv)
+namespace Engine
 {
-	Engine::Log::Init();
-	EN_CORE_WARN("Initialised Logger!");
-	int a = 0;
-	EN_TRACE("Initialised Logger!{0}", a);
+	class ENGINE_API EntryPoint 
+	{
+	public:
+		EntryPoint() = default;
 
-	auto app = Engine::CreateApplication();
-	app->Run();
-	delete app;
+		int main(Application* app)
+		{
+			Engine::Logger->Init();
+			EN_CORE_WARN("Initialised Logger!");
+			int a = 0;
+			EN_TRACE("Initialised Logger!{0}", a);
+
+			app->Run();
+			delete app;
+		}
+	};
 }

@@ -38,7 +38,4 @@ namespace Engine
 		LayerStack mLayerStack;
 		float mLastFrameTime = 0;
 	};
-
-	// This linkes the game code to the engine and should be defined where it is used
-	Application* CreateApplication();
 }

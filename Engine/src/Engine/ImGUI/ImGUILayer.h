@@ -7,7 +7,7 @@
 
 namespace Engine
 {
-	class ENGINE_API ImGUILayer : public Layer
+	class ImGUILayer : public Layer
 	{
 	public:
 		ImGUILayer();
