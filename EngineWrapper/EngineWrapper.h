@@ -1,51 +1,361 @@
 #pragma once
-#include "Engine.h"
+#include "../Engine/src/Engine.h"
+#include "../Engine/src/Engine/Core/EntryPoint.h"
 #include "ManagedObject.h"
+#include <msclr/gcroot.h>
 
 namespace Wrapper
 {
+	public ref class TimeStep
+	{
+	protected:
+		Engine::TimeStep* mInstance;
+	public:
+		TimeStep() : mInstance(new Engine::TimeStep()) {}
+		TimeStep(Engine::TimeStep* timeStep) : mInstance(timeStep) {}
+
+		float GetSeconds() { return mInstance->GetSeconds(); }
+		float GetMilliseconds() { return mInstance->GetMilliseconds(); }
+		Engine::TimeStep* GetTimeStep() { return mInstance; }
+
+		!TimeStep() {}
+		~TimeStep() {}
+	};
+
+	public ref class Event abstract
+	{
+	public:
+		Event() { }
+		~Event() { this->!Event(); }
+		!Event() { }
+
+		virtual Engine::EventType GetEventType() = 0;
+	};
+
+	public ref class KeyPressedEvent : Event
+	{
+		Engine::KeyPressedEvent& e;
+	public:
+		KeyPressedEvent(Engine::Event& e) : e(static_cast<Engine::KeyPressedEvent&>(e)), Event() { }
+		KeyPressedEvent(Engine::KeyPressedEvent& e) : e(e), Event() {}
+		KeyPressedEvent::KeyPressedEvent(KeyPressedEvent% e) : e(e.GetRaw()), Event() {}
+
+		~KeyPressedEvent() { this->!KeyPressedEvent(); }
+		!KeyPressedEvent() { }
+
+		bool IsHandled() { return e.IsHandled(); }
+		int GetKeyCode() { return e.GetKeyCode(); }
+		int GetRepeatedCount() { return e.GetRepeatedCount(); }
+
+		virtual Engine::EventType GetEventType() override { return e.GetEventType(); }
+
+		Engine::KeyPressedEvent& GetRaw() { return e; }
+		static operator Engine::KeyPressedEvent(KeyPressedEvent^ val) { return val->GetRaw(); }
+		static operator KeyPressedEvent ^ (Engine::Event& e) { return gcnew KeyPressedEvent(e); }
+		static operator KeyPressedEvent(Engine::Event& e) { return KeyPressedEvent(e); }
+	};
+
+	public ref class KeyReleasedEvent : Event
+	{
+		Engine::KeyReleasedEvent& e;
+	public:
+		KeyReleasedEvent(Engine::Event& e) : e(static_cast<Engine::KeyReleasedEvent&>(e)), Event() { }
+		KeyReleasedEvent(Engine::KeyReleasedEvent& e) : e(e), Event() {}
+		KeyReleasedEvent::KeyReleasedEvent(KeyReleasedEvent% e) : e(e.GetRaw()), Event() {}
+
+		~KeyReleasedEvent() { this->!KeyReleasedEvent(); }
+		!KeyReleasedEvent() { }
+
+		bool IsHandled() { return e.IsHandled(); }
+		int GetKeyCode() { return e.GetKeyCode(); }
+
+		virtual Engine::EventType GetEventType() override { return e.GetEventType(); }
+
+		Engine::KeyReleasedEvent& GetRaw() { return e; }
+		static operator Engine::KeyReleasedEvent(KeyReleasedEvent^ val) { return val->GetRaw(); }
+		static operator KeyReleasedEvent ^ (Engine::Event& e) { return gcnew KeyReleasedEvent(e); }
+		static operator KeyReleasedEvent(Engine::Event& e) { return KeyReleasedEvent(e); }
+	};
+
+	public ref class KeyTypedEvent : Event
+	{
+		Engine::KeyTypedEvent& e;
+	public:
+		KeyTypedEvent(Engine::Event& e) : e(static_cast<Engine::KeyTypedEvent&>(e)), Event() { }
+		KeyTypedEvent(Engine::KeyTypedEvent& e) : e(e), Event() {}
+		KeyTypedEvent::KeyTypedEvent(KeyTypedEvent% e) : e(e.GetRaw()), Event() {}
+
+		~KeyTypedEvent() { this->!KeyTypedEvent(); }
+		!KeyTypedEvent() { }
+
+		bool IsHandled() { return e.IsHandled(); }
+		int GetKeyCode() { return e.GetKeyCode(); }
+
+		virtual Engine::EventType GetEventType() override { return e.GetEventType(); }
+
+		Engine::KeyTypedEvent& GetRaw() { return e; }
+		static operator Engine::KeyTypedEvent(KeyTypedEvent^ val) { return val->GetRaw(); }
+		static operator KeyTypedEvent ^ (Engine::Event& e) { return gcnew KeyTypedEvent(e); }
+		static operator KeyTypedEvent(Engine::Event& e) { return KeyTypedEvent(e); }
+	};
+
+	public ref class MouseButtonPressedEvent : Event
+	{
+		Engine::MouseButtonPressedEvent& e;
+	public:
+		MouseButtonPressedEvent(Engine::Event& e) : e(static_cast<Engine::MouseButtonPressedEvent&>(e)), Event() { }
+		MouseButtonPressedEvent(Engine::MouseButtonPressedEvent& e) : e(e), Event() {}
+		MouseButtonPressedEvent::MouseButtonPressedEvent(MouseButtonPressedEvent% e) : e(e.GetRaw()), Event() {}
+
+		~MouseButtonPressedEvent() { this->!MouseButtonPressedEvent(); }
+		!MouseButtonPressedEvent() { }
+
+		bool IsHandled() { return e.IsHandled(); }
+		int GetMouseButton() { return e.GetMouseButton(); }
+
+		virtual Engine::EventType GetEventType() override { return e.GetEventType(); }
+
+		Engine::MouseButtonPressedEvent& GetRaw() { return e; }
+		static operator Engine::MouseButtonPressedEvent(MouseButtonPressedEvent^ val) { return val->GetRaw(); }
+		static operator MouseButtonPressedEvent^(Engine::Event& e) { return gcnew MouseButtonPressedEvent(e); }
+		static operator MouseButtonPressedEvent(Engine::Event& e) { return MouseButtonPressedEvent(e); }
+	};
+
+	public ref class MouseButtonReleasedEvent : Event
+	{
+		Engine::MouseButtonReleasedEvent& e;
+	public:
+		MouseButtonReleasedEvent(Engine::Event& e) : e(static_cast<Engine::MouseButtonReleasedEvent&>(e)), Event() { }
+		MouseButtonReleasedEvent(Engine::MouseButtonReleasedEvent& e) : e(e), Event() {}
+		MouseButtonReleasedEvent::MouseButtonReleasedEvent(MouseButtonReleasedEvent% e) : e(e.GetRaw()), Event() {}
+
+		~MouseButtonReleasedEvent() { this->!MouseButtonReleasedEvent(); }
+		!MouseButtonReleasedEvent() { }
+
+		bool IsHandled() { return e.IsHandled(); }
+		int GetMouseButton() { return e.GetMouseButton(); }
+
+		virtual Engine::EventType GetEventType() override { return e.GetEventType(); }
+
+		Engine::MouseButtonReleasedEvent& GetRaw() { return e; }
+		static operator Engine::MouseButtonReleasedEvent(MouseButtonReleasedEvent^ val) { return val->GetRaw(); }
+		static operator MouseButtonReleasedEvent ^ (Engine::Event& e) { return gcnew MouseButtonReleasedEvent(e); }
+		static operator MouseButtonReleasedEvent(Engine::Event& e) { return MouseButtonReleasedEvent(e); }
+	};
+
+	public ref class MouseMovedEvent : Event
+	{
+		Engine::MouseMovedEvent& e;
+	public:
+		MouseMovedEvent(Engine::Event& e) : e(static_cast<Engine::MouseMovedEvent&>(e)), Event() { }
+		MouseMovedEvent(Engine::MouseMovedEvent& e) : e(e), Event() {}
+		MouseMovedEvent::MouseMovedEvent(MouseMovedEvent% e) : e(e.GetRaw()), Event() {}
+
+		~MouseMovedEvent() { this->!MouseMovedEvent(); }
+		!MouseMovedEvent() { }
+		
+		virtual Engine::EventType GetEventType() override { return e.GetEventType(); }
+
+		bool IsHandled() { return e.IsHandled(); }
+		float GetMouseX() { return e.GetMouseX(); }
+		float GetMouseY() { return e.GetMouseY(); }
+
+		Engine::MouseMovedEvent& GetRaw() { return e; }
+		static operator Engine::MouseMovedEvent(MouseMovedEvent^ val) { return val->GetRaw(); }
+		static operator MouseMovedEvent ^ (Engine::Event& e) { return gcnew MouseMovedEvent(e); }
+		static operator MouseMovedEvent(Engine::Event& e) { return MouseMovedEvent(e); }
+	};
+
+	public ref class MouseScrolledEvent : Event
+	{									  
+		Engine::MouseScrolledEvent& e;
+	public:
+		MouseScrolledEvent(Engine::Event& e) : e(static_cast<Engine::MouseScrolledEvent&>(e)), Event() { }
+		MouseScrolledEvent(Engine::MouseScrolledEvent& e) : e(e), Event() {}
+		MouseScrolledEvent::MouseScrolledEvent(MouseScrolledEvent% e) : e(e.GetRaw()), Event() {}
+
+		~MouseScrolledEvent() { this->!MouseScrolledEvent(); }
+		!MouseScrolledEvent() { }
+
+		bool IsHandled() { return e.IsHandled(); }
+		float GetMouseXOffset() { return e.GetMouseXOffset(); }
+		float GetMouseYOffset() { return e.GetMouseYOffset(); }
+
+		virtual Engine::EventType GetEventType() override { return e.GetEventType(); }
+
+		Engine::MouseScrolledEvent& GetRaw() { return e; }
+		static operator Engine::MouseScrolledEvent(MouseScrolledEvent^ val) { return val->GetRaw(); }
+		static operator MouseScrolledEvent ^ (Engine::Event& e) { return gcnew MouseScrolledEvent(e); }
+		static operator MouseScrolledEvent(Engine::Event& e) { return MouseScrolledEvent(e); }
+	};
+										  
+	public ref class WindowClosedEvent : Event
+	{									  
+		Engine::WindowClosedEvent& e;
+	public:
+		WindowClosedEvent(Engine::Event& e) : e(static_cast<Engine::WindowClosedEvent&>(e)), Event() { }
+		WindowClosedEvent(Engine::WindowClosedEvent& e) : e(e), Event() {}
+		WindowClosedEvent::WindowClosedEvent(WindowClosedEvent% e) : e(e.GetRaw()), Event() {}
+
+		~WindowClosedEvent() { this->!WindowClosedEvent(); }
+		!WindowClosedEvent() { }
+
+		bool IsHandled() { return e.IsHandled(); }
+
+		virtual Engine::EventType GetEventType() override { return e.GetEventType(); }
+
+		Engine::WindowClosedEvent& GetRaw() { return e; }
+		static operator Engine::WindowClosedEvent(WindowClosedEvent^ val) { return val->GetRaw(); }
+		static operator WindowClosedEvent ^ (Engine::Event& e) { return gcnew WindowClosedEvent(e); }
+		static operator WindowClosedEvent(Engine::Event& e) { return WindowClosedEvent(e); }
+	};									  
+										  
+	public ref class WindowResizeEvent : Event
+	{
+		Engine::WindowResizeEvent& e;
+	public:
+		WindowResizeEvent(Engine::Event& e) : e(static_cast<Engine::WindowResizeEvent&>(e)), Event() { }
+		WindowResizeEvent(Engine::WindowResizeEvent& e) : e(e), Event() {}
+		WindowResizeEvent::WindowResizeEvent(WindowResizeEvent% e) : e(e.GetRaw()), Event() {}
+
+		~WindowResizeEvent() { this->!WindowResizeEvent(); }
+		!WindowResizeEvent() { }
+
+		bool IsHandled() { return e.IsHandled(); }
+		int GetWidth() { return e.GetWidth(); }
+		int GetHeight() { return e.GetHeight(); }
+
+		virtual Engine::EventType GetEventType() override { return e.GetEventType(); }
+
+		Engine::WindowResizeEvent& GetRaw() { return e; }
+		static operator Engine::WindowResizeEvent(WindowResizeEvent^ val) { return val->GetRaw(); }
+		static operator WindowResizeEvent ^ (Engine::Event& e) { return gcnew WindowResizeEvent(e); }
+		static operator WindowResizeEvent(Engine::Event& e) { return WindowResizeEvent(e); }
+	};
+
+	public ref class EventDispatcher : public ManagedObject<Engine::EventDispatcher>
+	{
+	public:
+		EventDispatcher(Event^ e) : ManagedObject(new Engine::EventDispatcher(GetEvent(e))) {}
+
+		static Engine::Event& GetEvent(Event^ e)
+		{
+			switch (e->GetEventType())
+			{
+			case Engine::EventType::KeyPressed: return ((KeyPressedEvent^)e)->GetRaw(); 
+			case Engine::EventType::KeyReleased: return ((KeyReleasedEvent^)e)->GetRaw();
+			case Engine::EventType::KeyTyped: return ((KeyTypedEvent^)e)->GetRaw();
+			case Engine::EventType::MouseButtonPressed: return ((MouseButtonPressedEvent^)e)->GetRaw();
+			case Engine::EventType::MouseButtonReleased: return ((MouseButtonReleasedEvent^)e)->GetRaw();
+			case Engine::EventType::MouseMoved: return ((MouseMovedEvent^)e)->GetRaw();
+			case Engine::EventType::MouseScrolled: return ((MouseScrolledEvent^)e)->GetRaw();
+			case Engine::EventType::WindowClosed: return ((WindowClosedEvent^)e)->GetRaw();
+			case Engine::EventType::WindowResize: return ((WindowResizeEvent^)e)->GetRaw();
+			case Engine::EventType::Undefinded: throw gcnew ArgumentNullException("Unknown Event Type");
+			}
+			throw gcnew ArgumentNullException("No Event Type");
+		}
+
+		bool DispatchKP(Func<KeyPressedEvent^, bool>^ func) { return mInstance->Dispatch<Engine::KeyPressedEvent, KeyPressedEvent^>(func); }
+		bool DispatchKR(Func<KeyReleasedEvent^, bool>^ func) { return mInstance->Dispatch<Engine::KeyReleasedEvent, KeyReleasedEvent^>(func); }
+		bool DispatchKT(Func<KeyTypedEvent^, bool>^ func) { return mInstance->Dispatch<Engine::KeyTypedEvent, KeyTypedEvent^>(func); }
+		bool DispatchMP(Func<MouseButtonPressedEvent^, bool>^ func) { return mInstance->Dispatch<Engine::MouseButtonPressedEvent, MouseButtonPressedEvent^>(func); }
+		bool DispatchMR(Func<MouseButtonReleasedEvent^, bool>^ func) { return mInstance->Dispatch<Engine::MouseButtonReleasedEvent, MouseButtonReleasedEvent^>(func); }
+		bool DispatchMM(Func<MouseMovedEvent^, bool>^ func) { return mInstance->Dispatch<Engine::MouseMovedEvent, MouseMovedEvent^>(func); }
+		bool DispatchMS(Func<MouseScrolledEvent^, bool>^ func) { return mInstance->Dispatch<Engine::MouseScrolledEvent, MouseScrolledEvent^>(func); }
+		bool DispatchWC(Func<WindowClosedEvent^, bool>^ func) { return mInstance->Dispatch<Engine::WindowClosedEvent, WindowClosedEvent^>(func); }
+		bool DispatchWR(Func<WindowResizeEvent^, bool>^ func) { return mInstance->Dispatch<Engine::WindowResizeEvent, WindowResizeEvent^>(func); }
+	};
+
+	ref class Layer;
+
+	class LayerRedirector : public Engine::Layer
+	{
+	public:
+		LayerRedirector(Wrapper::Layer^ owner, std::string name) :Layer(name), mOwner(owner) {}
+
+		virtual void OnAttach();
+		virtual void OnDetach();
+		virtual void OnUpdate(Engine::TimeStep time);
+		virtual void OnEvent(Engine::Event& e);
+		virtual void OnImGUIRender();
+
+	private:
+		msclr::gcroot<Wrapper::Layer^> mOwner;
+	};
+
+	public ref class Layer abstract
+	{
+	protected:
+		Engine::Layer* mInstance;
+	public:
+		Layer(String^ name) { mInstance = new LayerRedirector(this, stringsToCStrings(name)); }
+		~Layer() { this->!Layer(); }
+		!Layer() { }
+
+		virtual void OnAttach() = 0;
+		virtual void OnDetach() = 0;
+		virtual void OnUpdate(TimeStep^ time) = 0;
+		virtual void OnEvent(Event^ e) = 0;
+		virtual void OnImGUIRender() = 0;
+
+		Engine::Layer* GetLayer() { return mInstance; }
+	internal:
+		void callOnAttach()
+		{
+			if (!mInstance) throw gcnew ObjectDisposedException("Layer");
+			OnAttach();
+		}
+		
+		void callOnDetach()
+		{
+			if (!mInstance) throw gcnew ObjectDisposedException("Layer");
+			OnDetach();
+		}
+
+		void callOnUpdate(TimeStep^ time)
+		{
+			if (!mInstance) throw gcnew ObjectDisposedException("Layer");
+			OnUpdate(time);
+		}
+
+		void callOnEvent(Event^ e)
+		{
+			if (!mInstance) throw gcnew ObjectDisposedException("Layer");
+			OnEvent(e);
+		}
+
+		void callOnImGUIRender()
+		{
+			if (!mInstance) throw gcnew ObjectDisposedException("Layer");
+			OnImGUIRender();
+		}
+	};
+
 	public ref class Application : public ManagedObject<Engine::Application>
 	{
 	public:
-		Application() : ManagedObject(new Engine::Application()) {}
+		Application() : ManagedObject(new Engine::Application()) { }
 
-		void PushLayer(Layer^ layer) { mInstance->PushLayer(layer); }
-		void PushOverlay(Layer^ overlay) { mInstance->PushOverlay(overlay); }
+		void PushLayer(Layer^ layer) { mInstance->PushLayer(layer->GetLayer()); }
+		void PushOverlay(Layer^ overlay) { mInstance->PushOverlay(overlay->GetLayer()); }
 
 		Engine::Application* GetRaw() { return mInstance; }
-	};
-
-	public ref class Layer : public ManagedObject<Engine::Layer>
-	{
-	public:
-		Layer(std::string name) : ManagedObject(new Engine::Layer(name)) {}
-		virtual ~Layer() = default;
-
-		virtual void OnAttach() {}
-		virtual void OnDetach() {}
-		virtual void OnUpdate(TimeStep time) {}
-		virtual void OnEvent(Event & e) {}
-		virtual void OnImGUIRender() {}
-
-		inline const std::string& GetName() const { return mDebugName; }
 	};
 
 	public ref class EntryPoint : ManagedObject<Engine::EntryPoint>
 	{
 	public:
-		EntryPoint():ManagedObject(new Engine::EntryPoint()) {}
+		EntryPoint() : ManagedObject(new Engine::EntryPoint()) {}
 
-		void Enter(Application app) { mInstance->main(app.GetRaw()); }
+		void Enter(Application^ app) { mInstance->main(app->GetRaw()); }
 	};
 
-	/*
+	/*		PushLayer	void Wrapper::Application::PushLayer(Wrapper::Layer^)	<function>
+
 	public ref class BufferElement;
 
 	public ref class BufferLayout;
-
-	public ref class Event;
-
-	public ref class EventDispatcher;
 
 	public ref class ImGUI;
 
@@ -53,23 +363,7 @@ namespace Wrapper
 
 	public ref class Input;
 
-	public ref class KeyPressedEvent;
-
-	public ref class KeyReleasedEvent;
-
-	public ref class KeyTypedEvent;
-
-	
-
 	public ref class Log;
-
-	public ref class MouseButtonPressedEvent;
-
-	public ref class MouseButtonReleasedEvent;
-
-	public ref class MouseMovedEvent;
-
-	public ref class MouseScrolledEvent;
 
 	public ref class OrthographicCamera;
 
@@ -85,30 +379,16 @@ namespace Wrapper
 
 	public ref class Texture;
 
-	public ref class TimeStep;
-
 	public ref class VertexArray;
 
 	public ref class VertexBuffer;
 
 	public ref class Window;
 
-	public ref class WindowClosedEvent;
-
-	public ref class WindowResizeEvent;
-
 	public ref class ShaderDataType;
 	
+	Engine::Logger;
 
 	static unsigned int ShaderDataTypeSize(ShaderDataType type) { return Engine::ShaderDataTypeSize(type); }
 	*/
-
-	Application CreateApplicationWrapper();
-
-	extern Wrapper::Application Wrapper::CreateApplicationWrapper();
-}
-
-Engine::Application* Engine::CreateApplication()
-{
-	return Wrapper::CreateApplicationWrapper().GetRaw();
 }

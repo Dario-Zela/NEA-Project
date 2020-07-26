@@ -5,7 +5,6 @@
 #include "Engine/Core/Layer.h"
 #include "Engine/Core/Log.h"
 #include "Engine/Core/Core.h"
-#include "Engine/Core/EntryPoint.h"
 
 #include "Engine/Core/TimeStep.h"
 

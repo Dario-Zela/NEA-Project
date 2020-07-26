@@ -94,7 +94,7 @@
       <ImportLibrary>..\bin\Debug-x64\Engine\Engine.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST ..\bin\Debug-x64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin\Debug-x64\Engine\Engine.dll "..\bin\Debug-x64\Tester\" &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Debug-x64\Engine\Engine.dll "..\bin\Debug-x64\EngineWrapper\" &gt; nul)</Command>
+      <Command>IF EXIST ..\bin\Debug-x64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin\Debug-x64\Engine\Engine.dll "..\bin\Debug-x64\Game\" &gt; nul &amp;&amp; xcopy /Q /E /Y /I ..\bin\Debug-x64\Engine\Engine.dll "..\bin\Debug-x64\EngineWrapper\" &gt; nul  ) ELSE (xcopy /Q /Y /I ..\bin\Debug-x64\Engine\Engine.dll "..\bin\Debug-x64\EngineWrapper\" &gt; nul &amp;&amp; xcopy /Q /Y /I ..\bin\Debug-x64\Engine\Engine.dll "..\bin\Debug-x64\Game\" &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

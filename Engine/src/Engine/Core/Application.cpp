@@ -34,10 +34,10 @@ namespace Engine
 		mWindow = Scope<Window>(Window::Create());
 		mWindow->SetEventCallback(EN_BIND_EVENT_FN(Application::OnEvent));
 
-		Renderer::Init();
+		//Renderer::Init();
 
-		mImGUILayer = new ImGUILayer();
-		PushOverlay(mImGUILayer);
+		//mImGUILayer = new ImGUILayer();
+		//PushOverlay(mImGUILayer);
 	}
 
 	void Application::OnEvent(Event& e) 
@@ -68,12 +68,12 @@ namespace Engine
 				layer->OnUpdate(timeStep);
 			}
 
-			mImGUILayer->Begin();
-			for (Layer* layer : mLayerStack)
-			{
-				layer->OnImGUIRender();
-			}
-			mImGUILayer->End();
+			//mImGUILayer->Begin();
+			//for (Layer* layer : mLayerStack)
+			//{
+				//layer->OnImGUIRender();
+			//}
+			//mImGUILayer->End();
 
 			mWindow->OnUpdate();
 		}

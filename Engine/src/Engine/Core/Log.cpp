@@ -4,8 +4,7 @@ namespace Engine
 {
 	void Log::Init() 
 	{
-		mLogFile = CreateRef<std::string>("../../../Log.txt");
-		std::ofstream file(*mLogFile, std::ofstream::app);
+		std::ofstream file("../../../Log.txt", std::ofstream::app);
 		time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 		tm time = *std::localtime(&now);
 		file << "\n\n--------------------------------------------" + 

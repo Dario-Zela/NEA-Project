@@ -12,7 +12,7 @@ namespace Engine
 	enum class EventType
 	{
 		Undefinded = 0,
-		WindowClosed, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
+		WindowClosed, WindowResize, WindowMoved,
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
 	};
@@ -57,11 +57,22 @@ namespace Engine
 		}
 		
 		template<typename T, typename F>
-		bool Dispatch(const F& func) 
+		bool Dispatch(const F& func)
 		{
 			if (mEvent.GetEventType() == T::GetStaticType())
 			{
 				mEvent.mHandled = func(static_cast<T&>(mEvent));
+				return true;
+			}
+			return false;
+		}
+
+		template<typename T, typename P, typename F>
+		bool Dispatch(const F& func) 
+		{
+			if (mEvent.GetEventType() == T::GetStaticType())
+			{
+				mEvent.mHandled = func(static_cast<P>(mEvent));
 				return true;
 			}
 			return false;

@@ -13,8 +13,7 @@ namespace Wrapper
 		
 		virtual ~ManagedObject()
 		{
-			if (mInstance != nullptr)
-				delete mInstance;
+			this->!ManagedObject();
 		}
 
 		!ManagedObject()

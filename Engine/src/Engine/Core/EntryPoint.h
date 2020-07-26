@@ -3,12 +3,12 @@
 
 namespace Engine
 {
-	class ENGINE_API EntryPoint 
+	class __declspec(dllexport) EntryPoint
 	{
 	public:
 		EntryPoint() = default;
 
-		int main(Application* app)
+		void main(Application* app)
 		{
 			Engine::Logger->Init();
 			EN_CORE_WARN("Initialised Logger!");
@@ -16,7 +16,6 @@ namespace Engine
 			EN_TRACE("Initialised Logger!{0}", a);
 
 			app->Run();
-			delete app;
 		}
 	};
 }

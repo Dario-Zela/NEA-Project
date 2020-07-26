@@ -1,6 +1,6 @@
-using Models.WorldGen;
+//using Models.WorldGen;
 using System;
-using ;
+using Wrapper;
 
 /*
  * Make Civs create large cities
@@ -8,6 +8,7 @@ using ;
  * Start NPC creation
 */
 
+/*
 namespace UI
 {
     interface IGameElement
@@ -74,5 +75,56 @@ namespace UI
             }
         }
 
+    }
+}
+*/
+
+namespace Test
+{
+    class TestLayer : Layer
+    {
+        public TestLayer(string name) : base(name)
+        {
+
+        }
+
+        string Val;
+
+        public override void OnAttach()
+        {
+            Val = "Test";
+            Console.WriteLine(Val);
+        }
+
+        public override void OnDetach() { }
+        public override void OnUpdate(TimeStep time) 
+        {
+            Console.WriteLine(1/time.GetSeconds());
+        }
+
+        public override void OnEvent(Event e)
+        {
+            EventDispatcher dispatcher = new EventDispatcher(e);
+            dispatcher.DispatchMM((ev) => { Console.WriteLine("{0}, x={1}, y={2}", Val, ev.GetMouseX(), ev.GetMouseY()); return true; });
+        }
+
+        public override void OnImGUIRender() { }
+    }
+
+    class SandBox : Application
+    {
+        public SandBox() : base()
+        {
+            PushLayer(new TestLayer("Val"));
+        }
+    }
+
+    class Start
+    {
+        static void Main()
+        {
+            EntryPoint entry = new EntryPoint();
+            entry.Enter(new SandBox());
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace Engine
 	{
 	public:
 		Application();
-		virtual ~Application() { Renderer::Shutdown(); }
+		~Application() { Renderer::Shutdown(); }
 
 		void OnEvent(Event& e);
 		void Run();

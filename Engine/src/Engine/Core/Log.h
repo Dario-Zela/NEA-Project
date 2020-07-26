@@ -16,10 +16,10 @@ namespace Engine
 		template<typename ...Args>
 		void Add(int WarningLevel, std::string Name, const std::string& fmt, const Args& ...args)
 		{
-			fmt::color color;
+			fmt::color color = fmt::v6::color::white;
 			switch (WarningLevel)
 			{
-			case 0: color = fmt::color::white; break;
+			case 0: color = fmt::color::black; break;
 			case 1: color = fmt::color::green; break;
 			case 2: color = fmt::color::yellow; break;
 			case 3: color = fmt::color::red; break;
@@ -29,14 +29,13 @@ namespace Engine
 			std::string string = fmt::format(fg(color),
 				"[" + GetTime() + "]" + "[" + Name + "] " + fmt, args...);
 
-			std::ofstream file(*mLogFile, std::ofstream::app);
+			std::ofstream file("../../../Log.txt", std::ofstream::app);
 			file << string + "\n";
 			file.close();
 		}
 
 	private:
 		std::string GetTime();
-		Ref<std::string> mLogFile;
 	};
 
 	static Ref<Log> Logger = CreateRef<Log>();
