@@ -27,17 +27,17 @@ namespace Engine
 		return false;
 	}
 
-	Application::Application()
+	Application::Application(std::string title, unsigned int width, unsigned int height)
 	{
 		EN_CORE_ASSERT(!sInstance, "Application already exists");
 		sInstance = this;
+		WindowProps(title, width, height);
 		mWindow = Scope<Window>(Window::Create());
 		mWindow->SetEventCallback(EN_BIND_EVENT_FN(Application::OnEvent));
+		Renderer::Init();
 
-		//Renderer::Init();
-
-		//mImGUILayer = new ImGUILayer();
-		//PushOverlay(mImGUILayer);
+		mImGUILayer = new ImGUILayer();
+		PushOverlay(mImGUILayer);
 	}
 
 	void Application::OnEvent(Event& e) 
@@ -68,12 +68,12 @@ namespace Engine
 				layer->OnUpdate(timeStep);
 			}
 
-			//mImGUILayer->Begin();
-			//for (Layer* layer : mLayerStack)
-			//{
-				//layer->OnImGUIRender();
-			//}
-			//mImGUILayer->End();
+			mImGUILayer->Begin();
+			for (Layer* layer : mLayerStack)
+			{
+				layer->OnImGUIRender();
+			}
+			mImGUILayer->End();
 
 			mWindow->OnUpdate();
 		}
@@ -89,5 +89,14 @@ namespace Engine
 		mLayerStack.PushOverlay(overlay);
 	}
 
+	void Application::PopLayer(Layer* layer)
+	{
+		mLayerStack.PopLayer(layer);
+	}
+
+	void Application::PopOverlay(Layer* overlay)
+	{
+		mLayerStack.PopOverlay(overlay);
+	}
 
 }

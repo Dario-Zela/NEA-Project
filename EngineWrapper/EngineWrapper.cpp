@@ -14,6 +14,7 @@ namespace  Wrapper
 
 	void LayerRedirector::OnUpdate(Engine::TimeStep time)
 	{
+		Engine::RenderCommand::Clear();
 		mOwner->callOnUpdate(gcnew TimeStep(&time));
 	}
 

@@ -1,5 +1,6 @@
 //using Models.WorldGen;
 using System;
+using System.Diagnostics;
 using Wrapper;
 
 /*
@@ -83,29 +84,25 @@ namespace Test
 {
     class TestLayer : Layer
     {
-        public TestLayer(string name) : base(name)
+        public TestLayer(string name = "Layer") : base(name)
         {
 
         }
 
-        string Val;
-
         public override void OnAttach()
         {
-            Val = "Test";
-            Console.WriteLine(Val);
+            
         }
 
         public override void OnDetach() { }
         public override void OnUpdate(TimeStep time) 
         {
-            Console.WriteLine(1/time.GetSeconds());
+            Console.Title = "FPS = " + (1 / time);
         }
 
         public override void OnEvent(Event e)
         {
-            EventDispatcher dispatcher = new EventDispatcher(e);
-            dispatcher.DispatchMM((ev) => { Console.WriteLine("{0}, x={1}, y={2}", Val, ev.GetMouseX(), ev.GetMouseY()); return true; });
+            
         }
 
         public override void OnImGUIRender() { }
@@ -113,9 +110,10 @@ namespace Test
 
     class SandBox : Application
     {
-        public SandBox() : base()
+        public SandBox(string Title) : base(Title, 1280, 720)
         {
-            PushLayer(new TestLayer("Val"));
+            
+            PushLayer(new TestLayer());
         }
     }
 
@@ -124,7 +122,7 @@ namespace Test
         static void Main()
         {
             EntryPoint entry = new EntryPoint();
-            entry.Enter(new SandBox());
+            entry.Enter(new SandBox("SandBox"));
         }
     }
 }

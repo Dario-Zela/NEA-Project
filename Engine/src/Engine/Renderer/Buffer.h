@@ -90,6 +90,11 @@ namespace Engine
 		{
 			CalculateOffsetAndStride();
 		}
+		BufferLayout(const std::vector<BufferElement>& layout)
+			:mElements(layout)
+		{
+			CalculateOffsetAndStride();
+		}
 		BufferLayout()
 			:BufferLayout({ }) { }
 

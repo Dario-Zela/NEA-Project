@@ -59,7 +59,6 @@ namespace Engine
 		SetVSync(true);
 
 		// Set GLFW Callback
-
 		glfwSetWindowSizeCallback(mWindow, [](GLFWwindow* window, int width, int height)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);

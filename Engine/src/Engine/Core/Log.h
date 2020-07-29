@@ -4,7 +4,6 @@
 #include <ctime>
 #include <fstream>
 #include <fmt.h>
-#include "bundled/color.h"
 
 namespace Engine 
 {
@@ -16,26 +15,30 @@ namespace Engine
 		template<typename ...Args>
 		void Add(int WarningLevel, std::string Name, const std::string& fmt, const Args& ...args)
 		{
-			fmt::color color = fmt::v6::color::white;
+			std::string Warning;
 			switch (WarningLevel)
 			{
-			case 0: color = fmt::color::black; break;
-			case 1: color = fmt::color::green; break;
-			case 2: color = fmt::color::yellow; break;
-			case 3: color = fmt::color::red; break;
-			case 4: color = fmt::color::crimson; break;
+			case 0: Warning = "Trace"; break;
+			case 1: Warning = "Info"; break;
+			case 2: Warning = "Warning"; break;
+			case 3: Warning = "Error"; break;
+			case 4: Warning = "Critical"; break;
 			}
 
-			std::string string = fmt::format(fg(color),
-				"[" + GetTime() + "]" + "[" + Name + "] " + fmt, args...);
+			std::string string = fmt::format("[" + GetTime() + "]" + "[" + Name + "]"+ "[" + Warning + "]" + fmt, args...);
 
-			std::ofstream file("../../../Log.txt", std::ofstream::app);
+			std::cout << string << std::endl;
+			if (atomic)
+				atomic = false;
+			std::ofstream file("../../../.Log/Log.txt", std::ofstream::app);
 			file << string + "\n";
 			file.close();
+			atomic = true;
 		}
 
 	private:
 		std::string GetTime();
+		bool atomic = true;
 	};
 
 	static Ref<Log> Logger = CreateRef<Log>();

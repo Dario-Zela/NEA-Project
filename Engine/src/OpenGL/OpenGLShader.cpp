@@ -40,7 +40,7 @@ namespace Engine
 		glUseProgram(mRendererID);
 	}
 
-	void OpenGLShader::Unbuind() const
+	void OpenGLShader::Unbind() const
 	{
 		glUseProgram(0);
 	}

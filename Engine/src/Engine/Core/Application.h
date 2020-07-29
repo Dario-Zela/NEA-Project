@@ -16,7 +16,7 @@ namespace Engine
 	class ENGINE_API Application
 	{
 	public:
-		Application();
+		Application(std::string title, unsigned int width, unsigned int height);
 		~Application() { Renderer::Shutdown(); }
 
 		void OnEvent(Event& e);
@@ -25,15 +25,21 @@ namespace Engine
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* overlay);
 
+		void PopLayer(Layer* layer);
+		void PopOverlay(Layer* overlay);
+
 		inline static Application& Get() { return *sInstance; }
 		inline Window& GetWindow() { return *mWindow; }
 
 	private:
 		static Application* sInstance;
+
 		bool OnWindowClosed(WindowClosedEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
+
 		Scope<Window> mWindow;
 		ImGUILayer* mImGUILayer;
+		
 		bool mRunning = true, mMinimised = false;
 		LayerStack mLayerStack;
 		float mLastFrameTime = 0;
