@@ -3,7 +3,7 @@
 
 namespace Engine
 {
-	class OpenGLTexture2D : public Texture2D
+	class ENGINE_API OpenGLTexture2D : public Texture2D
 	{
 	public:
 		OpenGLTexture2D(unsigned int width, unsigned int height);

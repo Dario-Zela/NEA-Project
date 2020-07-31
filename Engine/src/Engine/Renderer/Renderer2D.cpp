@@ -5,6 +5,7 @@
 #include "Engine/Renderer/Shader.h"
 #include "Engine/Renderer/RenderCommand.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include "OpenGL/OpenGLTexture.h"
 
 namespace Engine
 {
@@ -31,7 +32,7 @@ namespace Engine
 		unsigned int QuadIndexCount = 0;
 		QuadVertex* QuadVertexBufferBase = nullptr;
 		QuadVertex* QuadVertexBufferPtr = nullptr;
-		Ref<Texture2D> TextureSlots[MaxTextureSlots];
+		Texture2D* TextureSlots[MaxTextureSlots];
 		unsigned int TextureIndex = 1;//Where 0 is the WhiteTexture;
 	};
 
@@ -87,7 +88,7 @@ namespace Engine
 
 		sStorage.Shader->SetIntArray("uTexture", samplers, sStorage.MaxTextureSlots);
 
-		Ref<Texture2D> whiteTex = Texture2D::Create(1, 1);
+		auto whiteTex = new OpenGLTexture2D(1, 1);
 		unsigned int data = 0xffffffff;
 		whiteTex->SetData(&data);
 		sStorage.TextureSlots[0] = whiteTex;
@@ -95,6 +96,7 @@ namespace Engine
 
 	void Renderer2D::Shutdown()
 	{
+		delete sStorage.TextureSlots[0];
 	}
 
 	void Renderer2D::BeginScene(const OrthographicCamera& camera)
@@ -173,12 +175,12 @@ namespace Engine
 		sStorage.QuadIndexCount += 6;
 	}
 
-	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, const glm::vec4& shade, float textureScale, float rotation)
+	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, Texture2D& texture, const glm::vec4& shade, float textureScale, float rotation)
 	{
 		DrawQuad({ position.x, position.y, 0.0f }, size, texture, shade, textureScale, rotation);
 	}
 
-	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, const glm::vec4& shade, float textureScale, float rotation)
+	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, Texture2D& texture, const glm::vec4& shade, float textureScale, float rotation)
 	{
 		glm::mat4 tranform = glm::translate(glm::mat4(1.0f), position);
 		if (rotation != 0.0f)
@@ -196,7 +198,7 @@ namespace Engine
 
 		for (unsigned int i = 0; i < sStorage.TextureIndex; i++)
 		{
-			if (*sStorage.TextureSlots[i].get() == *texture.get())
+			if (*sStorage.TextureSlots[i] == texture)
 			{
 				textureIndex = (float)i;
 				break;
@@ -206,7 +208,7 @@ namespace Engine
 		if (textureIndex == 0.0f)
 		{
 			textureIndex = (float)sStorage.TextureIndex;
-			sStorage.TextureSlots[sStorage.TextureIndex] = texture;
+			sStorage.TextureSlots[sStorage.TextureIndex] = &texture;
 			sStorage.TextureIndex++;
 		}
 

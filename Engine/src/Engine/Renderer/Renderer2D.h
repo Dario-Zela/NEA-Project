@@ -16,7 +16,7 @@ namespace Engine
 
 		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float rotation = 0.0f);
 		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, float rotation = 0.0f);
-		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, const glm::vec4& shade = glm::vec4(1.0f), float textureScale = 1.0f, float rotation = 0.0f);
-		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, const glm::vec4& shade = glm::vec4(1.0f), float textureScale = 1.0f, float rotation = 0.0f);
+		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, Texture2D& texture, const glm::vec4& shade = glm::vec4(1.0f), float textureScale = 1.0f, float rotation = 0.0f);
+		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, Texture2D& texture, const glm::vec4& shade = glm::vec4(1.0f), float textureScale = 1.0f, float rotation = 0.0f);
 	};
 }

@@ -1,5 +1,6 @@
 #pragma once
 using namespace System;
+#include <memory>
 
 namespace Wrapper
 {
@@ -32,5 +33,30 @@ namespace Wrapper
 	static const char* stringsToCStrings(String^ string)
 	{
 		return (const char*)(Marshal::StringToHGlobalAnsi(string)).ToPointer();
+	}
+
+	static int* intArrayToPointer(array<System::Int32>^ data)
+	{
+		pin_ptr<int> ptr = &data[0];
+		return ptr;
+	}
+
+	static unsigned int* uintArrayToPointer(array<System::UInt32>^ data)
+	{
+		pin_ptr<unsigned int> ptr = &data[0];
+		return ptr;
+	}
+
+	static float* floatArrayToPointer(array<System::Single>^ data)
+	{
+		pin_ptr<float> ptr = &data[0];
+		return ptr;
+	}
+
+	template<typename T>
+	static T* CLIPointerToNativePointer(T% value)
+	{
+		pin_ptr<T> ptr = &value;
+		return ptr;
 	}
 }

@@ -27,6 +27,12 @@
     <ClInclude Include="DrawDataWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RendererWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InputWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EngineWrapper.cpp">

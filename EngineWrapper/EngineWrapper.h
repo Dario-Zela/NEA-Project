@@ -7,6 +7,8 @@
 #include "ManagedObject.h"
 #include "EventWrapper.h"
 #include "DrawDataWrapper.h"
+#include "RendererWrapper.h"
+#include "InputWrapper.h"
 
 namespace Wrapper
 {
@@ -93,7 +95,7 @@ namespace Wrapper
 		Engine::Application* GetRaw() { return mInstance; }
 	};
 
-	public ref class EntryPoint : ManagedObject<Engine::EntryPoint>
+	public ref class EntryPoint : public ManagedObject<Engine::EntryPoint>
 	{
 	public:
 		EntryPoint() : ManagedObject(new Engine::EntryPoint()) {}
@@ -113,24 +115,4 @@ namespace Wrapper
 
 		static void Critical(String^ string) { EN_CRITICAL(stringsToCStrings(string)) }
 	};
-
-	/*
-	public ref class ImGUI;
-
-	public ref class Input;
-
-	public ref class OrthographicCamera;
-
-	public ref class OrthographicCameraController;
-
-	public ref class Renderer;
-
-	public ref class Renderer2D;
-
-
-
-	public ref class Texture2D;
-
-	public ref class Texture;
-	*/
 }

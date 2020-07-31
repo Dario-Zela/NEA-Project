@@ -68,7 +68,8 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../Engine/Vendor/fmt;../Engine/src;../Engine/vendor/glm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Engine/Vendor/fmt;../Engine/src;../Engine/vendor/glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
@@ -79,7 +80,9 @@
     <ClInclude Include="DrawDataWrapper.h" />
     <ClInclude Include="EngineWrapper.h" />
     <ClInclude Include="EventWrapper.h" />
+    <ClInclude Include="InputWrapper.h" />
     <ClInclude Include="ManagedObject.h" />
+    <ClInclude Include="RendererWrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
