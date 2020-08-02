@@ -5,7 +5,7 @@ namespace Engine
 {
 	//VERTEX BUFFER//////////////////////////////////////////////////////////////////////////////
 
-	class OpenGLVertexBuffer : public VertexBuffer
+	class ENGINE_API OpenGLVertexBuffer : public VertexBuffer
 	{
 	public:
 		OpenGLVertexBuffer(unsigned int size);
@@ -26,7 +26,7 @@ namespace Engine
 
 	//INDEX BUFFER///////////////////////////////////////////////////////////////////////////////
 
-	class OpenGLIndexBuffer : public IndexBuffer
+	class ENGINE_API OpenGLIndexBuffer : public IndexBuffer
 	{
 	public:
 		OpenGLIndexBuffer(unsigned int count, unsigned int* indices);

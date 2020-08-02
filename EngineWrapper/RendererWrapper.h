@@ -66,6 +66,11 @@ namespace Wrapper
 		}
 	};
 
+	public enum class Font
+	{
+		Verdana
+	};
+
 	public ref struct Renderer2D
 	{
 		static void Init() { Engine::Renderer2D::Init(); }
@@ -89,5 +94,13 @@ namespace Wrapper
 		static void DrawQuad(Vec3^ position, Vec2^ size, Texture2D^ texture, Vec4^ shade) { Engine::Renderer2D::DrawQuad(*position->GetInstance(), *size->GetInstance(), *texture->GetTexture(), *shade->GetInstance()); }
 		static void DrawQuad(Vec3^ position, Vec2^ size, Texture2D^ texture, Vec4^ shade, float textureScale) { Engine::Renderer2D::DrawQuad(*position->GetInstance(), *size->GetInstance(), *texture->GetTexture(), *shade->GetInstance(), textureScale); }
 		static void DrawQuad(Vec3^ position, Vec2^ size, Texture2D^ texture, Vec4^ shade, float textureScale, float rotation) { Engine::Renderer2D::DrawQuad(*position->GetInstance(), *size->GetInstance(), *texture->GetTexture(), *shade->GetInstance(), textureScale, rotation); }
+
+		static void DrawText(String^ text, Vec2^ position, Vec2^ size, Font^ font) { Engine::Renderer2D::DrawText(stringsToCStrings(text), *position->GetInstance(), *size->GetInstance(), (Engine::Font)(int)*font); }
+		static void DrawText(String^ text, Vec2^ position, Vec2^ size, Font^ font, Vec4^ shade) { Engine::Renderer2D::DrawText(stringsToCStrings(text), *position->GetInstance(), *size->GetInstance(), (Engine::Font)(int) * font, *shade->GetInstance()); }
+		static void DrawText(String^ text, Vec2^ position, Vec2^ size, Font^ font, Vec4^ shade, float rotation) { Engine::Renderer2D::DrawText(stringsToCStrings(text), *position->GetInstance(), *size->GetInstance(), (Engine::Font)(int) * font, *shade->GetInstance(), rotation); }
+
+		static void DrawText(String^ text, Vec3^ position, Vec2^ size, Font^ font) { Engine::Renderer2D::DrawText(stringsToCStrings(text), *position->GetInstance(), *size->GetInstance(), (Engine::Font)(int) * font); }
+		static void DrawText(String^ text, Vec3^ position, Vec2^ size, Font^ font, Vec4^ shade) { Engine::Renderer2D::DrawText(stringsToCStrings(text), *position->GetInstance(), *size->GetInstance(), (Engine::Font)(int) * font, *shade->GetInstance()); }
+		static void DrawText(String^ text, Vec3^ position, Vec2^ size, Font^ font, Vec4^ shade, float rotation) { Engine::Renderer2D::DrawText(stringsToCStrings(text), *position->GetInstance(), *size->GetInstance(), (Engine::Font)(int) * font, *shade->GetInstance(), rotation); }
 	};
 }

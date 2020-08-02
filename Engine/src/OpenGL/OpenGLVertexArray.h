@@ -3,7 +3,7 @@
 
 namespace Engine
 {
-	class OpenGLVertexArray : public VertexArray
+	class ENGINE_API OpenGLVertexArray : public VertexArray
 	{
 	public:
 		OpenGLVertexArray();

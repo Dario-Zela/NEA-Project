@@ -1,5 +1,8 @@
 #pragma once
 #include <glm/gtc/matrix_transform.hpp>
+#include "OpenGL/OpenGLBuffer.h"
+#include "OpenGL/OpenGLShader.h"
+#include "OpenGL/OpenGLVertexArray.h"
 
 namespace Wrapper
 {
@@ -63,26 +66,33 @@ namespace Wrapper
 		unsigned int GetStride() { return mInstance->GetStride(); }
 	};
 
-	public ref class VertexBuffer : public ManagedObject<Engine::VertexBuffer>
+	public ref class VertexBuffer : public ManagedObject<Engine::OpenGLVertexBuffer>
 	{
 	public:
-		VertexBuffer(Engine::VertexBuffer* buffer) : ManagedObject(buffer) {}
-		VertexBuffer(unsigned int size, array<System::Single>^ vertecies) : ManagedObject(Engine::VertexBuffer::Create(size, floatArrayToPointer(vertecies)).get()) {}
-		VertexBuffer(unsigned int size) : ManagedObject(Engine::VertexBuffer::Create(size).get()) {}
+		VertexBuffer(Engine::VertexBuffer* buffer) : ManagedObject((Engine::OpenGLVertexBuffer*)buffer) {}
+		VertexBuffer(unsigned int size, array<System::Single>^ vertecies) : ManagedObject(new Engine::OpenGLVertexBuffer(size, floatArrayToPointer(vertecies))) {}
+		VertexBuffer(unsigned int size) : ManagedObject(new Engine::OpenGLVertexBuffer(size)) {}
 
 		void Bind() { mInstance->Bind(); }
 		void Unbind() { mInstance->Unbind(); }
 
+		void Test() { mInstance->GetLayout(); }
+
 		BufferLayout^ GetLayout() { Engine::BufferLayout layout = mInstance->GetLayout(); return gcnew BufferLayout(&layout); }
 		void SetLayout(BufferLayout^ layout) { return mInstance->SetLayout(*layout->GetInstance()); }
 		void SetData(const void* data, unsigned int size) { return mInstance->SetData(data, size); }
+
+		Engine::VertexBuffer* GetBuffer()
+		{
+			return (Engine::VertexBuffer*)mInstance;
+		}
 	};
 
-	public ref class IndexBuffer : public ManagedObject<Engine::IndexBuffer>
+	public ref class IndexBuffer : public ManagedObject<Engine::OpenGLIndexBuffer>
 	{
 	public:
-		IndexBuffer(unsigned int count, array<System::UInt32>^ indicies) : ManagedObject(Engine::IndexBuffer::Create(count, uintArrayToPointer(indicies)).get()) {}
-		IndexBuffer(Engine::IndexBuffer* buffer) : ManagedObject(buffer) { }
+		IndexBuffer(unsigned int count, array<System::UInt32>^ indicies) : ManagedObject(new Engine::OpenGLIndexBuffer(count, uintArrayToPointer(indicies))) {}
+		IndexBuffer(Engine::IndexBuffer* buffer) : ManagedObject((Engine::OpenGLIndexBuffer*)buffer) { }
 
 		void Bind() { mInstance->Bind(); }
 		void Unbind() { mInstance->Unbind(); }
@@ -90,15 +100,15 @@ namespace Wrapper
 		unsigned int GetCount() { return mInstance->GetCount(); }
 	};
 
-	public ref class VertexArray : public ManagedObject<Engine::VertexArray>
+	public ref class VertexArray : public ManagedObject<Engine::OpenGLVertexArray>
 	{
 	public:
-		VertexArray() : ManagedObject(Engine::VertexArray::Create().get()) {}
+		VertexArray() : ManagedObject(new Engine::OpenGLVertexArray()) {}
 
 		void Bind() { mInstance->Bind(); }
 		void Unbind() { mInstance->Unbind(); }
 
-		void AddVertexBuffer(VertexBuffer^ vertexBuffer) { mInstance->AddVertexBuffer(Engine::Ref<Engine::VertexBuffer>(vertexBuffer->GetInstance())); }
+		void AddVertexBuffer(VertexBuffer^ vertexBuffer) { mInstance->AddVertexBuffer(Engine::Ref<Engine::VertexBuffer>(vertexBuffer->GetBuffer())); }
 		void SetIndexBuffer(IndexBuffer^ indexBuffer) { mInstance->SetIndexBuffer(Engine::Ref<Engine::IndexBuffer>(indexBuffer->GetInstance())); }
 
 		System::Collections::Generic::List<VertexBuffer^>^ GetVertexBuffers() 
@@ -108,7 +118,7 @@ namespace Wrapper
 
 			for (auto buffer : buffersCpp)
 			{
-				buffers.Add(gcnew VertexBuffer(&*buffer));
+				buffers.Add(gcnew VertexBuffer(buffer.get()));
 			}
 
 			return buffers.GetRange(0, buffers.Count);
@@ -116,7 +126,7 @@ namespace Wrapper
 		
 		IndexBuffer^ GetIndexBuffer() 
 		{ 
-			return gcnew IndexBuffer(&*mInstance->GetIndexBuffer());
+			return gcnew IndexBuffer(mInstance->GetIndexBuffer().get());
 		}
 	};
 
@@ -216,14 +226,14 @@ namespace Wrapper
 		}
 	};
 
-	public ref class Shader : public ManagedObject<Engine::Shader>
+	public ref class Shader : public ManagedObject<Engine::OpenGLShader>
 	{
 	public:
-		Shader(String^ filepath) : ManagedObject(Engine::Shader::Create(stringsToCStrings(filepath)).get()) {}
+		Shader(String^ filepath) : ManagedObject(new Engine::OpenGLShader(stringsToCStrings(filepath))) {}
 		Shader(String^ name ,String^ vertexSource, String^ fragmentSource) :
-			ManagedObject(Engine::Shader::Create(stringsToCStrings(name), stringsToCStrings(vertexSource), stringsToCStrings(fragmentSource)).get()) {}
+			ManagedObject(new Engine::OpenGLShader(stringsToCStrings(name), stringsToCStrings(vertexSource), stringsToCStrings(fragmentSource))) {}
 		Shader(String^ vertexSource, String^ fragmentSource) :
-			ManagedObject(Engine::Shader::Create("Shader", stringsToCStrings(vertexSource), stringsToCStrings(fragmentSource)).get()) {}
+			ManagedObject(new Engine::OpenGLShader("Shader", stringsToCStrings(vertexSource), stringsToCStrings(fragmentSource))) {}
 
 		void Bind() { mInstance->Bind(); }
 		void Unbind() { mInstance->Unbind(); }

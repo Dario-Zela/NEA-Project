@@ -1,5 +1,6 @@
 //using Models.WorldGen;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Wrapper;
@@ -87,7 +88,7 @@ namespace Test
     { 
         public TestLayer(string name = "Layer") : base(name)
         {
-            mCamera = new OrthographicCamera(1280.0f / 720.0f, -1280.0f / 720.0f, -1, +1);
+            mCamera = new OrthographicCamera(-(1280.0f / 720.0f) * zoomLevel, (1280.0f / 720.0f) * zoomLevel, -zoomLevel, zoomLevel);
         }
 
         public override void OnAttach()
@@ -120,29 +121,75 @@ namespace Test
                      mCameraPosition.SetY(mCameraPosition.GetY() - 5.0f * time);
                  }
 
+                 
+
                  mCamera.SetPosition(mCameraPosition);
              }
 
+            /*
+            VertexArray va = new VertexArray();
+            
+            float[] vertecies =
+            {
+                -0.5f, -0.5f, 0.0f,
+                 0.5f, -0.5f, 0.0f,
+                 0.0f,  0.5f, 0.0f
+            };
+            VertexBuffer vb = new VertexBuffer(9 * sizeof(float), vertecies);
+            
+            List<BufferElement> elements = new List<BufferElement>();
+            elements.Add(new BufferElement("aPosition", ShaderDataType.VecF3));
+            BufferLayout bl = new BufferLayout(elements);
+            vb.Test();
+            vb.SetLayout(bl);
+            va.AddVertexBuffer(vb);
+
+            uint[] indicies = { 0, 1, 2 };
+            IndexBuffer ib = new IndexBuffer(3, indicies);
+            va.SetIndexBuffer(ib);
+
+            Shader shader = new Shader(@"assets/Shaders/FlatColor.glsl");
+            Renderer.Clear();
+            Renderer.BeginScene(mCamera);
+            Renderer.Submit(va, shader);
+            Renderer.EndScene();
+            */
+
+            Renderer.Clear(new Vec4(0.0f, 0.0f, 0.0f, 0.0f));
             Renderer2D.BeginScene(mCamera);
-            for (float i = 0; i < num; i += 0.5f)
-                Renderer2D.DrawQuad(new Vec2(-1.0f, 0.0f), new Vec2(0.8f, 0.8f), new Vec4(0.8f, 0.2f, 0.3f, 1.0f), i);
-            Renderer2D.DrawQuad(new Vec3(0.0f, 0.0f, -0.1f), new Vec2(10.0f, 10.0f), mTexture, new Vec4(1.0f, 0.8f, 0.2f, 1.0f), 100.0f, 10.0f);
+            //for (float i = 0; i < num; i += 0.5f)
+            //    Renderer2D.DrawQuad(new Vec2(-1.0f, 0.0f), new Vec2(0.8f, 0.8f), new Vec4(0.8f, 0.2f, 0.3f, 1.0f), i);
+            Renderer2D.DrawText(((char)c[0]).ToString() + ((char)c[1]).ToString() + ((char)c[2]).ToString() + ((char)c[3]).ToString()
+                , new Vec2(-0.8f, 0.8f), new Vec2(200.0f), Font.Verdana);
             Renderer2D.EndScene();
+            
         }
 
         public override void OnEvent(Event e)
         {
-            
+            EventDispatcher dispatcher = new EventDispatcher(e);
+            dispatcher.Dispatch(OnMouseScrolled);
+        }
+
+        private bool OnMouseScrolled(MouseScrolledEvent e)
+        {
+            zoomLevel -= e.GetMouseYOffset() * 0.25f;
+            zoomLevel = Math.Max(zoomLevel, 0.25f);
+            mCamera.SetProjection((1280.0f / 720.0f )* zoomLevel, -(1280.0f / 720.0f )* zoomLevel, zoomLevel, -zoomLevel);
+            return false;
         }
 
         public override void OnImGUIRender()
         {
             ImGUI.Begin("Settings");
             ImGUI.DragInt("Number", ref num, 1.0f, 10, 10000);
+            ImGUI.DragInt4("char", c, 1.0f, 0, 256);
             ImGUI.End();
         }
 
         int num = 1;
+        int[] c = new int[4];
+        float zoomLevel = 1.0f;
         OrthographicCamera mCamera;
         Texture2D mTexture;
         Vec3 mCameraPosition = new Vec3(0.0f);

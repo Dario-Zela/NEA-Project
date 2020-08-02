@@ -25,7 +25,7 @@ namespace Engine
 			case 4: Warning = "Critical"; break;
 			}
 
-			std::string string = fmt::format("[" + GetTime() + "]" + "[" + Name + "]"+ "[" + Warning + "]" + fmt, args...);
+			std::string string = fmt::format("[" + GetTime() + "]" + "[" + Name + "]"+ "[" + Warning + "] " + fmt, args...);
 
 			std::cout << string << std::endl;
 			if (atomic)
