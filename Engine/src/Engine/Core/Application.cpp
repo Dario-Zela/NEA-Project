@@ -31,8 +31,7 @@ namespace Engine
 	{
 		EN_CORE_ASSERT(!sInstance, "Application already exists");
 		sInstance = this;
-		WindowProps(title, width, height);
-		mWindow = Scope<Window>(Window::Create());
+		mWindow = Scope<Window>(Window::Create(WindowProps(title, width, height)));
 		mWindow->SetEventCallback(EN_BIND_EVENT_FN(Application::OnEvent));
 		Renderer::Init();
 

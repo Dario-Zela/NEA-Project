@@ -4,9 +4,10 @@
 #include "Engine/Renderer/VertexArray.h"
 #include "Engine/Renderer/Shader.h"
 #include "Engine/Renderer/RenderCommand.h"
-#include <glm/gtc/matrix_transform.hpp>
 #include "OpenGL/OpenGLTexture.h"
+#include "Engine/Core/Application.h"
 
+#include <glm/gtc/matrix_transform.hpp>
 #include <fstream>
 
 namespace Engine
@@ -19,7 +20,7 @@ namespace Engine
 			return "Verdana";
 		default:
 			EN_CORE_ASSERT(false, "Unknown Font Used");
-			break;
+			return "";
 		}
 	}
 
@@ -41,9 +42,16 @@ namespace Engine
 		glm::vec2 size;
 	};
 
+	struct FontCommon
+	{
+		float lineHeight;
+		float base;
+	};
+
 	struct CharacterSheet
 	{
-		Character characters[97];
+		Character characters[95];
+		FontCommon commons;
 	};
 
 	struct Renderer2DStorage
@@ -64,7 +72,7 @@ namespace Engine
 		unsigned int TextureIndex = 1;//Where 0 is the WhiteTexture;
 		
 		Texture2D* FontTex[SUPPORTED_FONTS];
-		CharacterSheet FontCharacters[MaxTextureSlots];
+		CharacterSheet FontCharacters[SUPPORTED_FONTS];
 	};
 
 	static Renderer2DStorage sStorage;
@@ -135,8 +143,11 @@ namespace Engine
 	void Renderer2D::Shutdown()
 	{
 		delete sStorage.TextureSlots[0];
-		delete[] sStorage.FontTex;
-		delete[] sStorage.FontCharacters;
+
+		for (int i = 0; i < SUPPORTED_FONTS; i++)
+		{
+			delete sStorage.FontTex[i];
+		}
 	}
 
 	void Renderer2D::BeginScene(const OrthographicCamera& camera)
@@ -151,7 +162,7 @@ namespace Engine
 
 	void Renderer2D::EndScene()
 	{
-		unsigned int data = (unsigned char*)sStorage.QuadVertexBufferPtr - (unsigned char*)sStorage.QuadVertexBufferBase;
+		unsigned int data = (unsigned int)((unsigned char*)sStorage.QuadVertexBufferPtr - (unsigned char*)sStorage.QuadVertexBufferBase);
 		sStorage.QuadVB->SetData(sStorage.QuadVertexBufferBase, data);
 		Flush();
 	}
@@ -290,22 +301,7 @@ namespace Engine
 
 	void Renderer2D::DrawText(const char* text, const glm::vec3& position, const glm::vec2& size, Font font, const glm::vec4& shade, float rotation)
 	{
-		glm::vec2 scaledSize = size / 87.0f;
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
-		if (rotation != 0.0f)
-			transform = glm::rotate(transform, glm::radians(rotation), glm::vec3(0, 0, 1));
-		transform = glm::scale(transform, { scaledSize.x, scaledSize.y, 1.0f });
-
-		glm::vec2 unitVector(1.0f);
-		unitVector.x = scaledSize.x * glm::cos(glm::radians(rotation)) - scaledSize.y * glm::sin(glm::radians(rotation));
-		unitVector.y = scaledSize.x * glm::sin(glm::radians(rotation)) + scaledSize.y * glm::cos(glm::radians(rotation));
-
-		glm::mat4 positions = glm::mat4(-0.5f, -0.5f, 0.0f, 1.0f,
-										 0.5f, -0.5f, 0.0f, 1.0f,
-										 0.5f,  0.5f, 0.0f, 1.0f,
-										-0.5f,  0.5f, 0.0f, 1.0f);
-
-		//positions = transform * positions;
+		glm::mat4 transform = glm::mat4(1.0f);
 
 		float textureIndex = 0.0f;
 		float fontIndex = (float)(int)font;
@@ -326,15 +322,38 @@ namespace Engine
 			sStorage.TextureIndex++;
 		}
 
+		if (rotation != 0.0f)
+			transform = glm::rotate(transform, glm::radians(rotation), glm::vec3(0, 0, 1));
 
+		transform = glm::translate(transform, glm::vec3(0.0f, sStorage.FontCharacters[(int)fontIndex].commons.base * size.y, 0.0f));
+		glm::mat4 lineCarrier(transform);
+		/*
 		for (int i = 0; i < std::string(text).length(); i++)
 		{
-			positions = DrawChar(text[i], positions, transform, unitVector, shade, textureIndex, fontIndex);
+			if (text[i] == '\n')
+			{
+				lineCarrier = glm::translate(lineCarrier, glm::vec3(0.0f, sStorage.FontCharacters[(int)fontIndex].commons.lineHeight * size.y / app.GetHeight(), 0.0f));
+				transform = lineCarrier;
+				continue;
+			}
+
+			DrawChar(text[i], transform, position, scaledSize, shade, rotation, textureIndex, fontIndex);
+		}
+		*/
+
+		for (int i = 1; i < 95; i++)
+		{
+			DrawChar(sStorage.FontCharacters[(int)fontIndex].characters[i].value, transform, position, size, shade, textureIndex, fontIndex);
 		}
 	}
 
-	glm::mat4 Renderer2D::DrawChar(char c, glm::mat4& positions, const glm::mat4& transform, const glm::vec2& unitVector, const glm::vec4& shade, float textureIndex, float fontIndex)
+	void Renderer2D::DrawChar(char c, glm::mat4& transform, const glm::vec3& position, const glm::vec2& size, const glm::vec4& shade, float textureIndex, float fontIndex)
 	{
+		glm::mat4 positions = glm::mat4(-0.5f, -0.5f, 0.0f, 1.0f,
+			0.5f, -0.5f, 0.0f, 1.0f,
+			0.5f, 0.5f, 0.0f, 1.0f,
+			-0.5f, 0.5f, 0.0f, 1.0f);
+
 		Character data = Character();
 		auto fontData = sStorage.FontCharacters[(int)fontIndex];
 
@@ -349,37 +368,41 @@ namespace Engine
 
 		if (data.value == Character().value)
 		{
-			return positions;
+			return;
 		}
 
-		glm::mat4 positionCopy(positions);
-		glm::mat4 transformation = glm::scale(transform, glm::vec3(data.size, 0.0f));
-		positionCopy = transformation * positions;
+		transform = glm::translate(transform, glm::vec3(data.size.x * size.x * 0.5f, 0.0f, 0.0f));
+		glm::mat4 transformation(transform);		
+		transformation = glm::translate(transformation, position + glm::vec3(data.offset.x * size.x, (-data.offset.y - data.size.y * 0.5f) * size.y, 0.0f));
+		transformation = glm::scale(transformation, { size.x * data.size.x, size.y * data.size.y, 1.0f });
 
-		glm::vec4 offset = transformation * glm::vec4(data.offset, 0.0f, 0.0f);
+		DrawQuad(position, glm::vec2(0.002, 10), glm::vec4(1));
 
-		sStorage.QuadVertexBufferPtr->position = positionCopy[0] + offset;
+		transform = glm::translate(transform, glm::vec3(data.advance * size.x - data.size.x * 0.5f * size.x, 0.0f, 0.0f));
+		positions = transformation * positions;
+
+		sStorage.QuadVertexBufferPtr->position = positions[0];
 		sStorage.QuadVertexBufferPtr->texCoord = data.texCoords[0];
 		sStorage.QuadVertexBufferPtr->color = shade;
 		sStorage.QuadVertexBufferPtr->textIndex = textureIndex;
 		sStorage.QuadVertexBufferPtr->textureScale = 1.0f;
 		sStorage.QuadVertexBufferPtr++;
 
-		sStorage.QuadVertexBufferPtr->position = positionCopy[1] + offset;
+		sStorage.QuadVertexBufferPtr->position = positions[1];
 		sStorage.QuadVertexBufferPtr->texCoord = data.texCoords[1];
 		sStorage.QuadVertexBufferPtr->color = shade;
 		sStorage.QuadVertexBufferPtr->textIndex = textureIndex;
 		sStorage.QuadVertexBufferPtr->textureScale = 1.0f;
 		sStorage.QuadVertexBufferPtr++;
 
-		sStorage.QuadVertexBufferPtr->position = positionCopy[2] + offset;
+		sStorage.QuadVertexBufferPtr->position = positions[2];
 		sStorage.QuadVertexBufferPtr->texCoord = data.texCoords[2];
 		sStorage.QuadVertexBufferPtr->color = shade;
 		sStorage.QuadVertexBufferPtr->textIndex = textureIndex;
 		sStorage.QuadVertexBufferPtr->textureScale = 1.0f;
 		sStorage.QuadVertexBufferPtr++;
 
-		sStorage.QuadVertexBufferPtr->position = positionCopy[3] + offset;
+		sStorage.QuadVertexBufferPtr->position = positions[3];
 		sStorage.QuadVertexBufferPtr->texCoord = data.texCoords[3];
 		sStorage.QuadVertexBufferPtr->color = shade;
 		sStorage.QuadVertexBufferPtr->textIndex = textureIndex;
@@ -387,12 +410,6 @@ namespace Engine
 		sStorage.QuadVertexBufferPtr++;
 
 		sStorage.QuadIndexCount += 6;
-
-		glm::vec4 translation = transformation * glm::vec4(data.advance, 0.0f, 0.0f, 0.0f);
-		auto test = glm::translate(positions, glm::vec3(translation.x, translation.y, translation.z));
-		if(positions == test)
-			return positions;
-		return test;
 	}
 
 	std::string Renderer2D::ReadFontFile(Font font)
@@ -425,26 +442,50 @@ namespace Engine
 	{
 		size_t position = 0;
 		int chars = 0;
-		while (position != std::string::npos && chars != 97)
+
+		size_t AttributePosition = stringData.find_first_of(",", position);
+		float charSize = (float)std::stoi(stringData.substr(position, AttributePosition));
+		position = AttributePosition + 1;
+
+		AttributePosition = stringData.find_first_of(",", position);
+		sheet->commons.lineHeight = std::stoi(stringData.substr(position, AttributePosition)) / charSize;
+		position = AttributePosition + 1;
+
+		AttributePosition = stringData.find_first_of(",", position);
+		sheet->commons.base = std::stoi(stringData.substr(position, AttributePosition)) / charSize;
+		position = AttributePosition + 1;
+
+		AttributePosition = stringData.find_first_of(",", position);
+		float pageWidth = (float)std::stoi(stringData.substr(position, AttributePosition));
+		position = AttributePosition + 1;
+
+		AttributePosition = stringData.find_first_of(",", position);
+		float pageHeight = (float)std::stoi(stringData.substr(position, AttributePosition));
+		position = AttributePosition + 1;
+
+		sheet->commons.lineHeight /= pageHeight;
+		sheet->commons.base /= pageHeight;
+
+		while (position != std::string::npos && chars != 95)
 		{
-			size_t AttributePosition = stringData.find_first_of(",", position);
+			AttributePosition = stringData.find_first_of(",", position);
 			sheet->characters[chars].value = std::stoi(stringData.substr(position, AttributePosition));
 			position = AttributePosition + 1;
 
 			AttributePosition = stringData.find_first_of(",", position);
-			float x = (float)std::stoi(stringData.substr(position, AttributePosition)) / 512.0f;
+			float x = std::stoi(stringData.substr(position, AttributePosition)) / pageWidth;
 			position = AttributePosition + 1;
 
 			AttributePosition = stringData.find_first_of(",", position);
-			float y = (float)std::stoi(stringData.substr(position, AttributePosition)) / 512.0f;
+			float y = std::stoi(stringData.substr(position, AttributePosition)) / pageHeight;
 			position = AttributePosition + 1;
 
 			AttributePosition = stringData.find_first_of(",", position);
-			float width = (float)std::stoi(stringData.substr(position, AttributePosition)) / 512.0f;
+			float width = std::stoi(stringData.substr(position, AttributePosition)) / pageWidth;
 			position = AttributePosition + 1;
 
 			AttributePosition = stringData.find_first_of(",", position);
-			float height = (float)std::stoi(stringData.substr(position, AttributePosition)) / 512.0f;
+			float height = std::stoi(stringData.substr(position, AttributePosition)) / pageHeight;
 			position = AttributePosition + 1;
 
 			sheet->characters[chars].texCoords[0] = glm::vec2(x, 1-( y + height));
@@ -452,23 +493,20 @@ namespace Engine
 			sheet->characters[chars].texCoords[2] = glm::vec2(x + width, 1 - y);
 			sheet->characters[chars].texCoords[3] = glm::vec2(x, 1 - y);
 
-			sheet->characters[chars].size = glm::vec2(width, height);
+			sheet->characters[chars].size = glm::vec2(width, height) / charSize;
 
 			AttributePosition = stringData.find_first_of(",", position);
-			float xoffset = (float)std::stoi(stringData.substr(position, AttributePosition));
-			xoffset /= 512.0f;
+			int xoffset = std::stoi(stringData.substr(position, AttributePosition));
 			position = AttributePosition + 1;
 
 			AttributePosition = stringData.find_first_of(",", position);
-			float yoffset = (float)std::stoi(stringData.substr(position, AttributePosition));
-			yoffset /= 512.0f;
+			int yoffset = std::stoi(stringData.substr(position, AttributePosition));
 			position = AttributePosition + 1;
 
-			sheet->characters[chars].offset = glm::vec2(xoffset, yoffset);
+			sheet->characters[chars].offset = glm::vec2(xoffset / pageWidth, yoffset/ pageHeight) / charSize;
 
 			AttributePosition = stringData.find_first_of(",", position);
-			sheet->characters[chars].advance = std::stoi(stringData.substr(position, AttributePosition));
-			sheet->characters[chars].advance /= 512.0f;
+			sheet->characters[chars].advance = std::stoi(stringData.substr(position, AttributePosition)) / charSize / pageWidth;
 			position = AttributePosition + 1;
 
 			chars++;

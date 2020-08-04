@@ -31,6 +31,8 @@ namespace Engine
 		inline static Application& Get() { return *sInstance; }
 		inline Window& GetWindow() { return *mWindow; }
 
+		inline unsigned int GetWidth() { return mWindow->GetWidth(); }
+		inline unsigned int GetHeight() { return mWindow->GetHeight(); }
 	private:
 		static Application* sInstance;
 

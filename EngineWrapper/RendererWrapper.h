@@ -10,7 +10,7 @@ namespace Wrapper
 		OrthographicCamera(float left, float right, float bottom, float top) : ManagedObject(new Engine::OrthographicCamera(left, right, bottom, top)) {}
 		OrthographicCamera(Engine::OrthographicCamera* camera) : ManagedObject(camera) {}
 
-		void SetProjection(float right, float left, float top, float bottom) { mInstance->SetProjection(left, right, bottom, top); }
+		void SetProjection(float left, float right, float bottom, float top) { mInstance->SetProjection(left, right, bottom, top); }
 		void SetPosition(Vec3^ position) { mInstance->SetPosition(*position->GetInstance()); }
 		void SetRotation(float rotation) { mInstance->SetRotation(rotation); }
 
@@ -45,13 +45,18 @@ namespace Wrapper
 		static void Clear() { Engine::RenderCommand::Clear(); }
 	};
 	
-	public ref class Texture2D : ManagedObject<Engine::OpenGLTexture2D>
+	public ref class Texture2D
 	{
 	private:
+		Engine::OpenGLTexture2D* mInstance;
 	public:
-		Texture2D(String^ path) : ManagedObject(new Engine::OpenGLTexture2D(stringsToCStrings(path))) {}
+		Texture2D(String^ path) : mInstance(new Engine::OpenGLTexture2D(stringsToCStrings(path))) {}
+		Texture2D(unsigned int width, unsigned int height) : mInstance(new Engine::OpenGLTexture2D(width, height)){}
 
-		Texture2D(unsigned int width, unsigned int height) : ManagedObject(new Engine::OpenGLTexture2D(width, height)){}
+		~Texture2D() { this->!Texture2D(); }
+		!Texture2D() { mInstance->~OpenGLTexture2D(); }
+
+		Engine::Texture2D* GetInstance() { return mInstance; }
 
 		unsigned int GetWidth() { return mInstance->GetWidth(); }
 		unsigned int GetHeight() { return mInstance->GetHeight(); }
