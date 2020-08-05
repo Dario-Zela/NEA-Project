@@ -18,6 +18,10 @@ namespace Engine
 		{
 		case Font::Verdana:
 			return "Verdana";
+		case Font::TimesNewRoman:
+			return "TimesNewRoman";
+		case Font::FixedDsys:
+			return "FixedDsys";
 		default:
 			EN_CORE_ASSERT(false, "Unknown Font Used");
 			return "";
@@ -164,16 +168,19 @@ namespace Engine
 	{
 		unsigned int data = (unsigned int)((unsigned char*)sStorage.QuadVertexBufferPtr - (unsigned char*)sStorage.QuadVertexBufferBase);
 		sStorage.QuadVB->SetData(sStorage.QuadVertexBufferBase, data);
-		Flush();
-	}
-
-	void Renderer2D::Flush()
-	{
 		for (unsigned int i = 0; i < sStorage.TextureIndex; i++)
 		{
 			sStorage.TextureSlots[i]->Bind(i);
 		}
 		RenderCommand::DrawIndexed(sStorage.QuadVA, sStorage.QuadIndexCount);
+	}
+
+	void Renderer2D::Flush()
+	{
+		EndScene();
+		sStorage.TextureIndex = 1;
+		sStorage.QuadIndexCount = 0;
+		sStorage.QuadVertexBufferPtr = sStorage.QuadVertexBufferBase;
 	}
 
 	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float rotation)
@@ -183,6 +190,11 @@ namespace Engine
 
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, float rotation)
 	{
+		if (sStorage.TextureIndex == sStorage.MaxTextureSlots || sStorage.QuadIndexCount == sStorage.MaxIndeces)
+		{
+			Flush();
+		}
+
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
 		if (rotation != 0.0f)
 			transform = glm::rotate(transform, glm::radians(rotation), glm::vec3(0, 0, 1));
@@ -233,6 +245,11 @@ namespace Engine
 
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, Texture2D& texture, const glm::vec4& shade, float textureScale, float rotation)
 	{
+		if (sStorage.TextureIndex == sStorage.MaxTextureSlots || sStorage.QuadIndexCount == sStorage.MaxQuads)
+		{
+			Flush();
+		}
+
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
 		if (rotation != 0.0f)
 			transform = glm::rotate(transform, glm::radians(rotation), glm::vec3(0, 0, 1));
@@ -259,7 +276,7 @@ namespace Engine
 		if (textureIndex == 0.0f)
 		{
 			textureIndex = (float)sStorage.TextureIndex;
-			sStorage.TextureSlots[sStorage.TextureIndex] = &texture;
+			sStorage.TextureSlots[(int)sStorage.TextureIndex] = &texture;
 			sStorage.TextureIndex++;
 		}
 
@@ -301,6 +318,11 @@ namespace Engine
 
 	void Renderer2D::DrawText(const char* text, const glm::vec3& position, const glm::vec2& size, Font font, const glm::vec4& shade, float rotation)
 	{
+		if (sStorage.TextureIndex == sStorage.MaxTextureSlots || sStorage.QuadIndexCount == sStorage.MaxQuads)
+		{
+			Flush();
+		}
+
 		glm::mat4 transform = glm::mat4(1.0f);
 
 		float textureIndex = 0.0f;
@@ -318,7 +340,7 @@ namespace Engine
 		if (textureIndex == 0.0f)
 		{
 			textureIndex = (float)sStorage.TextureIndex;
-			sStorage.TextureSlots[sStorage.TextureIndex] = sStorage.FontTex[(int)fontIndex];
+			sStorage.TextureSlots[(int)sStorage.TextureIndex] = sStorage.FontTex[(int)fontIndex];
 			sStorage.TextureIndex++;
 		}
 
@@ -327,24 +349,36 @@ namespace Engine
 
 		transform = glm::translate(transform, glm::vec3(0.0f, sStorage.FontCharacters[(int)fontIndex].commons.base * size.y, 0.0f));
 		glm::mat4 lineCarrier(transform);
-		/*
+
 		for (int i = 0; i < std::string(text).length(); i++)
 		{
 			if (text[i] == '\n')
 			{
-				lineCarrier = glm::translate(lineCarrier, glm::vec3(0.0f, sStorage.FontCharacters[(int)fontIndex].commons.lineHeight * size.y / app.GetHeight(), 0.0f));
+				lineCarrier = glm::translate(lineCarrier, glm::vec3(0.0f, sStorage.FontCharacters[(int)fontIndex].commons.lineHeight * size.y, 0.0f));
 				transform = lineCarrier;
 				continue;
 			}
 
-			DrawChar(text[i], transform, position, scaledSize, shade, rotation, textureIndex, fontIndex);
+			DrawChar(text[i], transform, position, size, shade, textureIndex, fontIndex);
 		}
-		*/
+	}
 
-		for (int i = 1; i < 95; i++)
-		{
-			DrawChar(sStorage.FontCharacters[(int)fontIndex].characters[i].value, transform, position, size, shade, textureIndex, fontIndex);
-		}
+	void Renderer2D::DrawLine(const glm::vec2& position1, const glm::vec2& position2, float thickness, const glm::vec4& color)
+	{
+		float dx = position2.x - position1.x;
+		float dy = position2.y - position1.y;
+		float rotation = dx == 0 ? 90 : glm::degrees(glm::atan(dy / dx));
+		float lenght = glm::sqrt(dx * dx + dy * dy);
+
+		DrawQuad(position1 + glm::vec2(dx/2.0f, dy/2.0f), glm::vec2(lenght, thickness), color, rotation);
+	}
+
+	void Renderer2D::DrawRect(const glm::vec2& position1, const glm::vec2& position2, float thickness, const glm::vec4& color)
+	{
+		DrawLine(position1, glm::vec2(position2.x, position1.y), thickness, color);
+		DrawLine(position1, glm::vec2(position1.x, position2.y), thickness, color);
+		DrawLine(position2, glm::vec2(position1.x, position2.y), thickness, color);
+		DrawLine(position2, glm::vec2(position2.x, position1.y), thickness, color);
 	}
 
 	void Renderer2D::DrawChar(char c, glm::mat4& transform, const glm::vec3& position, const glm::vec2& size, const glm::vec4& shade, float textureIndex, float fontIndex)
@@ -366,7 +400,7 @@ namespace Engine
 			}
 		}
 
-		if (data.value == Character().value)
+		if (data.value != c)
 		{
 			return;
 		}
@@ -375,8 +409,6 @@ namespace Engine
 		glm::mat4 transformation(transform);		
 		transformation = glm::translate(transformation, position + glm::vec3(data.offset.x * size.x, (-data.offset.y - data.size.y * 0.5f) * size.y, 0.0f));
 		transformation = glm::scale(transformation, { size.x * data.size.x, size.y * data.size.y, 1.0f });
-
-		DrawQuad(position, glm::vec2(0.002, 10), glm::vec4(1));
 
 		transform = glm::translate(transform, glm::vec3(data.advance * size.x - data.size.x * 0.5f * size.x, 0.0f, 0.0f));
 		positions = transformation * positions;

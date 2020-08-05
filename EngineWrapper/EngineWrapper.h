@@ -83,14 +83,18 @@ namespace Wrapper
 		Application() : 
 			Application("Engine", 1280, 720) { }
 		
+		Application(Engine::Application* app) : ManagedObject(app) {}
+
 		Application(String^ Title, unsigned int Width, unsigned int Height) :
 			ManagedObject(new Engine::Application(stringsToCStrings(Title), Width, Height)) { }
 
+		static Application^ GetApplication() { return gcnew Application(&Engine::Application::Get()); }
 
 		void PushLayer(Layer^ layer) { mInstance->PushLayer(layer->GetLayer()); }
 		void PushOverlay(Layer^ overlay) { mInstance->PushOverlay(overlay->GetLayer()); }
 		void PopLayer(Layer^ layer) { mInstance->PopLayer(layer->GetLayer()); }
 		void PopOverlay(Layer^ overlay) { mInstance->PopOverlay(overlay->GetLayer()); }
+		void Quit() { mInstance->Quit(); }
 
 		Engine::Application* GetRaw() { return mInstance; }
 	};

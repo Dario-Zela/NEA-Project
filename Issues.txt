@@ -1,2 +1,0 @@
-Infinite memory used
-Not drawing the text

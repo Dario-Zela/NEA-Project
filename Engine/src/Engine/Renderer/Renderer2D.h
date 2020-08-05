@@ -10,10 +10,10 @@ namespace Engine
 
 	enum class ENGINE_API Font
 	{
-		Verdana
+		Verdana, TimesNewRoman, FixedDsys
 	};
 
-	const int SUPPORTED_FONTS = 1;
+	const int SUPPORTED_FONTS = 3;
 
 	class ENGINE_API Renderer2D
 	{
@@ -33,6 +33,8 @@ namespace Engine
 		static void DrawText(const char* text, const glm::vec2& position, const glm::vec2& size, Font font, const glm::vec4& shade = glm::vec4(1.0f), float rotation = 0.0f);
 		static void DrawText(const char* text, const glm::vec3& position, const glm::vec2& size, Font font, const glm::vec4& shade = glm::vec4(1.0f), float rotation = 0.0f);
 
+		static void DrawLine(const glm::vec2& position1, const glm::vec2& position2, float thickness, const glm::vec4& color);
+		static void DrawRect(const glm::vec2& position1, const glm::vec2& position2, float thickness, const glm::vec4& color);
 	private:
 		static void DrawChar(char c, glm::mat4& transform, const glm::vec3& position, const glm::vec2& size, const glm::vec4& shade, float textureIndex, float fontIndex);
 		static std::string ReadFontFile(Font font);

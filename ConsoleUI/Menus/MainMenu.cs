@@ -1,74 +1,115 @@
-﻿using Pixel_Engine;
+﻿using Wrapper;
 using System;
 
 namespace UI
 {
-    partial class Game
+    class MainMenu : Layer
     {
-        class MainMenu : IGameElement
+        public MainMenu() : base("MainMenu")
         {
-            public MainMenu()
-            {
+            Camera = new OrthographicCamera(0, 700, 700, 0);
+        }
 
-            }
-            public MainMenu(int CurrentIdx)
+        public MainMenu(int CurrentIdx) : base("MainMenu")
+        {
+            this.CurrentIdx = CurrentIdx;
+            Camera = new OrthographicCamera(0, 700, 700, 0);
+        }
+
+        OrthographicCamera Camera;
+        int CurrentIdx = 0;
+        readonly string[] Settings = new[] { "[Character Menu]", "[World Menu]", "[Options]", "[Quit]" };
+        readonly int[] SettingX = new[] { 95, 270, 400, 500 };
+
+        public override void OnUpdate(TimeStep time)
+        {
+            Renderer.Clear();
+            Renderer2D.BeginScene(Camera);
+            Renderer2D.DrawRect(new Vec2(10.0f, 10.0f), new Vec2(680.0f, 680.0f), 3, Colors.White);
+            Renderer2D.DrawText("Welcome to", new Vec2(130.0f, 130.0f), new Vec2(50000, -50000), Font.FixedDsys, Colors.Green);
+            Renderer2D.DrawText("Game", new Vec2(230.0f, 240.0f), new Vec2(70000, -70000), Font.FixedDsys, Colors.Dark_Green);
+            for (int i = 0; i < Settings.Length; i++)
             {
-                this.CurrentIdx = CurrentIdx;
+                if (i == CurrentIdx)
+                {
+                    Renderer2D.DrawQuad(new Vec2(SettingX[i] + Settings[i].Length * 5, 545), new Vec2(Settings[i].Length * 10, 25), Colors.Dark_Blue);
+                    Renderer2D.DrawText(Settings[i], new Vec2(SettingX[i], 550), new Vec2(10000, -10000), Font.FixedDsys, Colors.White);
+                }
+                else Renderer2D.DrawText(Settings[i], new Vec2(SettingX[i], 550), new Vec2(10000, -10000), Font.FixedDsys, Colors.White);
+            }
+            Renderer2D.EndScene();
+        }
+
+        public override void OnEvent(Event e)
+        {
+            EventDispatcher dispatcher = new EventDispatcher(e);
+            dispatcher.Dispatch(OnKeyPressed);
+            dispatcher.Dispatch(OnMouseScrooled);
+        }
+
+        private bool OnKeyPressed(KeyPressedEvent e)
+        {
+            if ((e.GetKeyCode() == (int)Key.Enter || e.GetKeyCode() == (int)Key.Up || e.GetKeyCode() == (int)Key.KP_enter) && e.GetRepeatedCount() == 0)
+            {
+                switch (CurrentIdx)
+                {
+                    case 0:
+                        //GetApplication().PushLayer(new CharactersMenu());
+                        //GetApplication().PopLayer(this);
+                        break;
+                    case 1:
+                        //GetApplication().PushLayer(new WorldMenu());
+                        //GetApplication().PopLayer(this);
+                        break;
+                    case 2:
+                        //GetApplication().PushLayer(new OptionsMenu());
+                        //GetApplication().PopLayer(this);
+                        break;
+                    case 3:
+                        Application.GetApplication().Quit();
+                        break;
+                    default:
+                        throw new Exception();
+                }
             }
 
-            bool draw = true;
-            int CurrentIdx = 0;
-            readonly string[] Settings = new[] { "[Character Menu]", "[World Menu]", "[Options]", "[Quit]" };
-            readonly int[] SettingX = new[] { 120, 290, 430, 525 };
-
-            public void Draw()
+            if (e.GetKeyCode() == (int)Key.Left && e.GetRepeatedCount() == 0)
             {
-                if (GetKey(Key.LEFT).bPressed)
-                {
-                    CurrentIdx = --CurrentIdx < 0 ? 3 : CurrentIdx;
-                    draw = true;
-                }
-                if (GetKey(Key.RIGHT).bPressed)
-                {
-                    CurrentIdx = ++CurrentIdx > 3 ? 0 : CurrentIdx;
-                    draw = true;
-                }
-                if (draw)
-                {
-                    Clear(Pixel.BLACK);
-                    DrawRect(10, 10, 680, 680, Pixel.WHITE);
-                    DrawText(160, 130, "Welcome to", Pixel.GREEN, 60, 0);
-                    DrawText(230, 210, "Game", Pixel.DARK_GREEN, 60, 0);
-                    for (int i = 0; i < Settings.Length; i++)
-                    {
-                        if (i == CurrentIdx) DrawText(SettingX[i], 550, Settings[i], Pixel.WHITE, 20, 0, Pixel.DARK_BLUE);
-                        else DrawText(SettingX[i], 550, Settings[i], Pixel.WHITE, 20, 0);
-                    }
-                    draw = false;
-                }
+                CurrentIdx = --CurrentIdx < 0 ? 3 : CurrentIdx;
+            }
+            if (e.GetKeyCode() == (int)Key.Right && e.GetRepeatedCount() == 0)
+            {
+                CurrentIdx = ++CurrentIdx > 3 ? 0 : CurrentIdx;
             }
 
-            public IGameElement NewElement()
-            {
-                if (GetKey(Key.ENTER).bPressed || GetKey(Key.UP).bPressed)
-                {
-                    switch (CurrentIdx)
-                    {
-                        case 0:
-                            return new CharactersMenu();
-                        case 1:
-                            return new WorldMenu();
-                        case 2:
-                            return new OptionsMenu();
-                        case 3:
-                            Quit();
-                            return null;
-                        default:
-                            throw new Exception();
-                    }
-                }
-                else return this;
-            }
+            return true;
+        }
+
+        private bool OnMouseScrooled(MouseScrolledEvent e)
+        {
+            zoomLevel -= e.GetMouseYOffset() * 0.25f;
+            zoomLevel = Math.Max(zoomLevel, 0.25f);
+            Camera.SetProjection(0 * zoomLevel, 700 * zoomLevel, 700 * zoomLevel, 0 * zoomLevel);
+            return false;
+        }
+
+        float zoomLevel = 1.0f;
+
+        public override void OnAttach()
+        {
+
+        }
+
+        public override void OnDetach()
+        {
+
+        }
+        int Y = 0;
+        public override void OnImGUIRender()
+        {
+            ImGUI.Begin("Settings");
+
+            ImGUI.End();
         }
     }
 }

@@ -32,7 +32,7 @@ namespace Wrapper
 		String^ GetName() { return gcnew String(mInstance->Name.c_str()); }
 		ShaderDataType GetType() { return (ShaderDataType)(int)mInstance->Type; }
 		unsigned int GetSize() { return mInstance->Size; }
-		unsigned int GetOffset() { return mInstance->Offset; }
+		unsigned int GetOffset() { return (unsigned int)(mInstance->Offset); }
 		bool GetIsNormalised() { return mInstance->Normalised; }
 	};
 
@@ -146,6 +146,7 @@ namespace Wrapper
 		static Vec2^ operator -(Vec2^ right, Vec2^ left) { return gcnew Vec2(&(*right->GetInstance() - *left->GetInstance())); }
 		static Vec2^ operator *(Vec2^ right, Vec2^ left) { return gcnew Vec2(&(*right->GetInstance() * *left->GetInstance())); }
 		static Vec2^ operator /(Vec2^ right, Vec2^ left) { return gcnew Vec2(&(*right->GetInstance() / *left->GetInstance())); }
+		static Vec2^ operator /(Vec2^ right, float left) { return gcnew Vec2(&(*right->GetInstance() / left)); }
 	};
 
 	public ref struct Vec3 : public ManagedObject<glm::vec3>
@@ -166,6 +167,7 @@ namespace Wrapper
 		static Vec3^ operator -(Vec3^ right, Vec3^ left) { return gcnew Vec3(&(*right->GetInstance() - *left->GetInstance())); }
 		static Vec3^ operator *(Vec3^ right, Vec3^ left) { return gcnew Vec3(&(*right->GetInstance() * *left->GetInstance())); }
 		static Vec3^ operator /(Vec3^ right, Vec3^ left) { return gcnew Vec3(&(*right->GetInstance() / *left->GetInstance())); }
+		static Vec3^ operator /(Vec3^ right, float left) { return gcnew Vec3(&(*right->GetInstance() / left)); }
 	};
 
 	public ref struct Vec4 : public ManagedObject<glm::vec4>
@@ -189,6 +191,7 @@ namespace Wrapper
 		static Vec4^ operator -(Vec4^ right, Vec4^ left) { return gcnew Vec4(&(*right->GetInstance() - *left->GetInstance())); }
 		static Vec4^ operator *(Vec4^ right, Vec4^ left) { return gcnew Vec4(&(*right->GetInstance() * *left->GetInstance())); }
 		static Vec4^ operator /(Vec4^ right, Vec4^ left) { return gcnew Vec4(&(*right->GetInstance() / *left->GetInstance())); }
+		static Vec4^ operator /(Vec4^ right, float left) { return gcnew Vec4(&(*right->GetInstance() / left)); }
 	};
 
 	public ref struct Mat4 : public ManagedObject<glm::mat4>

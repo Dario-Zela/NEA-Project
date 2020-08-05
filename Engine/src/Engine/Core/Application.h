@@ -33,6 +33,8 @@ namespace Engine
 
 		inline unsigned int GetWidth() { return mWindow->GetWidth(); }
 		inline unsigned int GetHeight() { return mWindow->GetHeight(); }
+
+		inline void Quit() { mRunning = false; }
 	private:
 		static Application* sInstance;
 
