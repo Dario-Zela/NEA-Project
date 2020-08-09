@@ -10,7 +10,7 @@ namespace Wrapper
 	{
 		static void Begin(String^ name, bool% p_open) {Engine::ImGUI::Begin(stringsToCStrings(name), CLIPointerToNativePointer<bool>(p_open)); }
 		static void Begin(String^ name) { Engine::ImGUI::Begin(stringsToCStrings(name)); }
-		static void ColorEdit3(String^ label, float col[3]) { Engine::ImGUI::ColorEdit3(stringsToCStrings(label), col); }
+		static void ColorEdit3(String^ label, array<System::Single>^ col) { Engine::ImGUI::ColorEdit3(stringsToCStrings(label), floatArrayToPointer(col)); }
 		static void End() { Engine::ImGUI::End(); }
 		static void SliderInt(String^ label, int% v, int v_min, int v_max) { Engine::ImGUI::SliderInt(stringsToCStrings(label), CLIPointerToNativePointer<int>(v), v_min, v_max); }
 		static void SliderInt2(String^ label, array<System::Int32>^ v, int v_min, int v_max) { Engine::ImGUI::SliderInt2(stringsToCStrings(label), intArrayToPointer(v), v_min, v_max); }

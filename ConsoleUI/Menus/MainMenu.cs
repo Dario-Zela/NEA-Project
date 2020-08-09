@@ -33,7 +33,7 @@ namespace UI
                 if (i == CurrentIdx)
                 {
                     Renderer2D.DrawQuad(new Vec2(SettingX[i] + Settings[i].Length * 5, 545), new Vec2(Settings[i].Length * 10, 25), Colors.Dark_Blue);
-                    Renderer2D.DrawText(Settings[i], new Vec2(SettingX[i], 550), new Vec2(10000, -10000), Font.FixedDsys, Colors.White);
+                    Renderer2D.DrawText(Settings[i], new Vec3(SettingX[i], 550, 1.0f), new Vec2(10000, -10000), Font.FixedDsys, Colors.White);
                 }
                 else Renderer2D.DrawText(Settings[i], new Vec2(SettingX[i], 550), new Vec2(10000, -10000), Font.FixedDsys, Colors.White);
             }

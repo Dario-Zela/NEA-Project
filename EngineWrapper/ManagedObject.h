@@ -12,14 +12,14 @@ namespace Wrapper
 	public:
 		ManagedObject(T* Instance):mInstance(Instance) {}
 		
-		virtual ~ManagedObject()
+		~ManagedObject()
 		{
 			this->!ManagedObject();
 		}
 
 		!ManagedObject()
 		{
-			if (mInstance != nullptr)
+			if (mInstance)
 				delete mInstance;
 		}
 

@@ -1,11 +1,13 @@
 //using Models.WorldGen;
 using System;
+using System.Linq;
 using Wrapper;
 
 /*
  * Make Civs create large cities
  * Fix Region Creator
  * Start NPC creation
+ * Fix Manual Usage of OpenGL
 */
 
 namespace UI
@@ -35,7 +37,9 @@ namespace UI
 
         public override void OnImGUIRender()
         {
-
+            ImGUI.Begin("Settings");
+            ImGUI.ColorEdit3("Color", col);
+            ImGUI.End();
         }
         private bool OnMouseScrooled(MouseScrolledEvent e)
         {
@@ -47,17 +51,51 @@ namespace UI
 
         float zoomLevel = 1.0f;
         OrthographicCamera Camera;
+        Texture2D mTexture;
+        Texture2D mTexture2;
+        float[] col = { 0.03f, 0.2f, 1.0f };
+
         public override void OnUpdate(TimeStep time)
         {
-            Texture2D texture = new Texture2D(@"assets/Textures/Test.bmp");
-            Texture2D texture2 = new Texture2D(@"assets/Textures/Test2.png");
+            VertexArray va = new VertexArray();
+
+            float[] vertecies =
+            {
+                 -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+                  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+                  0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
+                 -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
+            };
+            VertexBuffer vb = new VertexBuffer((uint)vertecies.Length * sizeof(float), vertecies);
+
+            System.Collections.Generic.List<BufferElement> elements = new System.Collections.Generic.List<BufferElement> { new BufferElement("aPosition", ShaderDataType.VecF3),
+                                                                                                                           new BufferElement("aTexCoord", ShaderDataType.VecF2)};
+
+            BufferLayout bl = new BufferLayout(elements);
+            vb.Test();
+            vb.SetLayout(bl);
+            va.AddVertexBuffer(vb);
+
+            uint[] indicies = {0, 1, 2, 2, 3, 0};
+            IndexBuffer ib = new IndexBuffer((uint)indicies.Length, indicies);
+            va.SetIndexBuffer(ib);
+            
+            mTexture2 = new Texture2D("assets/Textures/Test2.png");
+
+            mTexture = new Texture2D("assets/Textures/Test.bmp");
+            mTexture.Bind(0);
+
+            Shader shader = new Shader(@"assets/Shaders/Texture.glsl");
+            shader.SetInt("uTexture", 0);
+
             Renderer.Clear();
-            Renderer2D.BeginScene(Camera);
-            Renderer2D.DrawQuad(new Vec2(0), new Vec2(0.5f), texture2);
-            Renderer2D.DrawQuad(new Vec2(0), new Vec2(100), texture, Colors.Beige, 10.0f);
-            Renderer2D.EndScene();
-            texture.Dispose();
-            texture2.Dispose();
+            Renderer.BeginScene(Camera);
+            Renderer.Submit(va, shader);
+            mTexture2.Bind(0);
+            Renderer.Submit(va, shader);
+            Renderer.EndScene();
+
+            mTexture.Dispose();
         }
     }
 
@@ -65,7 +103,7 @@ namespace UI
     {
         public Game() : base("demo", 1280, 720)
         {
-            PushLayer(new Test());
+            PushLayer(new MainMenu());
         }
     }
 

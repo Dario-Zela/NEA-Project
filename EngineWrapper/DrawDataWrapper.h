@@ -245,7 +245,7 @@ namespace Wrapper
 		void SetVecF4(String^ name, Vec4^ value) { mInstance->SetVecF4(stringsToCStrings(name), *value->GetInstance()); }
 		void SetVecF3(String^ name, Vec3^ value) { mInstance->SetVecF3(stringsToCStrings(name), *value->GetInstance()); }
 		void SetInt(String^ name, int value) { mInstance->SetInt(stringsToCStrings(name), value); }
-		void SetIntArray(String^ name, int* values, unsigned int count) { mInstance->SetIntArray(stringsToCStrings(name), values, count); }
+		void SetIntArray(String^ name, array<Int32>^ values, unsigned int count) { mInstance->SetIntArray(stringsToCStrings(name), intArrayToPointer(values), count); }
 		void SetFloat(String^ name, float value) { mInstance->SetFloat(stringsToCStrings(name), value); }
 
 		const String^ GetName() { return gcnew String(mInstance->GetName().c_str()); }

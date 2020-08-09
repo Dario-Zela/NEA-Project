@@ -1,4 +1,2 @@
-C:\dev\NEA\Engine\Vendor\GLAD\bin\Debug-x64\GLAD\GLAD.lib.lastcodeanalysissucceeded
 C:\dev\NEA\Engine\Vendor\GLAD\bin\Debug-x64\GLAD\GLAD.pdb
-C:\dev\NEA\Engine\Vendor\GLAD\bin-int\Debug-x64\GLAD\NativeCodeAnalysis.read.1.tlog
 C:\dev\NEA\Engine\Vendor\GLAD\bin-int\Debug-x64\GLAD\GLAD.pdb
